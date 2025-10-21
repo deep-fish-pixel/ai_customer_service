@@ -1,0 +1,17 @@
+langchain
+langchain-core
+langchain-community
+langgraph
+chromadb
+fastapi
+uvicorn
+python-multipart
+pypdf
+python-docx
+markdown
+pandas
+openai
+anthropic
+mysql-connector-python==8.3.0
+tiktoken
+python-dotenv
