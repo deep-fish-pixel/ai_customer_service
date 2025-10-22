@@ -142,7 +142,7 @@
 
 <div class="app-container">
   <header class="header">
-    AI超级智能客服
+    AI智能客服
   </header>
   <div class="content">
     <div class="chat-container">
