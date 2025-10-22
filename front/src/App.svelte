@@ -61,7 +61,6 @@
     try {
       const response = await sendChatMessage(userMessage.content);
 
-      debugger
       if ('status' in response) {
         if (response.status === 'success') {
           const botMessage: Message = {

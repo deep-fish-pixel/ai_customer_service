@@ -19,7 +19,7 @@ async def get_user_id(x_user_id: str = Header(...)) -> str:
         raise HTTPException(status_code=400, detail="Missing user ID")
     return x_user_id
 
-@router.post("/send", response_model=Dict[str, Any])
+@router.post("/invoke", response_model=Dict[str, Any])
 async def send_message(
     request: ChatRequest,
     user_id: str = Depends(get_user_id)
@@ -43,20 +43,55 @@ async def send_message(
                 history=request.history
             )
         else:
-            print('======2')
             # 简单聊天
             response = await chat_service.simple_chat(
                 query=request.message,
                 history=request.history
             )
-            print('======3')
 
         if response["status"] == "error":
             raise HTTPException(status_code=500, detail=response.get("error", "处理请求失败"))
 
-            print('======4')
         return response
         
     except Exception as e:
-        print('======5')
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/stream", response_model=Dict[str, Any])
+async def send_message(
+        request: ChatRequest,
+        user_id: str = Depends(get_user_id)
+) -> Dict[str, Any]:
+    """
+    发送消息给客服
+
+    Args:
+        request: 聊天请求
+        user_id: 用户ID
+
+    Returns:
+        聊天响应
+    """
+    try:
+        if request.use_rag:
+            # 使用RAG功能
+            response = await chat_service.chat_with_rag(
+                user_id=user_id,
+                query=request.message,
+                history=request.history
+            )
+        else:
+            # 简单聊天
+            response = await chat_service.simple_chat(
+                query=request.message,
+                history=request.history
+            )
+
+        if response["status"] == "error":
+            raise HTTPException(status_code=500, detail=response.get("error", "处理请求失败"))
+
+        return response
+
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

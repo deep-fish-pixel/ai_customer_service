@@ -26,7 +26,7 @@ def test_simple_chat():
         "message": "你好，小智！",
         "use_rag": False
     }
-    response = requests.post(f"{BASE_URL}/api/chat/send", headers=HEADERS, json=data)
+    response = requests.post(f"{BASE_URL}/api/chat/invoke", headers=HEADERS, json=data)
     print(f"状态码: {response.status_code}")
     print(f"响应: {response.json()}")
     print()
@@ -38,7 +38,7 @@ def test_rag_chat():
         "message": "如何创建一个应用？",
         "use_rag": True
     }
-    response = requests.post(f"{BASE_URL}/api/chat/send", headers=HEADERS, json=data)
+    response = requests.post(f"{BASE_URL}/api/chat/invoke", headers=HEADERS, json=data)
     print(f"状态码: {response.status_code}")
     print(f"响应: {response.json()}")
     print()
