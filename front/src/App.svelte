@@ -8,11 +8,14 @@
   import type {FileItem, Message, ToolConfig} from "./types";
 
   // 状态管理
+  let inputContainer: HTMLElement;
+  let messageContainer: HTMLElement;
   let messages: Message[] = [];
   let inputMessage: string = '';
-  let messageContainer: HTMLElement;
   let files: FileItem[] = [];
   let tools: ToolConfig[] = [];
+  let height = 500;
+  let focus = false;
 
   // 初始化示例消息
   onMount(() => {
@@ -24,6 +27,9 @@
         timestamp: new Date()
       }
     ];
+
+    resize();
+
   });
 
   // 发送消息
@@ -93,8 +99,6 @@
       timestamp: new Date()
     };
     messages = [...messages, uploadMessage];
-    
-    tick().then(() => scrollToBottom());
   };
 
   // 文件删除处理
@@ -113,10 +117,21 @@
 
   // 工具切换处理
   const handleToolToggle = (toolId: string, enabled: boolean) => {
-    tools = tools.map(tool => 
-      tool.id === toolId ? { ...tool, enabled } : tool
+    tools = tools.map(tool =>
+            tool.id === toolId ? { ...tool, enabled } : tool
     );
   };
+
+  // 工具切换处理
+  const handleFocus = (focused: boolean) => {
+    focus = focused;
+  };
+
+  const resize = () =>  {
+    height = window.innerHeight - 80 - (inputContainer ? inputContainer.clientHeight + 48 : 0)
+  };
+
+  window.addEventListener('resize', resize)
 </script>
 
 <div class="app-container">
@@ -127,20 +142,26 @@
     <div class="chat-container">
       <div class="chat-inner-container">
         <!-- 消息列表 -->
-        <div class="messages-container" bind:this={messageContainer}>
-          {#each messages as message}
-            <ChatMessage {message} />
-          {/each}
+        <div class="messages-container hide-scrollbar" style={"height:" + height + "px;"} bind:this={messageContainer}>
+          <div class="messagess">
+            {#each messages as message}
+              <ChatMessage {message} />
+            {/each}
+          </div>
         </div>
 
         <!-- 输入区域 -->
         <Paper elevation={2} class="input-container">
-          <div class="input-wrapper">
+          <div class="input-wrapper" bind:this={inputContainer}>
             <Textfield
+                    class={focus ? 'input-focus' : 'input-focusout'}
+                    textarea={true}
                     variant="outlined"
                     value={inputMessage}
                     oninput={(e) => inputMessage = e.target && e.target.value}
                     onkeydown={handleKeyPress}
+                    onfocus={() => handleFocus(true)}
+                    onfocusout={() => handleFocus(false)}
                     placeholder="请输入您的问题..."
             />
             <Button
@@ -220,13 +241,18 @@
     justify-content: center;
     width: 100%;
     max-width: 1000px;
+    padding: 10px 0 0 0;
   }
 
   .messages-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px 0;
-    background-color: #fafafa;
+    padding: 16px;
+    overflow-y: scroll;
+    background-color: #eee;
+  }
+
+  .messagess {
+    display: flex;
+    flex-direction: column;
   }
 
   .input-container {
@@ -277,5 +303,9 @@
     max-height: 120px;
     overflow-y: auto;
     padding: 10px 14px;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
+    width: 0;
   }
 </style>
