@@ -23,7 +23,7 @@ def test_simple_chat():
     """测试简单聊天接口"""
     print("=== 测试简单聊天接口 ===")
     data = {
-        "query": "你好，小智！",
+        "message": "你好，小智！",
         "use_rag": False
     }
     response = requests.post(f"{BASE_URL}/api/chat/send", headers=HEADERS, json=data)
@@ -35,7 +35,7 @@ def test_rag_chat():
     """测试简单聊天接口"""
     print("=== 测试RAG聊天接口 ===")
     data = {
-        "query": "如何创建一个应用？",
+        "message": "如何创建一个应用？",
         "use_rag": True
     }
     response = requests.post(f"{BASE_URL}/api/chat/send", headers=HEADERS, json=data)

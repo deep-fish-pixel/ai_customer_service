@@ -8,7 +8,7 @@ router = APIRouter()
 
 # 定义聊天请求模型
 class ChatRequest(BaseModel):
-    query: str
+    message: str
     history: Optional[List[Dict[str, str]]] = None
     use_rag: bool = True
 
@@ -39,14 +39,14 @@ async def send_message(
             # 使用RAG功能
             response = await chat_service.chat_with_rag(
                 user_id=user_id,
-                query=request.query,
+                query=request.message,
                 history=request.history
             )
         else:
             print('======2')
             # 简单聊天
             response = await chat_service.simple_chat(
-                query=request.query,
+                query=request.message,
                 history=request.history
             )
             print('======3')
