@@ -6,6 +6,8 @@
   import Button from '@smui/button';
   import Paper from '@smui/paper';
   import type {FileItem, Message, ToolConfig} from "./types";
+  import SendIcon from "./lib/icons/SendIcon.svelte";
+
 
   // 状态管理
   let inputContainer: HTMLElement;
@@ -125,10 +127,14 @@
   // 工具切换处理
   const handleFocus = (focused: boolean) => {
     focus = focused;
+    tick().then(() => resize());
   };
 
   const resize = () =>  {
-    height = window.innerHeight - 80 - (inputContainer ? inputContainer.clientHeight + 48 : 0)
+    height = window.innerHeight - 80 - (inputContainer ? inputContainer.clientHeight + 48 : 0);
+
+    // fix Textfield bug
+    inputContainer.querySelector('textarea')?.setAttribute('placeholder', '请输入您的问题...');
   };
 
   window.addEventListener('resize', resize)
@@ -165,11 +171,11 @@
                     placeholder="请输入您的问题..."
             />
             <Button
+                    class="send-button"
                     color="primary"
                     onclick={sendMessage}
-                    style="marginLeft: '8px';minWidth: '64px';"
             >
-              发送
+              <SendIcon></SendIcon>
             </Button>
           </div>
         </Paper>
@@ -265,7 +271,46 @@
     display: flex;
     align-items: flex-end;
     gap: 8px;
+    position: relative;
+
+    :global(.input-focusout){
+      width: 100%;
+      height: 56px;
+      :global(textarea) {
+        resize: none;
+      }
+    }
+    :global(.input-focus){
+      width: 100%;
+      height: 100px;
+      :global(textarea) {
+        resize: none;
+        width: 100%;
+      }
+    }
+    :global(.mdc-text-field__resizer){
+      width: 100%;
+      resize: none;
+    }
+    :global(.mdc-notched-outline__leading){
+      border-width: 1px;
+    }
+    :global(.mdc-notched-outline__trailing){
+      border-width: 1px;
+    }
+    :global(.send-button){
+      min-width: 44px;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      outline: none;
+      border: none;
+      position: absolute;
+      right: 0;
+      bottom: 8px;
+    }
   }
+
 
   .settings-container {
     height: 100%;
@@ -308,4 +353,5 @@
     display: none; /* Chrome/Safari/Opera */
     width: 0;
   }
+
 </style>
