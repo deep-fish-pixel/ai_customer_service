@@ -1,12 +1,5 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import Drawer, {
-    AppContent,
-    Content,
-    Header,
-    Title,
-    Subtitle,
-  } from '@smui/drawer';
   import SettingsPanel from './lib/components/settings/SettingsPanel.svelte';
   import ChatMessage from './lib/components/ChatMessage.svelte';
   import Textfield from '@smui/textfield';
@@ -183,12 +176,6 @@
     padding: 0;
   }
 
-  html, body, #app {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-  }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     background-color: #f5f5f5;
@@ -203,30 +190,19 @@
 
   .header{
     width: 100%;
-    flex: 1;
     color: var(--mainTextColor);
     font-size: 20px;
     font-style: normal;
     font-weight: 500;
     line-height: 24px;
-
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-box;
-    display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    -moz-box-align: center;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 24px;
-    border-bottom: 1px solid var(--boxBorderColor);
-    -webkit-box-pack: justify;
+    padding: 14px 20px;
+    gap: 12px;
   }
 
   .content {
     display: flex;
     flex-direction: row;
+    flex: 1;
   }
 
   .chat-container {
