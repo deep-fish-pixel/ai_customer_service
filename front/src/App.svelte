@@ -1,6 +1,12 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import ResizableSplitPanel from './lib/components/ResizableSplitPanel.svelte';
+  import Drawer, {
+    AppContent,
+    Content,
+    Header,
+    Title,
+    Subtitle,
+  } from '@smui/drawer';
   import SettingsPanel from './lib/components/settings/SettingsPanel.svelte';
   import ChatMessage from './lib/components/ChatMessage.svelte';
   import Textfield from '@smui/textfield';
@@ -121,49 +127,53 @@
 </script>
 
 <div class="app-container">
-  <ResizableSplitPanel>
-    <!-- 左侧聊天区域 -->
-    <div slot="left" class="chat-container">
-      <!-- 消息列表 -->
-      <div class="messages-container" bind:this={messageContainer}>
-        {#each messages as message}
-          <ChatMessage {message} />
-        {/each}
-      </div>
-
-      <!-- 输入区域 -->
-      <Paper elevation={2} class="input-container">
-        <div class="input-wrapper">
-          <Textfield
-            variant="outlined"
-            value={inputMessage}
-            oninput={(e) => inputMessage = e.target && e.target.value}
-            onkeydown={handleKeyPress}
-            placeholder="请输入您的问题..."
-          />
-          <Button
-            color="primary"
-            onclick={sendMessage}
-            style="marginLeft: '8px';minWidth: '64px';"
-          >
-            发送
-          </Button>
+  <header class="header">
+    AI超级智能客服
+  </header>
+  <div class="content">
+    <div class="chat-container">
+      <div class="chat-inner-container">
+        <!-- 消息列表 -->
+        <div class="messages-container" bind:this={messageContainer}>
+          {#each messages as message}
+            <ChatMessage {message} />
+          {/each}
         </div>
-      </Paper>
+
+        <!-- 输入区域 -->
+        <Paper elevation={2} class="input-container">
+          <div class="input-wrapper">
+            <Textfield
+                    variant="outlined"
+                    value={inputMessage}
+                    oninput={(e) => inputMessage = e.target && e.target.value}
+                    onkeydown={handleKeyPress}
+                    placeholder="请输入您的问题..."
+            />
+            <Button
+                    color="primary"
+                    onclick={sendMessage}
+                    style="marginLeft: '8px';minWidth: '64px';"
+            >
+              发送
+            </Button>
+          </div>
+        </Paper>
+      </div>
     </div>
 
     <!-- 右侧设置区域 -->
-    <div slot="right" class="settings-container">
+    <div class="settings-container">
       <SettingsPanel
-        {files}
-        {tools}
-        onFileUpload={handleFileUpload}
-        onFileDelete={handleFileDelete}
-        onFileView={handleFileView}
-        onToolToggle={handleToolToggle}
+              {files}
+              {tools}
+              onFileUpload={handleFileUpload}
+              onFileDelete={handleFileDelete}
+              onFileView={handleFileView}
+              onToolToggle={handleToolToggle}
       />
     </div>
-  </ResizableSplitPanel>
+  </div>
 </div>
 
 <style lang="scss">
@@ -191,11 +201,49 @@
     flex-direction: column;
   }
 
+  .header{
+    width: 100%;
+    flex: 1;
+    color: var(--mainTextColor);
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -moz-box-align: center;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--boxBorderColor);
+    -webkit-box-pack: justify;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: row;
+  }
+
   .chat-container {
     height: 100%;
+    width: 100%;
+    display: flex;
+    background-color: #ffffff;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .chat-inner-container{
     display: flex;
     flex-direction: column;
-    background-color: #ffffff;
+    justify-content: center;
+    width: 100%;
+    max-width: 1000px;
   }
 
   .messages-container {
@@ -220,7 +268,8 @@
   .settings-container {
     height: 100%;
     background-color: #ffffff;
-    border-left: 1px solid #e0e0e0;
+    border-left: 1px solid var(--boxBorderColor);
+    width: 350px;
   }
 
   /* 滚动条样式 */
