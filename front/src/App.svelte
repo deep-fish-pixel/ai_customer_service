@@ -7,6 +7,7 @@
   import Paper from '@smui/paper';
   import type {FileItem, Message, ToolConfig} from "./types";
   import SendIcon from "./lib/icons/SendIcon.svelte";
+  import { sendChatMessage } from './lib/services/chatService';
 
 
   // 状态管理
@@ -18,13 +19,14 @@
   let tools: ToolConfig[] = [];
   let height = 500;
   let focus = false;
+  let isLoading = false;
 
   // 初始化示例消息
   onMount(() => {
     messages = [
       {
         id: '1',
-        content: '您好！我是智能客服助手，有什么可以帮助您的吗？',
+        content: '您好！我是小智，是你的智能客服助手，有什么可以帮助您的吗？',
         sender: 'bot',
         timestamp: new Date()
       }
@@ -36,8 +38,10 @@
 
   // 发送消息
   const sendMessage = async () => {
-    if (!inputMessage.trim()) return;
-
+    if (!inputMessage.trim() || isLoading) return;
+    
+    isLoading = true;
+    
     // 添加用户消息
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -53,19 +57,51 @@
     // 滚动到底部
     await tick();
     scrollToBottom();
+    
+    try {
+      const response = await sendChatMessage(userMessage.content);
 
-    // 模拟机器人回复
-    setTimeout(() => {
-      const botMessage: Message = {
+      debugger
+      if ('status' in response) {
+        if (response.status === 'success') {
+          const botMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: response.response,
+            sender: 'bot',
+            timestamp: new Date()
+          };
+          messages = [...messages, botMessage];
+        } else {
+          const errorMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: `错误: ${response.message}`,
+            sender: 'bot',
+            timestamp: new Date()
+          };
+          messages = [...messages, errorMessage];
+        }
+      } else {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: `请求失败: ${response.message}`,
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        messages = [...messages, errorMessage];
+      }
+    } catch (error) {
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `您刚刚说："${userMessage.content}"\n\n这是一条模拟回复。在实际应用中，这里会显示AI生成的回复。`,
+        content: '连接服务器失败，请稍后重试',
         sender: 'bot',
         timestamp: new Date()
       };
-      messages = [...messages, botMessage];
-      
-      tick().then(() => scrollToBottom());
-    }, 1000);
+      messages = [...messages, errorMessage];
+    } finally {
+      isLoading = false;
+      await tick();
+      scrollToBottom();
+    }
   };
 
   // 处理输入框回车事件
@@ -151,7 +187,7 @@
         <div class="messages-container hide-scrollbar" style={"height:" + height + "px;"} bind:this={messageContainer}>
           <div class="messagess">
             {#each messages as message}
-              <ChatMessage {message} />
+              <ChatMessage message={message} />
             {/each}
           </div>
         </div>
@@ -164,7 +200,7 @@
                     textarea={true}
                     variant="outlined"
                     value={inputMessage}
-                    oninput={(e) => inputMessage = e.target && e.target.value}
+                    oninput={(e) => inputMessage = (e.target as HTMLTextAreaElement)?.value}
                     onkeydown={handleKeyPress}
                     onfocus={() => handleFocus(true)}
                     onfocusout={() => handleFocus(false)}
@@ -174,6 +210,7 @@
                     class="send-button"
                     color="primary"
                     onclick={sendMessage}
+                    disabled={isLoading}
             >
               <SendIcon></SendIcon>
             </Button>
