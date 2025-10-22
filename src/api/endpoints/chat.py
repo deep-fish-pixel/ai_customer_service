@@ -20,7 +20,7 @@ async def get_user_id(x_user_id: str = Header(...)) -> str:
     return x_user_id
 
 @router.post("/invoke", response_model=Dict[str, Any])
-async def send_message(
+async def send_message_invoke(
     request: ChatRequest,
     user_id: str = Depends(get_user_id)
 ) -> Dict[str, Any]:
@@ -59,7 +59,7 @@ async def send_message(
 
 
 @router.post("/stream", response_model=Dict[str, Any])
-async def send_message(
+async def send_message_stream(
         request: ChatRequest,
         user_id: str = Depends(get_user_id)
 ) -> Dict[str, Any]:
