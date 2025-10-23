@@ -113,12 +113,21 @@ async def stream_generator(request: ChatRequest,
             while True:
                 try:
                     # 在线程池中获取下一个元素
-                    chunk = await loop.run_in_executor(None, next, iterator)
+                    chunk = await loop.run_in_executor(None, lambda: next(iterator, None))
+                    if chunk is None:
+                        # 迭代结束，正常退出循环
+                        break
                     if hasattr(chunk, 'content'):
                         yield str(chunk.content)
                     else:
                         yield str(chunk)
                 except StopIteration:
+                    # 即使捕获到StopIteration也正常退出
+                    break
+                except Exception as inner_e:
+                    # 捕获其他可能的异常
+                    print(f"处理迭代元素时发生错误: {str(inner_e)}")
+                    yield f"错误: 处理数据时发生错误"
                     break
         else:
             # 直接返回结果

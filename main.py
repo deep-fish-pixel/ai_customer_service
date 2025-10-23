@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
 from dotenv import load_dotenv
+# 导入并注册路由
+from src.api.endpoints import chat, documents, agent
 
 # 加载环境变量
 load_dotenv()
@@ -23,8 +25,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 导入并注册路由
-from src.api.endpoints import chat, documents, agent
 
 app.include_router(chat.router, prefix="/api/chat", tags=["聊天"])
 app.include_router(documents.router, prefix="/api/documents", tags=["文档管理"])
