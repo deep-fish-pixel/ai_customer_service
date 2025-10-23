@@ -13,3 +13,4 @@ export interface ToolConfig {
   description: string;
   enabled: boolean;
 }
+

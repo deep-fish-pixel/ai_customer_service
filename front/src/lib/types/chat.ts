@@ -14,21 +14,15 @@ export interface ChatRequest {
   history?: Array<Message>
 }
 
-// 聊天响应接口
-export interface ChatSuccessResponse {
-  status: 'success';
-  response: string;
-}
-
-export interface ChatFailedResponse {
+// API错误类型
+export interface ApiError {
+  type: 'network_error' | 'timeout' | 'server_error';
   status: 'failed';
   message: string;
 }
 
-export type ChatResponse = ChatSuccessResponse | ChatFailedResponse;
-
-// API错误类型
-export interface ApiError {
-  type: 'network_error' | 'timeout' | 'server_error';
-  message: string;
+export interface Response<T> {
+  status: 'success' | 'failed';
+  response?: T;
+  message?: string;
 }

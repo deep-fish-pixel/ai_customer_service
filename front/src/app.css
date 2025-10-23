@@ -12,6 +12,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  --mdc-theme-primary: #726cf8;
   --boxBorderColor: hsla(0, 0%, 87.8%, 0.4);
 }
 
@@ -99,5 +100,12 @@ textarea {
   transform: translateX(0);
 }
 .mdc-tab-bar .mdc-tab{
+  outline: none;
+}
+.mdc-button.smui-button--color-secondary:not(:disabled) {
+  color: #999;
+}
+.mdc-button.smui-button--color-secondary.mdc-button--outlined:not(:disabled) {
+  border-color: #999;
   outline: none;
 }

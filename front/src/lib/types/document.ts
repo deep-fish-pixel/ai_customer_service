@@ -2,22 +2,12 @@
  * 知识库文件类型定义
  */
 export interface DocumentFile {
-  /** 文件ID */
-  id: string;
   /** 文件名 */
-  name: string;
+  file_name: string;
   /** 文件大小(字节) */
-  size: number;
-  /** 文件类型 */
-  type: string;
+  file_size: number;
   /** 上传时间 */
-  uploadedAt: string;
-  /** 文件路径 */
-  path?: string;
-  /** 文件状态 */
-  status: 'processing' | 'ready' | 'error';
-  /** 错误信息 */
-  error?: string;
+  upload_time: string;
 }
 
 /**

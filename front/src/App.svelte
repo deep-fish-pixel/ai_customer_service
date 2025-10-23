@@ -8,7 +8,7 @@
   import type {FileItem, ToolConfig} from "./lib/types";
   import type { Message, } from "./lib/types/chat";
   import SendIcon from "./lib/icons/SendIcon.svelte";
-  import { sendChatMessage, sendChatMessageStream } from './lib/services/chatService';
+  import { sendChatMessageStream } from './lib/services/chatService';
   import Toast from "./lib/components/Toast.svelte";
 
 

@@ -1,4 +1,4 @@
-import type { ChatRequest, ChatResponse, ApiError } from '../types/chat';
+import type { ChatRequest, Response, ApiError } from '../types/chat';
 import { request } from './apiClient';
 import type { Message, } from "../types/chat";
 import {API_BASE_URL} from "../../constants";
@@ -14,10 +14,10 @@ const USER_ID = 'test_user_001';
  * @param history 历史消息列表
  * @returns 聊天响应或错误信息
  */
-export async function sendChatMessage(message: string, history: Array<Message> = []): Promise<ChatResponse | ApiError> {
+export async function sendChatMessage(message: string, history: Array<Message> = []): Promise<Response<any>> {
   const requestData: ChatRequest = { message,  history };
 
-  return request<ChatResponse>(`${CHAT_ENDPOINT}`, {
+  return request<Response<any>>(`${CHAT_ENDPOINT}`, {
     method: 'POST',
     headers: {
       'X-User-Id': USER_ID

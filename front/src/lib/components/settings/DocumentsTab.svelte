@@ -1,33 +1,38 @@
 <script lang="ts">
-  import Button from '@smui/button';
-  // import { List, ListItem, ListItemText, ListItemSecondaryAction } from '@smui/list';
+  import Button, { Label } from '@smui/button';
   import List, {
     Item,
-    Graphic,
     Meta,
     Text,
     PrimaryText,
     SecondaryText,
   } from '@smui/list';
-  import IconButton from '@smui/icon-button';
-  import Paper, { Content } from '@smui/paper';
-  import type {FileItem} from "../../types";
-  import {getDocumentList, uploadDocument} from "../../services/documentsService";
+  import {deleteDocument, getDocumentList, uploadDocument} from "../../services/documentsService";
   import {onMount} from "svelte";
   import {delay} from "../../utils/delay";
   import type {DocumentFile} from "../../types/document";
   import {formatDate} from "../../utils/date";
+  import Dialog, { Title, Content, Actions } from '@smui/dialog';
+
 
   const ButtonName = '上传知识库';
   let buttonName = ButtonName;
+  let deleteVisible = $state(false);
+  let forDeletedDocument:DocumentFile = $state({
+    file_name: '',
+    file_size: 0,
+    upload_time: Date(),
+  });
 
   // 文件输入处理
-  const handleFileInputChange = (e: Event) => {
+  const handleFileInputChange = async (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
       try {
         buttonName = '上传中...'
-        uploadDocument(target.files[0]);
+        await uploadDocument(target.files[0]);
+
+        getDocuments();
 
         delay(300, () => {
           buttonName = ButtonName;
@@ -53,19 +58,36 @@
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+
+
+  const deleteConfirmDialog = (document: DocumentFile) => {
+    deleteVisible = true;
+    forDeletedDocument = document;
+  }
+
+  const deleteConfirm = async () => {
+    const res = await deleteDocument(forDeletedDocument.file_name)
+
+    if (res.status === "success") {
+      getDocuments();
+    }
+  }
+
+  async function getDocuments() {
+    documentList = await getDocumentList();
+  }
+
   // 模拟文件数据（用于演示）
-  let documentList: DocumentFile[] = [];
+  let documentList: DocumentFile[] = $state([]);
 
-  onMount(async () => {
-    const list = await getDocumentList();
-
-    documentList = list;
+  onMount(() => {
+    getDocuments();
   })
 </script>
 
-<div class="knowledge-base-tab">
+<div class="document-tab">
   <!-- 文件列表区域 -->
-  <Paper elevation={1} class="file-list-container">
+  <div class="file-list-container">
     <List class="file-list">
       {#each documentList as document, i}
         <Item nonInteractive>
@@ -73,11 +95,11 @@
             <PrimaryText>{document.file_name}</PrimaryText>
             <SecondaryText>{formatDate(new Date(document.upload_time), 'YYYY-MM-DD HH:mm')}</SecondaryText>
           </Text>
-          <Meta class="material-icons">删除</Meta>
+          <Meta class="material-icons" onclick={() => deleteConfirmDialog(document)}>删除</Meta>
         </Item>
       {/each}
     </List>
-  </Paper>
+  </div>
 
   <!-- 上传文件区域 -->
   <div class="upload-area" style:border-radius="8px">
@@ -87,7 +109,7 @@
         id="file-input"
         class="file-input" 
         on:change={handleFileInputChange}
-        accept=".pdf,.txt,.xls,.md"
+        accept=".pdf,.txt"
       />
       <Button
         class="file-button"
@@ -98,10 +120,27 @@
       </Button>
     </div>
   </div>
+
+  <Dialog
+          bind:open={deleteVisible}
+          aria-labelledby="simple-title"
+          aria-describedby="simple-content"
+  >
+    <Title id="simple-title">再次确定</Title>
+    <Content id="simple-content">确定要删除{forDeletedDocument?.file_name}吗？</Content>
+    <Actions>
+      <Button variant="outlined" color="secondary" onclick={() => ('No')}>
+        <Label>取消</Label>
+      </Button>
+      <Button variant="raised" onclick={deleteConfirm}>
+        <Label>确定</Label>
+      </Button>
+    </Actions>
+  </Dialog>
 </div>
 
 <style lang="scss">
-  .knowledge-base-tab {
+  .document-tab {
     height: 100%;
     padding: 16px;
     display: flex;
@@ -110,11 +149,9 @@
   }
 
   .file-list-container {
-    flex: 1;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    :global(.mdc-deprecated-list-item__secondary-text){
+      font-size: 12px;
+    }
   }
 
   .section-title {
@@ -166,6 +203,14 @@
 
     &:hover {
       background-color: rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  .document-tab{
+    :global(.material-icons){
+      color: #ff3e00;
+      cursor: pointer;
+      font-size: 12px;
     }
   }
 </style>

@@ -1,6 +1,6 @@
 import { request } from './apiClient';
 import type { DocumentFile, DocumentListResponse } from '../types/document';
-import type { ApiError } from '../types/chat';
+import type {ApiError, Response, } from '../types/chat';
 import {API_BASE_URL} from "../../constants";
 
 const CHAT_ENDPOINT = `${API_BASE_URL}/api/documents`;
@@ -38,7 +38,7 @@ export async function uploadDocument(file: File, onProgress?: (progress: number)
   const formData = new FormData();
   formData.append('file', file);
     // 文件上传不需要设置Content-Type，浏览器会自动添加正确的类型和边界
-    const response = await request<DocumentFile | ApiError>(`${CHAT_ENDPOINT}/upload`, {
+    const response = await request<DocumentFile>(`${CHAT_ENDPOINT}/upload`, {
       method: 'POST',
       headers: getHeaders(), //'multipart/form-data'
       body: formData,
@@ -48,7 +48,7 @@ export async function uploadDocument(file: File, onProgress?: (progress: number)
     throw new Error(response.message || '文件上传失败');
   }
 
-  return response;
+  return response as any;
 }
 
 /**
@@ -56,7 +56,7 @@ export async function uploadDocument(file: File, onProgress?: (progress: number)
  * @returns 文件列表数组
  */
 export async function getDocumentList(): Promise<DocumentFile[]> {
-  const response = await request<DocumentListResponse | ApiError>(`${CHAT_ENDPOINT}`, {
+  const response = await request<DocumentListResponse>(`${CHAT_ENDPOINT}`, {
     method: 'GET',
     headers: getHeaders('application/json')
   });
@@ -73,19 +73,11 @@ export async function getDocumentList(): Promise<DocumentFile[]> {
  * @param fileId - 要删除的文件ID
  * @returns 删除是否成功
  */
-export async function deleteDocument(fileId: string): Promise<boolean> {
-  const response = await request<{ success: boolean } | ApiError>(`${CHAT_ENDPOINT}/${fileId}`, {
+export async function deleteDocument(fileId: string): Promise<Response<string>> {
+  const response = await request<string>(`${CHAT_ENDPOINT}/${fileId}`, {
     method: 'DELETE',
     headers: getHeaders('application/json')
   });
 
-  if (isApiError(response)) {
-    throw new Error(response.message || '删除文件失败');
-  }
-
-  if (!response || response.success !== true) {
-    throw new Error('删除操作未返回成功状态');
-  }
-
-  return true;
+  return response;
 }
