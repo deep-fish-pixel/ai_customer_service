@@ -15,12 +15,11 @@
   import {getDocumentList, uploadDocument} from "../../services/documentsService";
   import {onMount} from "svelte";
   import {delay} from "../../utils/delay";
+  import type {DocumentFile} from "../../types/document";
+  import {formatDate} from "../../utils/date";
 
   const ButtonName = '上传知识库';
-
   let buttonName = ButtonName;
-  // 从父组件接收的属性
-  export let files: FileItem[] = [];
 
   // 文件输入处理
   const handleFileInputChange = (e: Event) => {
@@ -55,74 +54,29 @@
   };
 
   // 模拟文件数据（用于演示）
-  const demoFiles: FileItem[] = [
-    {
-      id: '1',
-      name: '用户手册.pdf',
-      uploadTime: '2024-10-22 10:30',
-      size: 2048000
-    },
-    {
-      id: '2', 
-      name: '产品介绍.docx',
-      uploadTime: '2024-10-21 14:45',
-      size: 1536000
-    }
-  ];
-
-  // 如果没有传入文件数据，使用演示数据
-  $: displayFiles = files.length > 0 ? files : demoFiles;
-
+  let documentList: DocumentFile[] = [];
 
   onMount(async () => {
-    const documents = await getDocumentList();
-    debugger
+    const list = await getDocumentList();
+
+    documentList = list;
   })
 </script>
 
 <div class="knowledge-base-tab">
   <!-- 文件列表区域 -->
   <Paper elevation={1} class="file-list-container">
-    <Content class="section-title">已上传的文件</Content>
-    
-    {#if displayFiles.length > 0}
-      <List class="file-list">
-        {#each displayFiles as file}
-          <!--<ListItem>
-            <ListItemText 
-              primary={file.name}
-              secondary={`${file.uploadTime} · ${formatFileSize(file.size)}`}
-            />
-            <ListItemSecondaryAction>
-              <IconButton 
-                onclick={() => onFileView?.(file.id)}
-                aria-label="查看"
-                size="mini"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                </svg>
-              </IconButton>
-              <IconButton
-                      onclick={() => onFileDelete?.(file.id)}
-                aria-label="删除"
-                size="mini"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>-->
-        {/each}
-      </List>
-    {:else}
-      <div class="empty-state">
-        <Content>暂无上传的文件</Content>
-      </div>
-    {/if}
+    <List class="file-list">
+      {#each documentList as document, i}
+        <Item nonInteractive>
+          <Text>
+            <PrimaryText>{document.file_name}</PrimaryText>
+            <SecondaryText>{formatDate(new Date(document.upload_time), 'YYYY-MM-DD HH:mm')}</SecondaryText>
+          </Text>
+          <Meta class="material-icons">删除</Meta>
+        </Item>
+      {/each}
+    </List>
   </Paper>
 
   <!-- 上传文件区域 -->

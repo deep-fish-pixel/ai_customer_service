@@ -28,13 +28,11 @@ export async function request<T>(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    debugger
     const response = await fetch(url, {
       ...restOptions,
       headers: defaultHeaders,
       signal: controller.signal
     });
-    debugger
 
     clearTimeout(timeoutId);
 

@@ -58,7 +58,7 @@ async def delete_document(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/", response_model=List[Dict[str, Any]])
+@router.get("/", response_model=Dict[str, Any])
 async def list_documents(
     user_id: str = Depends(get_user_id)
 ) -> List[Dict[str, Any]]:
@@ -73,6 +73,8 @@ async def list_documents(
     """
     try:
         documents = await document_service.list_documents(user_id)
-        return documents
+        return {
+          "files": documents,
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

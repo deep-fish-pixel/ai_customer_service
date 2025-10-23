@@ -6,10 +6,10 @@
   import type {FileItem, ToolConfig} from "../../types";
 
   // 标签页类型
-  type TabValue = 'knowledge' | 'tools';
+  type TabValue = '个人知识库' | '工具';
 
   // 状态管理
-  let activeTab: TabValue = 'knowledge';
+  let activeTab: TabValue = '个人知识库';
 
   // 从父组件接收的属性
   export let files: FileItem[] = [];
@@ -40,16 +40,11 @@
 
   <!-- 标签页内容 -->
   <div class="tab-content">
-    {#if activeTab === 'knowledge'}
-      <DocumentsTab
-        {files}
-        {onFileUpload}
-        {onFileDelete}
-        {onFileView}
-      />
+    {#if activeTab === '个人知识库'}
+      <DocumentsTab/>
     {/if}
     
-    {#if activeTab === 'tools'}
+    {#if activeTab === '工具'}
       <ToolsTab
         {tools}
         {onToolToggle}

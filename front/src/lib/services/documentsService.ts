@@ -65,10 +65,6 @@ export async function getDocumentList(): Promise<DocumentFile[]> {
     throw new Error(response.message || '获取知识库列表失败');
   }
 
-  if (!response || !Array.isArray(response.files)) {
-    throw new Error('无效的文件列表响应格式');
-  }
-
   return response.files;
 }
 
