@@ -2,7 +2,7 @@
   import Card, { Content } from '@smui/card';
   import Switch from '@smui/switch';
   import Paper, { Title } from '@smui/paper';
-  import type {ToolConfig} from "../../../types";
+  import type {ToolConfig} from "../../types";
   
 
 

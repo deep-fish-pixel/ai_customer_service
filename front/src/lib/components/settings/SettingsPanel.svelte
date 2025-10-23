@@ -3,7 +3,7 @@
   import TabBar from '@smui/tab-bar';
   import KnowledgeBaseTab from './KnowledgeBaseTab.svelte';
   import ToolsTab from './ToolsTab.svelte';
-  import type {FileItem, ToolConfig} from "../../../types";
+  import type {FileItem, ToolConfig} from "../../types";
 
   // 标签页类型
   type TabValue = 'knowledge' | 'tools';

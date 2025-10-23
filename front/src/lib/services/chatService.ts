@@ -1,5 +1,6 @@
 import type { ChatRequest, ChatResponse, ApiError } from '../types/chat';
 import { request } from './apiClient';
+import type { Message, } from "../types/chat";
 
 // API基础配置
 const API_BASE_URL = 'http://localhost:8000';
@@ -10,10 +11,11 @@ const USER_ID = 'test_user_001';
 /**
  * 发送聊天消息到后端API（非流式）
  * @param message 用户输入的消息内容
+ * @param history 历史消息列表
  * @returns 聊天响应或错误信息
  */
-export async function sendChatMessage(message: string): Promise<ChatResponse | ApiError> {
-  const requestData: ChatRequest = { message };
+export async function sendChatMessage(message: string, history: Array<Message> = []): Promise<ChatResponse | ApiError> {
+  const requestData: ChatRequest = { message,  history };
 
   return request<ChatResponse>(`${API_BASE_URL}${CHAT_ENDPOINT}`, {
     method: 'POST',
@@ -28,6 +30,7 @@ export async function sendChatMessage(message: string): Promise<ChatResponse | A
 /**
  * 发送聊天消息到后端API（流式）
  * @param message 用户输入的消息内容
+ * @param history 历史消息列表
  * @param onChunk 接收流式数据的回调函数
  * @param onComplete 流结束的回调函数
  * @param onError 错误处理的回调函数
@@ -35,11 +38,12 @@ export async function sendChatMessage(message: string): Promise<ChatResponse | A
  */
 export function sendChatMessageStream(
   message: string,
+  history: Array<Message> = [],
   onChunk: (chunk: string) => void,
   onComplete: () => void,
   onError: (error: Error) => void
 ): () => void {
-  const requestData: ChatRequest = { message, stream: true };
+  const requestData: ChatRequest = { message, history, stream: true };
   const abortController = new AbortController();
 
   // 使用fetch API处理POST流式请求

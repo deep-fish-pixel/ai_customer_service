@@ -11,7 +11,7 @@
   } from '@smui/list';
   import IconButton from '@smui/icon-button';
   import Paper, { Content } from '@smui/paper';
-  import type {FileItem} from "../../../types";
+  import type {FileItem} from "../../types";
   
   // 从父组件接收的属性
   export let files: FileItem[] = [];

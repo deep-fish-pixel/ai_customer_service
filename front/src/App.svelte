@@ -5,7 +5,8 @@
   import Textfield from '@smui/textfield';
   import Button from '@smui/button';
   import Paper from '@smui/paper';
-  import type {FileItem, Message, ToolConfig} from "./types";
+  import type {FileItem, ToolConfig} from "./lib/types";
+  import type { Message, } from "./lib/types/chat";
   import SendIcon from "./lib/icons/SendIcon.svelte";
   import { sendChatMessage, sendChatMessageStream } from './lib/services/chatService';
 
@@ -42,7 +43,7 @@
     
     isLoading = true;
     let abortStream: () => void;
-    
+
     // 添加用户消息
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -50,6 +51,10 @@
       sender: 'user',
       timestamp: new Date()
     };
+
+    // 最近4条消息
+    const history = messages.slice(Math.max(0, messages.length - 10), messages.length);
+
     messages = [...messages, userMessage];
     
     // 创建临时机器人消息
@@ -73,6 +78,7 @@
       // 使用流式请求
       abortStream = sendChatMessageStream(
         userMessage.content,
+        history,
         (chunk) => {
           // 更新机器人消息内容
           messages = messages.map(msg => 

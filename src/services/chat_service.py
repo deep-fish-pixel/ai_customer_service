@@ -84,7 +84,7 @@ class ChatService:
             # 格式化聊天历史
             history_text = ""
             if history:
-                history_text = "\n".join([f"{item['role']}: {item['content']}" for item in history])
+                history_text = "\n".join([f"{item['sender']}: {item['content']}" for item in history])
             
             # 格式化上下文
             context_text = "\n\n".join(context)
@@ -144,7 +144,7 @@ class ChatService:
         # 格式化聊天历史
         history_text = ""
         if history:
-            history_text = "\n".join([f"{item['role']}: {item['content']}" for item in history])
+            history_text = "\n".join([f"{item['sender']}: {item['content']}" for item in history])
         
         # 创建链式调用
         chain = prompt_template | self.llm | self.output_parser
