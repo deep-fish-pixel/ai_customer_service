@@ -1,4 +1,5 @@
 import type { ApiError } from '../types/chat';
+import {showToast} from "../utils/toast";
 
 export interface RequestOptions extends RequestInit {
   headers?: Record<string, string>;
@@ -19,7 +20,6 @@ export async function request<T>(
   
   // 默认请求头
   const defaultHeaders = {
-    'Content-Type': 'application/json',
     ...headers
   };
 
@@ -28,11 +28,13 @@ export async function request<T>(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
+    debugger
     const response = await fetch(url, {
       ...restOptions,
       headers: defaultHeaders,
       signal: controller.signal
     });
+    debugger
 
     clearTimeout(timeoutId);
 
@@ -44,6 +46,11 @@ export async function request<T>(
     }
 
     const data: T = await response.json();
+
+    if(data?.message) {
+      showToast(data.message);
+    }
+
     return data;
   } catch (error: unknown) {
       clearTimeout(timeoutId);

@@ -1,7 +1,7 @@
 <script lang="ts">
   import Tab, { Label } from '@smui/tab';
   import TabBar from '@smui/tab-bar';
-  import KnowledgeBaseTab from './KnowledgeBaseTab.svelte';
+  import DocumentsTab from './DocumentsTab.svelte';
   import ToolsTab from './ToolsTab.svelte';
   import type {FileItem, ToolConfig} from "../../types";
 
@@ -41,7 +41,7 @@
   <!-- 标签页内容 -->
   <div class="tab-content">
     {#if activeTab === 'knowledge'}
-      <KnowledgeBaseTab
+      <DocumentsTab
         {files}
         {onFileUpload}
         {onFileDelete}

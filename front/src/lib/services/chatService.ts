@@ -1,11 +1,11 @@
 import type { ChatRequest, ChatResponse, ApiError } from '../types/chat';
 import { request } from './apiClient';
 import type { Message, } from "../types/chat";
+import {API_BASE_URL} from "../../constants";
 
 // API基础配置
-const API_BASE_URL = 'http://localhost:8000';
-const CHAT_ENDPOINT = '/api/chat/invoke';
-const CHAT_STREAM_ENDPOINT = '/api/chat/stream';
+const CHAT_ENDPOINT = `${API_BASE_URL}/api/chat/invoke`;
+const CHAT_STREAM_ENDPOINT = `${API_BASE_URL}/api/chat/stream`;
 const USER_ID = 'test_user_001';
 
 /**
@@ -17,7 +17,7 @@ const USER_ID = 'test_user_001';
 export async function sendChatMessage(message: string, history: Array<Message> = []): Promise<ChatResponse | ApiError> {
   const requestData: ChatRequest = { message,  history };
 
-  return request<ChatResponse>(`${API_BASE_URL}${CHAT_ENDPOINT}`, {
+  return request<ChatResponse>(`${CHAT_ENDPOINT}`, {
     method: 'POST',
     headers: {
       'X-User-Id': USER_ID
@@ -47,7 +47,7 @@ export function sendChatMessageStream(
   const abortController = new AbortController();
 
   // 使用fetch API处理POST流式请求
-  fetch(`${API_BASE_URL}${CHAT_STREAM_ENDPOINT}?stream=true`, {
+  fetch(`${CHAT_STREAM_ENDPOINT}?stream=true`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -12,10 +12,10 @@
   import IconButton from '@smui/icon-button';
   import Paper, { Content } from '@smui/paper';
   import type {FileItem} from "../../types";
+  import {uploadFile} from "../../services/documentsService";
   
   // 从父组件接收的属性
   export let files: FileItem[] = [];
-  export let onFileUpload: (file: File) => void;
   export let onFileDelete: (fileId: string) => void;
   export let onFileView: (fileId: string) => void;
 
@@ -23,7 +23,7 @@
   const handleFileInputChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
-      onFileUpload(target.files[0]);
+      uploadFile(target.files[0]);
       // 重置input以便可以再次上传相同的文件
       target.value = '';
     }
@@ -105,21 +105,22 @@
 
   <!-- 上传文件区域 -->
   <div class="upload-area" style:border-radius="8px">
-    <input 
-      type="file" 
-      id="file-upload" 
-      class="file-input" 
-      on:change={handleFileInputChange}
-      accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx"
-    />
-    <label for="file-upload">
-      <Button 
-        variant="outlined"
+    <div class="file-upload">
+      <input 
+        type="file" 
+        id="file-input"
+        class="file-input" 
+        on:change={handleFileInputChange}
+        accept=".pdf,.txt,.xls,.md"
+      />
+      <Button
+        class="file-button"
+        variant="raised"
         color="primary"
       >
         上传文件
       </Button>
-    </label>
+    </div>
   </div>
 </div>
 
@@ -162,9 +163,25 @@
     padding: 16px 0;
   }
 
-  .file-input {
-    display: none;
+  .file-upload{
+    position: relative;
+
+    .file-input {
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    :global(.file-button){
+      width: 100%;
+    }
+
   }
+
 
   :global(.MuiListItem-root) {
     border-radius: 8px;

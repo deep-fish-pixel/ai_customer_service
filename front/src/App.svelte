@@ -9,6 +9,7 @@
   import type { Message, } from "./lib/types/chat";
   import SendIcon from "./lib/icons/SendIcon.svelte";
   import { sendChatMessage, sendChatMessageStream } from './lib/services/chatService';
+  import Toast from "./lib/components/Toast.svelte";
 
 
   // 状态管理
@@ -190,6 +191,7 @@
 </script>
 
 <div class="app-container">
+  <Toast></Toast>
   <header class="header">
     AI智能客服
   </header>

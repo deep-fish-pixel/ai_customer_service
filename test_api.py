@@ -45,8 +45,8 @@ def test_rag_chat():
 
 
 def test_upload():
-    # test_upload_rag()
-    test_rag_chat()
+    test_upload_rag()
+    # test_rag_chat()
 
 def test_upload_rag():
     """测试上传RAG接口"""
