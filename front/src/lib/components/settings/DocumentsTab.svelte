@@ -12,18 +12,34 @@
   import IconButton from '@smui/icon-button';
   import Paper, { Content } from '@smui/paper';
   import type {FileItem} from "../../types";
-  import {uploadFile} from "../../services/documentsService";
-  
+  import {getDocumentList, uploadDocument} from "../../services/documentsService";
+  import {onMount} from "svelte";
+  import {delay} from "../../utils/delay";
+
+  const ButtonName = '上传知识库';
+
+  let buttonName = ButtonName;
   // 从父组件接收的属性
   export let files: FileItem[] = [];
-  export let onFileDelete: (fileId: string) => void;
-  export let onFileView: (fileId: string) => void;
 
   // 文件输入处理
   const handleFileInputChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
-      uploadFile(target.files[0]);
+      try {
+        buttonName = '上传中...'
+        uploadDocument(target.files[0]);
+
+        delay(300, () => {
+          buttonName = ButtonName;
+        });
+
+      } catch (err) {
+        delay(300, () => {
+          buttonName = ButtonName;
+        });
+      }
+
       // 重置input以便可以再次上传相同的文件
       target.value = '';
     }
@@ -56,6 +72,12 @@
 
   // 如果没有传入文件数据，使用演示数据
   $: displayFiles = files.length > 0 ? files : demoFiles;
+
+
+  onMount(async () => {
+    const documents = await getDocumentList();
+    debugger
+  })
 </script>
 
 <div class="knowledge-base-tab">
@@ -118,7 +140,7 @@
         variant="raised"
         color="primary"
       >
-        上传文件
+        { buttonName }
       </Button>
     </div>
   </div>

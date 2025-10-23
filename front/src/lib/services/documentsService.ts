@@ -34,23 +34,14 @@ const isApiError = (response: any): response is ApiError => {
  * @param onProgress - 上传进度回调函数
  * @returns 上传的文件信息
  */
-export async function uploadFile(file: File, onProgress?: (progress: number) => void): Promise<KnowledgeFile> {
+export async function uploadDocument(file: File, onProgress?: (progress: number) => void): Promise<KnowledgeFile> {
   const formData = new FormData();
   formData.append('file', file);
-    debugger
-
     // 文件上传不需要设置Content-Type，浏览器会自动添加正确的类型和边界
     const response = await request<KnowledgeFile | ApiError>(`${CHAT_ENDPOINT}/upload`, {
       method: 'POST',
       headers: getHeaders(), //'multipart/form-data'
       body: formData,
-      onUploadProgress: (progressEvent: ProgressEvent) => {
-        debugger
-        if (progressEvent.lengthComputable && onProgress) {
-          const progress = Math.round((progressEvent.loaded / progressEvent.total!) * 100);
-          onProgress(progress);
-        }
-      }
     });
 
     if (isApiError(response)) {
@@ -64,8 +55,8 @@ export async function uploadFile(file: File, onProgress?: (progress: number) => 
  * 获取知识库文件列表
  * @returns 文件列表数组
  */
-export async function getKnowledgeList(): Promise<KnowledgeFile[]> {
-  const response = await request<KnowledgeListResponse | ApiError>(`${CHAT_ENDPOINT}/list`, {
+export async function getDocumentList(): Promise<KnowledgeFile[]> {
+  const response = await request<KnowledgeListResponse | ApiError>(`${CHAT_ENDPOINT}`, {
     method: 'GET',
     headers: getHeaders('application/json')
   });
@@ -78,13 +69,6 @@ export async function getKnowledgeList(): Promise<KnowledgeFile[]> {
     throw new Error('无效的文件列表响应格式');
   }
 
-  // 验证每个文件项的格式
-  response.files.forEach(file => {
-    if (!isValidKnowledgeFile(file)) {
-      throw new Error(`无效的文件信息格式: ${JSON.stringify(file)}`);
-    }
-  });
-
   return response.files;
 }
 
@@ -93,8 +77,8 @@ export async function getKnowledgeList(): Promise<KnowledgeFile[]> {
  * @param fileId - 要删除的文件ID
  * @returns 删除是否成功
  */
-export async function deleteFile(fileId: string): Promise<boolean> {
-  const response = await request<{ success: boolean } | ApiError>(`${CHAT_ENDPOINT}/delete/${fileId}`, {
+export async function deleteDocument(fileId: string): Promise<boolean> {
+  const response = await request<{ success: boolean } | ApiError>(`${CHAT_ENDPOINT}/${fileId}`, {
     method: 'DELETE',
     headers: getHeaders('application/json')
   });
