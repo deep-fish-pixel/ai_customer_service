@@ -7,7 +7,7 @@
   import Paper from '@smui/paper';
   import type {FileItem, Message, ToolConfig} from "./types";
   import SendIcon from "./lib/icons/SendIcon.svelte";
-  import { sendChatMessage } from './lib/services/chatService';
+  import { sendChatMessage, sendChatMessageStream } from './lib/services/chatService';
 
 
   // 状态管理
@@ -41,6 +41,7 @@
     if (!inputMessage.trim() || isLoading) return;
     
     isLoading = true;
+    let abortStream: () => void;
     
     // 添加用户消息
     const userMessage: Message = {
@@ -51,6 +52,16 @@
     };
     messages = [...messages, userMessage];
     
+    // 创建临时机器人消息
+    const botMessageId = (Date.now() + 1).toString();
+    const botMessage: Message = {
+      id: botMessageId,
+      content: '',
+      sender: 'bot',
+      timestamp: new Date()
+    };
+    messages = [...messages, botMessage];
+    
     // 清空输入框
     inputMessage = '';
     
@@ -59,48 +70,49 @@
     scrollToBottom();
     
     try {
-      const response = await sendChatMessage(userMessage.content);
-
-      if ('status' in response) {
-        if (response.status === 'success') {
-          const botMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            content: response.response,
-            sender: 'bot',
-            timestamp: new Date()
-          };
-          messages = [...messages, botMessage];
-        } else {
-          const errorMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            content: `错误: ${response.message}`,
-            sender: 'bot',
-            timestamp: new Date()
-          };
-          messages = [...messages, errorMessage];
+      // 使用流式请求
+      abortStream = sendChatMessageStream(
+        userMessage.content,
+        (chunk) => {
+          debugger
+          // 更新机器人消息内容
+          messages = messages.map(msg => 
+            msg.id === botMessageId ? { ...msg, content: msg.content + chunk } : msg
+          );
+          scrollToBottom();
+        },
+        () => {
+          // 流结束
+          isLoading = false;
+          scrollToBottom();
+        },
+        (error) => {
+          // 处理错误
+          messages = messages.map(msg => 
+            msg.id === botMessageId ? {
+              ...msg,
+              content: `请求错误: ${error.message}`,
+              sender: 'bot'
+            } : msg
+          );
+          isLoading = false;
+          scrollToBottom();
         }
-      } else {
-        const errorMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: `请求失败: ${response.message}`,
-          sender: 'bot',
-          timestamp: new Date()
-        };
-        messages = [...messages, errorMessage];
-      }
+      );
     } catch (error) {
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: '连接服务器失败，请稍后重试',
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      messages = [...messages, errorMessage];
-    } finally {
+      messages = messages.map(msg => 
+        msg.id === botMessageId ? {
+          ...msg,
+          content: '连接服务器失败，请稍后重试',
+          sender: 'bot'
+        } : msg
+      );
       isLoading = false;
-      await tick();
       scrollToBottom();
     }
+
+    // 提供取消功能
+    return () => abortStream && abortStream();
   };
 
   // 处理输入框回车事件

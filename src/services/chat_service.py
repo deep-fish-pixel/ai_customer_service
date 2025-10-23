@@ -48,7 +48,7 @@ class ChatService:
             print(f"获取RAG上下文失败: {e}")
             return []
     
-    async def chat_with_rag(self, user_id: str, query: str, history: List[Dict[str, str]] = None) -> Dict[str, Any]:
+    async def chat_with_rag(self, user_id: str, query: str, history: List[Dict[str, str]] = None, stream: bool = False) -> Any:
         """
         使用RAG进行聊天
         
@@ -56,55 +56,64 @@ class ChatService:
             user_id: 用户ID
             query: 用户查询
             history: 聊天历史
+            stream: 是否流式返回
             
         Returns:
             聊天响应
         """
-        # 获取RAG上下文
-        context = self.get_rag_context(user_id, query)
-        
-        # 构建提示模板
-        prompt_template = ChatPromptTemplate.from_template("""
-        你是小智，一个智能客服助手。请基于以下上下文信息回答用户的问题。
-        
-        上下文信息:
-        {context}
-        
-        聊天历史:
-        {history}
-        
-        用户的问题:
-        {query}
-        
-        请以友好、专业的语气回答用户的问题。如果上下文信息中没有相关内容，
-        请直接回答用户，不要提及上下文。
-        """)
-        
-        # 格式化聊天历史
-        history_text = ""
-        if history:
-            history_text = "\n".join([f"{item['role']}: {item['content']}" for item in history])
-        
-        # 格式化上下文
-        context_text = "\n\n".join(context)
-        
-        # 创建链式调用
-        chain = prompt_template | self.llm | self.output_parser
-        
         try:
-            # 执行链式调用
-            response = chain.invoke({
-                "context": context_text,
-                "history": history_text,
-                "query": query
-            })
+            # 获取RAG上下文
+            context = self.get_rag_context(user_id, query)
             
-            return {
-                "status": "success",
-                "response": response,
-                "has_context": len(context) > 0
-            }
+            # 构建提示模板
+            prompt_template = ChatPromptTemplate.from_template("""
+            你是小智，一个智能客服助手。请基于以下上下文信息回答用户的问题。
             
+            上下文信息:
+            {context}
+            
+            聊天历史:
+            {history}
+            
+            用户的问题:
+            {query}
+            
+            请以友好、专业的语气回答用户的问题。如果上下文信息中没有相关内容，
+            请直接回答用户，不要提及上下文。
+            """)
+            
+            # 格式化聊天历史
+            history_text = ""
+            if history:
+                history_text = "\n".join([f"{item['role']}: {item['content']}" for item in history])
+            
+            # 格式化上下文
+            context_text = "\n\n".join(context)
+            
+            # 创建链式调用
+            chain = prompt_template | self.llm | self.output_parser
+
+            if stream:
+                # 流式响应
+                return chain.stream({
+                    "context": context_text,
+                    "history": history_text,
+                    "query": query
+                })
+            else:
+                # 执行链式调用
+                response = chain.invoke({
+                    "context": context_text,
+                    "history": history_text,
+                    "query": query
+                })
+                
+                return {
+                    "status": "success",
+                    "response": response,
+                    "has_context": len(context) > 0
+                }
+                
         except Exception as e:
             return {
                 "status": "error",

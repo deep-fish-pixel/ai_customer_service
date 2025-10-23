@@ -1,6 +1,7 @@
 // 聊天请求参数接口
 export interface ChatRequest {
   message: string;
+  use_rag?: boolean;
 }
 
 // 聊天响应接口
