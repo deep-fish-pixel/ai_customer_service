@@ -85,15 +85,11 @@ async def stream_generator(request: ChatRequest,
     """处理流式生成器"""
     try:
         # 在线程池中运行同步的chat_with_rag，避免阻塞事件循环
-        loop = asyncio.get_event_loop()
-        result = await loop.run_in_executor(
-            None,
-            lambda: chat_service.chat_with_rag(
-                user_id=user_id,
-                query=request.message,
-                history=request.history or [],
-                stream=True
-            )
+        result = await chat_service.chat_with_rag(
+            user_id=user_id,
+            query=request.message,
+            history=request.history or [],
+            stream=True
         )
 
         # 检查结果类型
@@ -103,13 +99,27 @@ async def stream_generator(request: ChatRequest,
                 yield result.get('error', '处理请求失败')
             else:
                 yield result.get('response', '')
-        elif hasattr(result, '__iter__') and not isinstance(result, str):
-            # 处理同步迭代器（如chain.stream返回的结果）
-            for chunk in result:
+        elif hasattr(result, '__aiter__'):
+            # 处理异步迭代器
+            async for chunk in result:
                 if hasattr(chunk, 'content'):
                     yield str(chunk.content)
                 else:
                     yield str(chunk)
+        elif hasattr(result, '__iter__') and not isinstance(result, str):
+            # 处理同步迭代器，使用线程池避免阻塞事件循环
+            loop = asyncio.get_event_loop()
+            iterator = iter(result)
+            while True:
+                try:
+                    # 在线程池中获取下一个元素
+                    chunk = await loop.run_in_executor(None, next, iterator)
+                    if hasattr(chunk, 'content'):
+                        yield str(chunk.content)
+                    else:
+                        yield str(chunk)
+                except StopIteration:
+                    break
         else:
             # 直接返回结果
             yield str(result)
@@ -158,7 +168,7 @@ async def send_message_stream(
                 return StreamingResponse(
                     event_generator(),
                     # media_type="text/event-stream"
-                    media_type="text/plain; charset=utf-8"
+                    media_type="text/event-stream"
                 )
             else:
                 # 普通响应处理

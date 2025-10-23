@@ -2,6 +2,7 @@
 export interface ChatRequest {
   message: string;
   use_rag?: boolean;
+  stream?: boolean;
 }
 
 // 聊天响应接口
