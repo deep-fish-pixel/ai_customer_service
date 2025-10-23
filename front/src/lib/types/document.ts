@@ -1,7 +1,7 @@
 /**
  * 知识库文件类型定义
  */
-export interface KnowledgeFile {
+export interface DocumentFile {
   /** 文件ID */
   id: string;
   /** 文件名 */
@@ -23,33 +23,13 @@ export interface KnowledgeFile {
 /**
  * 知识库列表响应类型
  */
-export interface KnowledgeListResponse {
+export interface DocumentListResponse {
   /** 文件列表 */
-  files: KnowledgeFile[];
+  files: DocumentFile[];
   /** 总数 */
   total: number;
   /** 当前页码 */
   page: number;
   /** 每页数量 */
   pageSize: number;
-}
-
-/**
- * 知识库上传请求参数
- */
-export interface UploadParams {
-  /** 文件 */
-  file: File;
-  /** 进度回调 */
-  onProgress?: (progress: number) => void;
-}
-
-/**
- * 知识库错误响应类型
- */
-export interface KnowledgeErrorResponse {
-  /** 错误信息 */
-  message: string;
-  /** 错误代码 */
-  code?: string;
 }

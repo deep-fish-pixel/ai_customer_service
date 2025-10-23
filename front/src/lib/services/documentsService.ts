@@ -1,5 +1,5 @@
 import { request } from './apiClient';
-import type { KnowledgeFile, KnowledgeListResponse } from '../types/knowledge';
+import type { DocumentFile, DocumentListResponse } from '../types/document';
 import type { ApiError } from '../types/chat';
 import {API_BASE_URL} from "../../constants";
 
@@ -34,11 +34,11 @@ const isApiError = (response: any): response is ApiError => {
  * @param onProgress - 上传进度回调函数
  * @returns 上传的文件信息
  */
-export async function uploadDocument(file: File, onProgress?: (progress: number) => void): Promise<KnowledgeFile> {
+export async function uploadDocument(file: File, onProgress?: (progress: number) => void): Promise<DocumentFile> {
   const formData = new FormData();
   formData.append('file', file);
     // 文件上传不需要设置Content-Type，浏览器会自动添加正确的类型和边界
-    const response = await request<KnowledgeFile | ApiError>(`${CHAT_ENDPOINT}/upload`, {
+    const response = await request<DocumentFile | ApiError>(`${CHAT_ENDPOINT}/upload`, {
       method: 'POST',
       headers: getHeaders(), //'multipart/form-data'
       body: formData,
@@ -55,8 +55,8 @@ export async function uploadDocument(file: File, onProgress?: (progress: number)
  * 获取知识库文件列表
  * @returns 文件列表数组
  */
-export async function getDocumentList(): Promise<KnowledgeFile[]> {
-  const response = await request<KnowledgeListResponse | ApiError>(`${CHAT_ENDPOINT}`, {
+export async function getDocumentList(): Promise<DocumentFile[]> {
+  const response = await request<DocumentListResponse | ApiError>(`${CHAT_ENDPOINT}`, {
     method: 'GET',
     headers: getHeaders('application/json')
   });
