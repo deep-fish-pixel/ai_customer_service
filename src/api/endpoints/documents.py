@@ -27,7 +27,6 @@ async def upload_document(
     Returns:
         上传结果
     """
-    print('======' * 10)
     try:
         result = await document_service.upload_and_process_document(file, user_id)
         return result

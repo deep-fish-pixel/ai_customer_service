@@ -53,7 +53,6 @@ export function sendChatMessageStream(
     signal: abortController.signal
   })
     .then(response => {
-        debugger
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -70,7 +69,6 @@ export function sendChatMessageStream(
       const readChunk = () => {
         reader.read()
           .then(({ done, value }) => {
-              debugger
             if (done) {
               // 处理剩余缓冲区数据
               // 解析SSE格式数据

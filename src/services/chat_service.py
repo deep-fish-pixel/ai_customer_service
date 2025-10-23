@@ -42,7 +42,6 @@ class ChatService:
             similar_docs = vector_db_service.similarity_search(collection_name, query, k=k)
             # 提取文档内容
             context = [doc.page_content for doc in similar_docs]
-            print(context[0] == context[1])
             return context
         except Exception as e:
             print(f"获取RAG上下文失败: {e}")

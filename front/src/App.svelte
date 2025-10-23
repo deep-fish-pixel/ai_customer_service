@@ -74,7 +74,6 @@
       abortStream = sendChatMessageStream(
         userMessage.content,
         (chunk) => {
-          debugger
           // 更新机器人消息内容
           messages = messages.map(msg => 
             msg.id === botMessageId ? { ...msg, content: msg.content + chunk } : msg
