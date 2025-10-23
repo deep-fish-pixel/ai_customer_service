@@ -20,7 +20,8 @@
   let tools: ToolConfig[] = [];
   let height = 500;
   let focus = false;
-  let isLoading = false;
+
+  $: disabled = !inputMessage;
 
   // 初始化示例消息
   onMount(() => {
@@ -39,9 +40,8 @@
 
   // 发送消息
   const sendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+    if (!inputMessage.trim() ) return;
     
-    isLoading = true;
     let abortStream: () => void;
 
     // 添加用户消息
@@ -88,7 +88,6 @@
         },
         () => {
           // 流结束
-          isLoading = false;
           scrollToBottom();
         },
         (error) => {
@@ -100,7 +99,6 @@
               sender: 'bot'
             } : msg
           );
-          isLoading = false;
           scrollToBottom();
         }
       );
@@ -112,7 +110,6 @@
           sender: 'bot'
         } : msg
       );
-      isLoading = false;
       scrollToBottom();
     }
 
@@ -226,7 +223,7 @@
                     class="send-button"
                     color="primary"
                     onclick={sendMessage}
-                    disabled={isLoading}
+                    disabled={disabled}
             >
               <SendIcon></SendIcon>
             </Button>

@@ -15,7 +15,18 @@
 </script>
 
 <div class={`chat-message ${message.sender}`}>
-  {message.content}
+  <span>
+    {#if message.content}
+      {message.content}
+    {:else}
+      <!--等待标识-->
+      <span class="loader">
+        <span>.</span>
+        <span>.</span>
+        <span>.</span>
+      </span>
+    {/if}
+  </span>
 </div>
 
 <style lang="scss">
@@ -85,5 +96,28 @@
     border-top: 6px solid transparent;
     border-bottom: 6px solid transparent;
     border-left: 8px solid #8984FF;
+  }
+
+  .loader {
+    display: inline-block;
+    animation: blink 1.5s infinite;
+  }
+
+  .loader span {
+    display: inline-block;
+    animation: fade 1.5s infinite;
+  }
+
+  .loader span:nth-child(2) {
+    animation-delay: 0.5s;
+  }
+
+  .loader span:nth-child(3) {
+    animation-delay: 1s;
+  }
+
+  @keyframes fade {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
   }
 </style>
