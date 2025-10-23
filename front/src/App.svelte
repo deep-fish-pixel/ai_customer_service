@@ -193,7 +193,7 @@
 <div class="app-container">
   <Toast></Toast>
   <header class="header">
-    AI智能客服
+    AI超级智能客服
   </header>
   <div class="content">
     <div class="chat-container">

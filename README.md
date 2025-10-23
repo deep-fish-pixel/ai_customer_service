@@ -18,8 +18,12 @@
 - **后端框架**：FastAPI
 - **大语言模型集成**：LangChain, LangGraph
 - **向量数据库**：ChromaDB
-- **文档处理**：PyPDF, BeautifulSoup, Markdown
-- **API服务**：OpenAI API
+- **关系数据库**：Mysql
+- **文档处理**：PDF, Text, Excel, Markdown
+- **API服务**：Qwen API
+- **embeddings**：text-embedding-v3
+- **Web框架**：Svelte
+- **Web组件库**：Svelte Material UI
 
 ## 快速开始
 
@@ -39,7 +43,8 @@
 
 3. 配置环境变量
    - 复制 `.env` 文件中的示例配置
-   - 替换 `OPENAI_API_KEY` 为您的实际API密钥
+   - 设置本机环境变量 `DASHSCOPE_API_KEY` 为您的实际API密钥
+   - 设置本机环境变量 `API_BASE_URL` 为您的Model服务地址
 
 4. 运行应用
    ```bash
@@ -65,41 +70,10 @@
 - `GET /api/agent/leave/records` - 获取请假记录
 - `GET /api/agent/meeting/records` - 获取会议记录
 
-## 使用示例
-
-### 上传文档
-```bash
-curl -X POST "http://localhost:8000/api/documents/upload" \
-  -H "X-User-Id: user123" \
-  -F "file=@example.pdf"
-```
-
-### 发送消息
-```bash
-curl -X POST "http://localhost:8000/api/chat/send" \
-  -H "X-User-Id: user123" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "请告诉我关于公司政策的信息", "use_rag": true}'
-```
-
-### 申请请假
-```bash
-curl -X POST "http://localhost:8000/api/agent/leave" \
-  -H "X-User-Id: user123" \
-  -H "Content-Type: application/json" \
-  -d '{"request_text": "我需要请年假，从2024年6月1日到6月3日，共3天，因为家里有事。"}'
-```
-
-## 注意事项
-
-1. 请确保您已正确配置OpenAI API密钥
-2. 上传的文档会被处理并存储在向量数据库中
-3. 目前系统使用内存存储记录，重启服务后记录会丢失
-4. 在生产环境中，请配置合适的CORS策略和安全措施
-
 ## 项目结构
 
 ```
+├── front/                  # 前端项目
 ├── main.py                 # 应用入口
 ├── requirements.txt        # 依赖列表
 ├── .env                    # 环境变量配置
@@ -112,3 +86,5 @@ curl -X POST "http://localhost:8000/api/agent/leave" \
 ├── uploads/                # 文件上传目录
 └── chromadb/               # 向量数据库目录
 ```
+
+## [前端项目](./front/README.md) 
