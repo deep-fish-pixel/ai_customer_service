@@ -4,6 +4,7 @@
 
 ## 功能展示
 ![项目](resources/project01.png)
+![聊天](resources/project-chat.gif)
 
 
 ### RAG功能
