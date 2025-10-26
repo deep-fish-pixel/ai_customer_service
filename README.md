@@ -1,4 +1,4 @@
-# 小智智能客服系统
+# AI超级智能客服
 
 基于LangChain和LangGraph、MCP的智能客服系统，支持RAG功能和Agent功能等。
 
@@ -20,11 +20,11 @@
 
 - **后端框架**：FastAPI
 - **大语言模型集成**：LangChain, LangGraph
+- **Embeddings**：text-embedding-v3
 - **向量数据库**：ChromaDB
 - **关系数据库**：Mysql
 - **文档处理**：PDF, Text, Excel, Markdown
 - **API服务**：Qwen API
-- **embeddings**：text-embedding-v3
 - **Web框架**：Svelte
 - **Web组件库**：Svelte Material UI
 
@@ -37,7 +37,10 @@
 
 ### 安装步骤
 
-1. 克隆项目（如果适用）
+1. Clone项目
+   ```bash
+   git clone https://github.com/deep-fish-pixel/ai_customer_service.git
+   ```
 
 2. 安装依赖
    ```bash
@@ -76,7 +79,6 @@
 ## 项目结构
 
 ```
-├── front/                  # 前端项目
 ├── main.py                 # 应用入口
 ├── requirements.txt        # 依赖列表
 ├── .env                    # 环境变量配置
@@ -87,7 +89,8 @@
 │   ├── utils/              # 工具类
 │   └── models/             # 数据模型
 ├── uploads/                # 文件上传目录
-└── chromadb/               # 向量数据库目录
+├── chromadb/               # 向量数据库目录
+└── front/                  # 前端项目
 ```
 
 ## [前端项目](./front/README.md) 
