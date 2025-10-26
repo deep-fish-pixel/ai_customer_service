@@ -29,7 +29,7 @@
     messages = [
       {
         id: '1',
-        content: '您好！我是小智，是你的智能客服助手，有什么可以帮助您的吗？',
+        content: '您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？',
         sender: 'bot',
         timestamp: new Date()
       }

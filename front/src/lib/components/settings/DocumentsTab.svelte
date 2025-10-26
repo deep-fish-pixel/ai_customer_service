@@ -109,7 +109,7 @@
         id="file-input"
         class="file-input" 
         on:change={handleFileInputChange}
-        accept=".pdf,.txt"
+        accept=".pdf,.txt,.csv"
       />
       <Button
         class="file-button"
