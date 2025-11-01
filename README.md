@@ -44,7 +44,7 @@
 
 2. 安装依赖
    ```bash
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
 
 3. 配置环境变量
@@ -54,7 +54,7 @@
 
 4. 运行应用
    ```bash
-   python main.py
+   python3 main.py
    ```
 
 5. 访问API文档
