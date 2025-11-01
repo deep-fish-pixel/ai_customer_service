@@ -2,45 +2,41 @@
     import Button, { Label } from '@smui/button';
     import Textfield from '@smui/textfield';
     import HelperText from '@smui/textfield/helper-text';
-    import List, {
-        Item,
-        Meta,
-        Text,
-        PrimaryText,
-        SecondaryText,
-    } from '@smui/list';
-    import type {DocumentFile} from "../../types/document";
+    import { navigate, useRouter, useLocation, useHistory } from "svelte5-router";
     import Dialog, { Title, Content, Actions } from '@smui/dialog';
 
-
-    const ButtonName = '上传知识库';
-    let buttonName = ButtonName;
-    let deleteVisible = $state(true);
-    let forDeletedDocument:DocumentFile = $state({
-        file_name: '',
-        file_size: 0,
-        upload_time: Date(),
-    });
 
     let focused = $state(false);
     let value: string | null = $state(null);
     let dirty = $state(false);
-    let invalid = $state(true);
-    const disabled = $derived(focused || !value || !dirty || invalid);
+    let invalid = $state(false);
+    const router = useRouter();
+    const location = useLocation();
+    const history = useHistory();
+
+    let isSpace = $derived(history.location.pathname.match(/^\/space\/\w+$/));
+    let visible = $state(!isSpace);
+    debugger
+    // 正则表达式：只允许下划线、数字和字母
+    const spaceIdRegex = /^\w+$/;
 
     function handlerChange() {
-        dirty = false;
-        invalid = true;
+        if (value && value.trim()) {
+            // 验证输入是否符合要求
+            invalid = !spaceIdRegex.test(value);
+        } else {
+            invalid = true;
+        }
+        console.log('handlerChange======', value, invalid)
     }
 
-
-    const deleteConfirm = async () => {
-
+    const confirm = async () => {
+        navigate(`/space/${value}`);
     }
 </script>
 
 <Dialog
-        bind:open={deleteVisible}
+        bind:open={visible}
         aria-labelledby="simple-title"
         aria-describedby="simple-content"
 >
@@ -52,19 +48,18 @@
             bind:invalid
             bind:value
             label="空间id"
-            style="min-width: 250px;"
-            onchange={handlerChange}
+            style="min-width: 450px;"
+            oninput={handlerChange}
         >
             {#snippet helper()}
-                <HelperText validationMsg>That's not a valid email address.</HelperText>
+                <HelperText validationMsg={invalid && dirty}>
+                    {invalid && dirty ? '空间ID只能包含字母、数字和下划线' : ''}
+                </HelperText>
             {/snippet}
         </Textfield>
     </Content>
     <Actions>
-        <Button variant="outlined" color="secondary" onclick={() => ('No')}>
-            <Label>取消</Label>
-        </Button>
-        <Button variant="raised" onclick={deleteConfirm}>
+        <Button variant="raised" disabled={!value || invalid} onclick={confirm}>
             <Label>确定</Label>
         </Button>
     </Actions>

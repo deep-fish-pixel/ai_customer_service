@@ -17,11 +17,11 @@
     "sass": "^1.93.2",
     "svelte": "^5.39.6",
     "svelte-check": "^4.3.2",
-    "svelte5-router": "^3.0.2",
     "typescript": "~5.9.3",
     "vite": "^7.1.7"
   },
   "dependencies": {
+    "svelte5-router": "^3.0.2",
     "svelte-material-ui": "^8.0.3"
   }
 }
