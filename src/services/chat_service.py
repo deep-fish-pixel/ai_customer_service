@@ -49,7 +49,7 @@ class ChatService:
             print(f"获取RAG上下文失败: {e}")
             return []
     
-    async def chat_with_rag(self, space_id: str, query: str, history: List[Dict[str, str]] = None, stream: bool = False) -> Any:
+    async def chat_with_rag(self, space_id: str, user_id: int, query: str, history: List[Dict[str, str]] = None, stream: bool = False) -> Any:
         """
         使用RAG进行聊天
         
@@ -121,7 +121,7 @@ class ChatService:
                 "message": f"处理请求失败: {str(e)}"
             }
     
-    async def simple_chat(self, query: str, history: List[Dict[str, str]] = None) -> Dict[str, Any]:
+    async def simple_chat(self, query: str, history: List[Dict[str, str]] = None, user_id: int = None) -> Dict[str, Any]:
         """
         简单聊天（不使用RAG）
         

@@ -54,7 +54,44 @@ class RelativeDBService:
             return
         
         try:
-            # 创建documents表
+            # 创建用户表
+            create_users_table_query = """
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                account VARCHAR(50) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL,
+                nickname VARCHAR(100) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+            
+            # 创建空间表
+            create_spaces_table_query = """
+            CREATE TABLE IF NOT EXISTS spaces (
+                id VARCHAR(50) NOT NULL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                description TEXT,
+                created_by INT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+            """
+            
+            # 创建用户-空间关联表
+            create_user_spaces_table_query = """
+            CREATE TABLE IF NOT EXISTS user_spaces (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                space_id VARCHAR(50) NOT NULL,
+                role ENUM('owner', 'admin', 'member') NOT NULL DEFAULT 'member',
+                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_user_space (user_id, space_id),
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (space_id) REFERENCES spaces(id)
+            )
+            """
+            
+            # 创建文档表
             create_documents_table_query = """
             CREATE TABLE IF NOT EXISTS documents (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -66,13 +103,18 @@ class RelativeDBService:
                 chunks_count INT NOT NULL,
                 upload_time DATETIME NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY unique_space_file (space_id, file_name)
+                UNIQUE KEY unique_space_file (space_id, file_name),
+                FOREIGN KEY (space_id) REFERENCES spaces(id)
             )
             """
             
+            # 执行所有创建表的SQL语句
+            self.cursor.execute(create_users_table_query)
+            self.cursor.execute(create_spaces_table_query)
+            self.cursor.execute(create_user_spaces_table_query)
             self.cursor.execute(create_documents_table_query)
             self.connection.commit()
-            logger.info("数据表创建成功")
+            logger.info("所有数据表创建成功")
             
         except Error as e:
             logger.error(f"创建数据表失败: {str(e)}")
@@ -198,6 +240,257 @@ class RelativeDBService:
             
             logger.info(f"文档信息删除成功: {space_id} - {file_name}")
             return self.cursor.rowcount > 0
+        except Error as e:
+            logger.error(f"删除文档信息失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return False
+    
+    # 用户相关方法
+    def create_user(self, account: str, password: str, nickname: str) -> int:
+        """
+        创建新用户
+        
+        Args:
+            account: 账号
+            password: 密码(已加密)
+            nickname: 昵称
+            
+        Returns:
+            用户ID，失败返回-1
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return -1
+        
+        try:
+            query = """
+            INSERT INTO users (account, password, nickname)
+            VALUES (%s, %s, %s)
+            """
+            
+            self.cursor.execute(query, (account, password, nickname))
+            self.connection.commit()
+            return self.cursor.lastrowid
+        except Error as e:
+            logger.error(f"创建用户失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return -1
+    
+    def get_user_by_account(self, account: str) -> Optional[Dict[str, Any]]:
+        """
+        通过账号获取用户信息
+        
+        Args:
+            account: 账号
+            
+        Returns:
+            用户信息字典，不存在返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return None
+        
+        try:
+            query = "SELECT id, account, nickname, password, created_at FROM users WHERE account = %s"
+            self.cursor.execute(query, (account,))
+            return self.cursor.fetchone()
+        except Error as e:
+            logger.error(f"获取用户信息失败: {str(e)}")
+            return None
+    
+    def get_user_by_id(self, user_id: int) -> Optional[Dict[str, Any]]:
+        """
+        通过ID获取用户信息
+        
+        Args:
+            user_id: 用户ID
+            
+        Returns:
+            用户信息字典，不存在返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return None
+        
+        try:
+            query = "SELECT id, account, nickname, created_at FROM users WHERE id = %s"
+            self.cursor.execute(query, (user_id,))
+            return self.cursor.fetchone()
+        except Error as e:
+            logger.error(f"获取用户信息失败: {str(e)}")
+            return None
+    
+    def verify_user_password(self, account: str, password: str) -> Optional[int]:
+        """
+        验证用户密码
+        
+        Args:
+            account: 账号
+            password: 密码
+            
+        Returns:
+            验证成功返回用户ID，失败返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return None
+        
+        try:
+            query = "SELECT id FROM users WHERE account = %s AND password = %s"
+            self.cursor.execute(query, (account, password))
+            result = self.cursor.fetchone()
+            return result['id'] if result else None
+        except Error as e:
+            logger.error(f"验证用户密码失败: {str(e)}")
+            return None
+    
+    # 空间相关方法
+    def create_space(self, space_id: str, name: str, description: str, user_id: int) -> bool:
+        """
+        创建新空间
+        
+        Args:
+            space_id: 空间ID
+            name: 空间名称
+            description: 空间描述
+            user_id: 创建者ID
+            
+        Returns:
+            创建是否成功
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return False
+        
+        try:
+            # 开始事务
+            self.connection.start_transaction()
+            
+            # 创建空间
+            query = """
+            INSERT INTO spaces (id, name, description, created_by)
+            VALUES (%s, %s, %s, %s)
+            """
+            self.cursor.execute(query, (space_id, name, description, user_id))
+            
+            # 将创建者添加到空间，并设置为owner角色
+            query = """
+            INSERT INTO user_spaces (user_id, space_id, role)
+            VALUES (%s, %s, 'owner')
+            """
+            self.cursor.execute(query, (user_id, space_id))
+            
+            self.connection.commit()
+            return True
+        except Error as e:
+            logger.error(f"创建空间失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return False
+    
+    def add_user_to_space(self, user_id: int, space_id: str, role: str = 'member') -> bool:
+        """
+        添加用户到空间
+        
+        Args:
+            user_id: 用户ID
+            space_id: 空间ID
+            role: 用户角色(owner, admin, member)
+            
+        Returns:
+            添加是否成功
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return False
+        
+        try:
+            query = """
+            INSERT INTO user_spaces (user_id, space_id, role)
+            VALUES (%s, %s, %s)
+            ON DUPLICATE KEY UPDATE role = %s
+            """
+            self.cursor.execute(query, (user_id, space_id, role, role))
+            self.connection.commit()
+            return True
+        except Error as e:
+            logger.error(f"添加用户到空间失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return False
+    
+    def get_user_spaces(self, user_id: int) -> List[Dict[str, Any]]:
+        """
+        获取用户的所有空间
+        
+        Args:
+            user_id: 用户ID
+            
+        Returns:
+            空间列表
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return []
+        
+        try:
+            query = """
+            SELECT s.id, s.name, s.description, s.created_at, us.role
+            FROM spaces s
+            JOIN user_spaces us ON s.id = us.space_id
+            WHERE us.user_id = %s
+            ORDER BY s.created_at DESC
+            """
+            self.cursor.execute(query, (user_id,))
+            return self.cursor.fetchall()
+        except Error as e:
+            logger.error(f"获取用户空间列表失败: {str(e)}")
+            return []
+    
+    def is_user_in_space(self, user_id: int, space_id: str) -> bool:
+        """
+        检查用户是否在指定空间中
+        
+        Args:
+            user_id: 用户ID
+            space_id: 空间ID
+            
+        Returns:
+            是否在空间中
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return False
+        
+        try:
+            query = """
+            SELECT 1 FROM user_spaces
+            WHERE user_id = %s AND space_id = %s
+            LIMIT 1
+            """
+            self.cursor.execute(query, (user_id, space_id))
+            return self.cursor.fetchone() is not None
+        except Error as e:
+            logger.error(f"检查用户空间关系失败: {str(e)}")
+            return False
             
         except Error as e:
             logger.error(f"删除文档信息失败: {str(e)}")
