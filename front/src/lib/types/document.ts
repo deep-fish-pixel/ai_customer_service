@@ -9,17 +9,3 @@ export interface DocumentFile {
   /** 上传时间 */
   upload_time: string;
 }
-
-/**
- * 知识库列表响应类型
- */
-export interface DocumentListResponse {
-  /** 文件列表 */
-  files: DocumentFile[];
-  /** 总数 */
-  total: number;
-  /** 当前页码 */
-  page: number;
-  /** 每页数量 */
-  pageSize: number;
-}

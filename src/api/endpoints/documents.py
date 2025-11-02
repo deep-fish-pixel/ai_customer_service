@@ -1,22 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, Header, UploadFile, File
 from typing import Dict, Any, List
+
+from src import RESPONSE_STATUS_SUCCESS, Response
 from src.services.document_service import document_service
+from src.api.endpoints import get_user_id
 
 # 创建路由器
 router = APIRouter()
 
-# 依赖项：获取用户ID
-async def get_user_id(x_user_id: str = Header(...)) -> str:
-    """从请求头获取用户ID"""
-    if not x_user_id:
-        raise HTTPException(status_code=400, detail="Missing user ID")
-    return x_user_id
-
-@router.post("/upload", response_model=Dict[str, Any])
+@router.post("/upload", response_model=Response)
 async def upload_document(
     file: UploadFile = File(...),
     user_id: str = Depends(get_user_id)
-) -> Dict[str, Any]:
+) -> Response:
     """
     上传文档
     
@@ -35,11 +31,11 @@ async def upload_document(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.delete("/{file_name}", response_model=Dict[str, Any])
+@router.delete("/{file_name}", response_model=Response)
 async def delete_document(
     file_name: str,
     user_id: str = Depends(get_user_id)
-) -> Dict[str, Any]:
+) -> Response:
     """
     删除文档
     
@@ -58,10 +54,10 @@ async def delete_document(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/", response_model=Dict[str, Any])
+@router.get("/", response_model=Response)
 async def list_documents(
     user_id: str = Depends(get_user_id)
-) -> List[Dict[str, Any]]:
+) -> Response:
     """
     列出用户的所有文档
     
@@ -69,12 +65,14 @@ async def list_documents(
         user_id: 用户ID
         
     Returns:
-        文档列表
+        Response
     """
     try:
         documents = await document_service.list_documents(user_id)
         return {
-          "files": documents,
+          "status": RESPONSE_STATUS_SUCCESS,
+          "message":"",
+          "response": documents,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

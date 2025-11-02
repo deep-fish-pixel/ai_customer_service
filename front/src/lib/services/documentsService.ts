@@ -35,7 +35,7 @@ export async function uploadDocument(file: File, onProgress?: (progress: number)
     throw new Error(response.message || '文件上传失败');
   }
 
-  return response as any;
+  return response.response;
 }
 
 /**
@@ -43,7 +43,7 @@ export async function uploadDocument(file: File, onProgress?: (progress: number)
  * @returns 文件列表数组
  */
 export async function getDocumentList(): Promise<DocumentFile[]> {
-  const response = await request<DocumentListResponse>(`${CHAT_ENDPOINT}`, {
+  const response = await request<DocumentFile[]>(`${CHAT_ENDPOINT}`, {
     method: 'GET',
     headers: getHeaders('application/json')
   });
@@ -52,7 +52,7 @@ export async function getDocumentList(): Promise<DocumentFile[]> {
     throw new Error(response.message || '获取知识库列表失败');
   }
 
-  return response.files;
+  return response.response;
 }
 
 /**

@@ -1,6 +1,8 @@
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Coroutine
 from fastapi import UploadFile, HTTPException
+
+from src import RESPONSE_STATUS_SUCCESS, Response, RESPONSE_STATUS_FAILED
 from src.utils.document_processor import DocumentProcessor
 from src.services.vector_db_service import vector_db_service
 from src.services.relative_db_service import relative_db_service
@@ -20,7 +22,7 @@ class DocumentService:
         # 确保上传目录存在
         os.makedirs(self.upload_dir, exist_ok=True)
     
-    async def save_uploaded_file(self, user_id: str, file: UploadFile) -> str:
+    async def save_uploaded_file(self, user_id: str, file: UploadFile) -> dict[str, str | None] | str:
         """
         保存上传的文件
         
@@ -33,7 +35,11 @@ class DocumentService:
         # 检查文件格式
         file_ext = os.path.splitext(file.filename)[1].lower()
         if file_ext not in ['.pdf', '.txt', '.md', '.csv']:
-            raise HTTPException(status_code=400, detail=f"不支持的文件格式: {file_ext}")
+            return {
+                "status": RESPONSE_STATUS_FAILED,
+                "message": f"不支持的文件格式: {file_ext}",
+                "response": None
+            }
         
         # 保存文件
         # 确保用户特定的上传目录存在
@@ -47,7 +53,7 @@ class DocumentService:
         
         return file_path
     
-    async def upload_and_process_document(self, file: UploadFile, user_id: str) -> Dict[str, Any]:
+    async def upload_and_process_document(self, file: UploadFile, user_id: str) -> Response:
         """
         上传并处理文档
         
@@ -65,7 +71,7 @@ class DocumentService:
                 return {
                     "status": "failed",
                     "message": "文档已上传过",
-                    "document": document_info
+                    "response": document_info
                 }
             # 保存文件
             file_path = await self.save_uploaded_file(user_id, file)
@@ -102,18 +108,22 @@ class DocumentService:
             relative_db_service.save_document_info(user_id, document_info)
             
             return {
-                "status": "success",
+                "status": RESPONSE_STATUS_SUCCESS,
                 "message": "文档上传成功",
-                "document": document_info
+                "response": document_info
             }
             
         except Exception as e:
             # 如果处理失败，删除已上传的文件
             if 'file_path' in locals() and os.path.exists(file_path):
                 os.remove(file_path)
-            raise HTTPException(status_code=500, detail=f"文档处理失败: {str(e)}")
+            return {
+                "status": RESPONSE_STATUS_FAILED,
+                "message": f"文档处理失败: {str(e)}",
+                "response": None
+            }
     
-    async def delete_document(self, user_id: str, file_name: str) -> Dict[str, Any]:
+    async def delete_document(self, user_id: str, file_name: str) -> Response:
         """
         删除文档
         
@@ -128,7 +138,11 @@ class DocumentService:
         document_info = relative_db_service.get_document_info(user_id, file_name)
         
         if not document_info:
-            raise HTTPException(status_code=404, detail="文档不存在")
+            return {
+                "status": RESPONSE_STATUS_FAILED,
+                "message": "文档不存在",
+                "response": None
+            }
         
         try:
             # 从向量数据库删除
@@ -143,13 +157,18 @@ class DocumentService:
             relative_db_service.delete_document_info(user_id, file_name)
             
             return {
-                "status": "success",
-                "message": "文档删除成功"
+                "status": RESPONSE_STATUS_SUCCESS,
+                "message": "文档删除成功",
+                "response": document_info['file_path']
             }
             
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"文档删除失败: {str(e)}")
-    
+            return {
+                "status": RESPONSE_STATUS_FAILED,
+                "message": f"文档删除失败: {str(e)}",
+                "response": None
+            }
+
     async def list_documents(self, user_id: str) -> List[Dict[str, Any]]:
         """
         列出用户的所有文档

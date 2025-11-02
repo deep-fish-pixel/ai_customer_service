@@ -23,6 +23,6 @@ export interface ApiError {
 
 export interface Response<T> {
   status: 'success' | 'failed';
-  response?: T;
-  message?: string;
+  response: T;
+  message: string;
 }

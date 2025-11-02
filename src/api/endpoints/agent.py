@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from typing import Dict, Any, List
 from pydantic import BaseModel
+
+from src import RESPONSE_STATUS_FAILED
 from src.services.agent_service import agent_service
+from src.api.endpoints import get_user_id
 
 # 创建路由器
 router = APIRouter()
@@ -13,12 +16,7 @@ class LeaveRequest(BaseModel):
 class MeetingRequest(BaseModel):
     request_text: str
 
-# 依赖项：获取用户ID
-async def get_user_id(x_user_id: str = Header(...)) -> str:
-    """从请求头获取用户ID"""
-    if not x_user_id:
-        raise HTTPException(status_code=400, detail="Missing user ID")
-    return x_user_id
+
 
 @router.post("/leave", response_model=Dict[str, Any])
 async def request_leave(
@@ -37,8 +35,8 @@ async def request_leave(
     """
     try:
         result = await agent_service.process_leave_request(user_id, request.request_text)
-        if result["status"] == "error":
-            raise HTTPException(status_code=400, detail=result.get("error", "处理请假请求失败"))
+        if result["status"] == RESPONSE_STATUS_FAILED:
+            raise HTTPException(status_code=400, detail=result.get(RESPONSE_STATUS_FAILED, "处理请假请求失败"))
         return result
     except HTTPException:
         raise
@@ -62,8 +60,8 @@ async def schedule_meeting(
     """
     try:
         result = await agent_service.process_meeting_request(user_id, request.request_text)
-        if result["status"] == "error":
-            raise HTTPException(status_code=400, detail=result.get("error", "处理会议预约请求失败"))
+        if result["status"] == RESPONSE_STATUS_FAILED:
+            raise HTTPException(status_code=400, detail=result.get(RESPONSE_STATUS_FAILED, "处理会议预约请求失败"))
         return result
     except HTTPException:
         raise

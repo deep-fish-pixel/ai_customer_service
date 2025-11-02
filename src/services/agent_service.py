@@ -7,6 +7,8 @@ from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
+from src import RESPONSE_STATUS_FAILED, RESPONSE_STATUS_SUCCESS
+
 # 加载环境变量
 load_dotenv()
 
@@ -92,8 +94,8 @@ class AgentService:
             
             if start_date > end_date:
                 return {
-                    "status": "error",
-                    "error": "开始日期不能晚于结束日期"
+                    "status": RESPONSE_STATUS_FAILED,
+                    "message": "开始日期不能晚于结束日期"
                 }
             
             # 计算请假天数
@@ -127,25 +129,25 @@ class AgentService:
             confirmation = await confirm_chain.ainvoke(leave_info)
             
             return {
-                "status": "success",
+                "status": RESPONSE_STATUS_SUCCESS,
                 "confirmation": confirmation,
                 "leave_info": leave_info
             }
             
         except json.JSONDecodeError:
             return {
-                "status": "error",
-                "error": "无法解析请假请求，请提供更详细的信息"
+                "status": RESPONSE_STATUS_FAILED,
+                "message": "无法解析请假请求，请提供更详细的信息"
             }
         except ValueError as e:
             return {
-                "status": "error",
-                "error": f"日期格式错误: {str(e)}"
+                "status": RESPONSE_STATUS_FAILED,
+                "message": f"日期格式错误: {str(e)}"
             }
         except Exception as e:
             return {
-                "status": "error",
-                "error": f"处理请假请求失败: {str(e)}"
+                "status": RESPONSE_STATUS_FAILED,
+                "message": f"处理请假请求失败: {str(e)}"
             }
     
     async def process_meeting_request(self, user_id: str, request_text: str) -> Dict[str, Any]:
@@ -191,8 +193,8 @@ class AgentService:
             
             if meeting_datetime <= datetime.now():
                 return {
-                    "status": "error",
-                    "error": "会议时间不能早于当前时间"
+                    "status": RESPONSE_STATUS_FAILED,
+                    "message": "会议时间不能早于当前时间"
                 }
             
             # 保存会议记录
@@ -226,25 +228,25 @@ class AgentService:
             confirmation = await confirm_chain.ainvoke(meeting_info)
             
             return {
-                "status": "success",
+                "status": RESPONSE_STATUS_SUCCESS,
                 "confirmation": confirmation,
                 "meeting_info": meeting_info
             }
             
         except json.JSONDecodeError:
             return {
-                "status": "error",
-                "error": "无法解析会议预约请求，请提供更详细的信息"
+                "status": RESPONSE_STATUS_FAILED,
+                "message": "无法解析会议预约请求，请提供更详细的信息"
             }
         except ValueError as e:
             return {
-                "status": "error",
-                "error": f"日期时间格式错误: {str(e)}"
+                "status": RESPONSE_STATUS_FAILED,
+                "message": f"日期时间格式错误: {str(e)}"
             }
         except Exception as e:
             return {
-                "status": "error",
-                "error": f"处理会议预约请求失败: {str(e)}"
+                "status": RESPONSE_STATUS_FAILED,
+                "message": f"处理会议预约请求失败: {str(e)}"
             }
     
     async def list_leave_records(self, user_id: str) -> List[Dict[str, Any]]:

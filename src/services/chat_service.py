@@ -3,6 +3,8 @@ from typing import Dict, Any, List
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+
+from src import RESPONSE_STATUS_FAILED, RESPONSE_STATUS_SUCCESS
 from src.services.vector_db_service import vector_db_service
 from dotenv import load_dotenv
 
@@ -108,15 +110,15 @@ class ChatService:
                 })
                 
                 return {
-                    "status": "success",
+                    "status": RESPONSE_STATUS_SUCCESS,
                     "response": response,
                     "has_context": len(context) > 0
                 }
                 
         except Exception as e:
             return {
-                "status": "error",
-                "error": f"处理请求失败: {str(e)}"
+                "status":RESPONSE_STATUS_FAILED,
+                "message": f"处理请求失败: {str(e)}"
             }
     
     async def simple_chat(self, query: str, history: List[Dict[str, str]] = None) -> Dict[str, Any]:
@@ -157,14 +159,14 @@ class ChatService:
             })
             
             return {
-                "status": "success",
+                "status": RESPONSE_STATUS_SUCCESS,
                 "response": response
             }
             
         except Exception as e:
             return {
-                "status": "error",
-                "error": f"处理请求失败: {str(e)}"
+                "status": RESPONSE_STATUS_FAILED,
+                "message": f"处理请求失败: {str(e)}"
             }
 
 # 创建全局聊天服务实例
