@@ -16,9 +16,15 @@
 
     let isSpace = $derived(history.location.pathname.match(/^\/space\/\w+$/));
     let visible = $state(!isSpace);
-    debugger
+
     // 正则表达式：只允许下划线、数字和字母
     const spaceIdRegex = /^\w+$/;
+
+    // $effect(() => {
+    //     if (!history.location.pathname.match(/^\/space\/\w+$/)) {
+    //         visible = true;
+    //     }
+    // });
 
     function handlerChange() {
         if (value && value.trim()) {
@@ -39,6 +45,12 @@
         bind:open={visible}
         aria-labelledby="simple-title"
         aria-describedby="simple-content"
+        onclick={(e) => {
+          // 禁止关闭
+          setTimeout(() => {
+            visible = true;
+          }, 80)
+        }}
 >
     <Title id="simple-title">定义个人空间</Title>
     <Content id="simple-content">

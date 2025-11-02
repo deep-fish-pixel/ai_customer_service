@@ -2,11 +2,12 @@ import type { ChatRequest, Response, ApiError } from '../types/chat';
 import { request } from './apiClient';
 import type { Message, } from "../types/chat";
 import {API_BASE_URL} from "../../constants";
+import getSpaceId from "../utils/getSpaceId";
 
 // API基础配置
 const CHAT_ENDPOINT = `${API_BASE_URL}/api/chat/invoke`;
 const CHAT_STREAM_ENDPOINT = `${API_BASE_URL}/api/chat/stream`;
-const USER_ID = 'test_user_001';
+
 
 /**
  * 发送聊天消息到后端API（非流式）
@@ -20,7 +21,7 @@ export async function sendChatMessage(message: string, history: Array<Message> =
   return request<Response<any>>(`${CHAT_ENDPOINT}`, {
     method: 'POST',
     headers: {
-      'X-User-Id': USER_ID
+      'X-User-Id': getSpaceId()
     },
     body: JSON.stringify(requestData),
     timeout: 30000
@@ -51,7 +52,7 @@ export function sendChatMessageStream(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-User-Id': USER_ID
+      'X-User-Id': getSpaceId()
     },
     body: JSON.stringify(requestData),
     signal: abortController.signal

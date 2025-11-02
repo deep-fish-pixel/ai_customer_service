@@ -2,14 +2,14 @@ import { request } from './apiClient';
 import type { DocumentFile, DocumentListResponse } from '../types/document';
 import type {ApiError, Response, } from '../types/chat';
 import {API_BASE_URL} from "../../constants";
+import getSpaceId from "../utils/getSpaceId";
 
 const CHAT_ENDPOINT = `${API_BASE_URL}/api/documents`;
-const USER_ID = 'test_user_001';
 
 // 创建基础请求头
 const getHeaders = (contentType?: string) => {
   const headers: Record<string, string> = {
-    'X-User-ID': USER_ID
+    'X-User-ID': getSpaceId()
   };
 
   if (contentType) {
