@@ -1,8 +1,8 @@
-import type { ChatRequest, Response, ApiError } from '../types/chat';
+import type { ChatRequest, Response, } from '../types/chat';
 import { request } from './apiClient';
 import type { Message, } from "../types/chat";
 import {API_BASE_URL} from "../../constants";
-import getSpaceId from "../utils/getSpaceId";
+import getHeaders from "../utils/getHeaders";
 
 // API基础配置
 const CHAT_ENDPOINT = `${API_BASE_URL}/api/chat/invoke`;
@@ -20,9 +20,7 @@ export async function sendChatMessage(message: string, history: Array<Message> =
 
   return request<Response<any>>(`${CHAT_ENDPOINT}`, {
     method: 'POST',
-    headers: {
-      'X-User-Id': getSpaceId()
-    },
+    headers: getHeaders(),
     body: JSON.stringify(requestData),
     timeout: 30000
   });
@@ -50,10 +48,7 @@ export function sendChatMessageStream(
   // 使用fetch API处理POST流式请求
   fetch(`${CHAT_STREAM_ENDPOINT}?stream=true`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-User-Id': getSpaceId()
-    },
+    headers: getHeaders('application/json'),
     body: JSON.stringify(requestData),
     signal: abortController.signal
   })

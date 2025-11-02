@@ -2,22 +2,9 @@ import { request } from './apiClient';
 import type { DocumentFile, DocumentListResponse } from '../types/document';
 import type {ApiError, Response, } from '../types/chat';
 import {API_BASE_URL} from "../../constants";
-import getSpaceId from "../utils/getSpaceId";
+import getHeaders from "../utils/getHeaders";
 
 const CHAT_ENDPOINT = `${API_BASE_URL}/api/documents`;
-
-// 创建基础请求头
-const getHeaders = (contentType?: string) => {
-  const headers: Record<string, string> = {
-    'X-User-ID': getSpaceId()
-  };
-
-  if (contentType) {
-    headers['Content-Type'] = contentType;
-  }
-
-  return headers;
-};
 
 // 类型守卫：检查是否为ApiError
 const isApiError = (response: any): response is ApiError => {

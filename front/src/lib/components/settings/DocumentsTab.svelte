@@ -13,6 +13,7 @@
   import type {DocumentFile} from "../../types/document";
   import {formatDate} from "../../utils/date";
   import Dialog, { Title, Content, Actions } from '@smui/dialog';
+  import getSpaceId from "../../utils/getSpaceId";
 
 
   const ButtonName = '上传知识库';
@@ -74,7 +75,9 @@
   }
 
   async function getDocuments() {
-    documentList = await getDocumentList();
+    if(getSpaceId()) {
+      documentList = await getDocumentList();
+    }
   }
 
   // 模拟文件数据（用于演示）
@@ -87,19 +90,21 @@
 
 <div class="document-tab">
   <!-- 文件列表区域 -->
-  <div class="file-list-container">
-    <List class="file-list">
-      {#each documentList as document, i}
-        <Item nonInteractive>
-          <Text>
-            <PrimaryText>{document.file_name}</PrimaryText>
-            <SecondaryText>{formatDate(new Date(document.upload_time), 'YYYY-MM-DD HH:mm')}</SecondaryText>
-          </Text>
-          <Meta class="material-icons" onclick={() => deleteConfirmDialog(document)}>删除</Meta>
-        </Item>
-      {/each}
-    </List>
-  </div>
+  {#if documentList.length}
+    <div class="file-list-container">
+      <List class="file-list">
+        {#each documentList as document, i}
+          <Item nonInteractive>
+            <Text>
+              <PrimaryText>{document.file_name}</PrimaryText>
+              <SecondaryText>{formatDate(new Date(document.upload_time), 'YYYY-MM-DD HH:mm')}</SecondaryText>
+            </Text>
+            <Meta class="material-icons" onclick={() => deleteConfirmDialog(document)}>删除</Meta>
+          </Item>
+        {/each}
+      </List>
+    </div>
+  {/if}
 
   <!-- 上传文件区域 -->
   <div class="upload-area" style:border-radius="8px">
@@ -115,6 +120,7 @@
         class="file-button"
         variant="raised"
         color="primary"
+        disabled={!getSpaceId()}
       >
         { buttonName }
       </Button>

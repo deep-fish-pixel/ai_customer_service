@@ -52,7 +52,7 @@
           }, 80)
         }}
 >
-    <Title id="simple-title">定义个人空间</Title>
+    <Title id="simple-title">请输入个人空间</Title>
     <Content id="simple-content">
         <Textfield
             type="text"
@@ -62,7 +62,8 @@
             label="空间id"
             style="min-width: 450px;"
             oninput={handlerChange}
-        >
+            inputAttributes={{ maxlength: 40 }}
+          >
             {#snippet helper()}
                 <HelperText validationMsg={invalid && dirty}>
                     {invalid && dirty ? '空间ID只能包含字母、数字和下划线' : ''}

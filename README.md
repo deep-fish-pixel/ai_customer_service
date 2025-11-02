@@ -4,6 +4,7 @@
 
 ## 功能展示
 ![项目](resources/project01.png)
+![项目](resources/project02.png)
 ![聊天](resources/project-chat.gif)
 
 

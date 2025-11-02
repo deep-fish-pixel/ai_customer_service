@@ -11,6 +11,7 @@
     import { sendChatMessageStream } from '../services/chatService';
     import Toast from "../components/Toast.svelte";
     import HomeSpaceIdConfirm from "../components/space/HomeSpaceIdConfirm.svelte";
+    import getSpaceId from "../utils/getSpaceId";
 
 
     // 状态管理
@@ -23,7 +24,7 @@
     let height = 500;
     let focus = false;
 
-    $: disabled = !inputMessage;
+    $: disabled = !inputMessage || !getSpaceId();
 
     // 初始化示例消息
     onMount(() => {
@@ -121,7 +122,7 @@
 
     // 处理输入框回车事件
     const handleKeyPress = (e: KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.key === 'Enter' && !e.shiftKey && !disabled) {
             e.preventDefault();
             sendMessage();
         }
