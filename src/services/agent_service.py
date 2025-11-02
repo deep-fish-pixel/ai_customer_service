@@ -50,12 +50,12 @@ class AgentService:
         # 存储会议记录
         self.meeting_records: Dict[str, List[Dict[str, Any]]] = {}
     
-    async def process_leave_request(self, user_id: str, request_text: str) -> Dict[str, Any]:
+    async def process_leave_request(self, space_id: str, request_text: str) -> Dict[str, Any]:
         """
         处理请假请求
         
         Args:
-            user_id: 用户ID
+            space_id: 空间ID
             request_text: 请假请求文本
             
         Returns:
@@ -102,9 +102,9 @@ class AgentService:
             leave_info["duration_days"] = (end_date - start_date).days + 1
             
             # 保存请假记录
-            if user_id not in self.leave_records:
-                self.leave_records[user_id] = []
-            self.leave_records[user_id].append({
+            if space_id not in self.leave_records:
+                self.leave_records[space_id] = []
+            self.leave_records[space_id].append({
                 **leave_info,
                 "request_time": datetime.now().isoformat(),
                 "status": "pending"
@@ -150,12 +150,12 @@ class AgentService:
                 "message": f"处理请假请求失败: {str(e)}"
             }
     
-    async def process_meeting_request(self, user_id: str, request_text: str) -> Dict[str, Any]:
+    async def process_meeting_request(self, space_id: str, request_text: str) -> Dict[str, Any]:
         """
         处理会议预约请求
         
         Args:
-            user_id: 用户ID
+            space_id: 空间ID
             request_text: 会议预约请求文本
             
         Returns:
@@ -198,9 +198,9 @@ class AgentService:
                 }
             
             # 保存会议记录
-            if user_id not in self.meeting_records:
-                self.meeting_records[user_id] = []
-            self.meeting_records[user_id].append({
+            if space_id not in self.meeting_records:
+                self.meeting_records[space_id] = []
+            self.meeting_records[space_id].append({
                 **meeting_info,
                 "request_time": datetime.now().isoformat(),
                 "status": "scheduled"
@@ -249,29 +249,29 @@ class AgentService:
                 "message": f"处理会议预约请求失败: {str(e)}"
             }
     
-    async def list_leave_records(self, user_id: str) -> List[Dict[str, Any]]:
+    async def list_leave_records(self, space_id: str) -> List[Dict[str, Any]]:
         """
         列出用户的请假记录
         
         Args:
-            user_id: 用户ID
+            space_id: 空间ID
             
         Returns:
             请假记录列表
         """
-        return self.leave_records.get(user_id, [])
+        return self.leave_records.get(space_id, [])
     
-    async def list_meeting_records(self, user_id: str) -> List[Dict[str, Any]]:
+    async def list_meeting_records(self, space_id: str) -> List[Dict[str, Any]]:
         """
         列出用户的会议记录
         
         Args:
-            user_id: 用户ID
+            space_id: 空间ID
             
         Returns:
             会议记录列表
         """
-        return self.meeting_records.get(user_id, [])
+        return self.meeting_records.get(space_id, [])
 
 # 创建全局Agent服务实例
 agent_service = AgentService()

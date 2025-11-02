@@ -7,7 +7,7 @@ import getSpaceId from "./getSpaceId";
  */
 export default function (contentType?: string) {
     const headers: Record<string, string> = {
-        'X-User-ID': getSpaceId()
+        'X-Space-ID': getSpaceId()
     };
 
     if (contentType) {
