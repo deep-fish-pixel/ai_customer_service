@@ -65,6 +65,11 @@
 ## API接口说明
 
 ### 聊天接口
+- `POST /api/user/register` - 注册账号
+- `POST /api/user/login` - 登录账号
+- `POST /api/user/info` - 获取用户信息
+
+### 聊天接口
 - `POST /api/chat/send` - 发送消息给客服
 
 ### 文档管理接口
