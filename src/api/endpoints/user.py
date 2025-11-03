@@ -21,12 +21,12 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
 
 # Pydantic模型
 class UserRegisterRequest(BaseModel):
-    account: str
+    username: str
     password: str
     nickname: str
 
 class UserLoginRequest(BaseModel):
-    account: str
+    username: str
     password: str
 
 # 依赖项：获取当前用户
@@ -53,7 +53,7 @@ async def register_user(request: UserRegisterRequest) -> Dict[str, Any]:
     """用户注册接口"""
     try:
         # 检查用户是否已存在
-        existing_user = db_service.get_user_by_account(request.account)
+        existing_user = db_service.get_user_by_username(request.username)
         if existing_user:
             return {
                 "status": RESPONSE_STATUS_FAILED,
@@ -66,7 +66,7 @@ async def register_user(request: UserRegisterRequest) -> Dict[str, Any]:
         
         # 创建用户
         user_id = db_service.create_user(
-            account=request.account,
+            username=request.username,
             password=hashed_password,
             nickname=request.nickname
         )
@@ -81,7 +81,7 @@ async def register_user(request: UserRegisterRequest) -> Dict[str, Any]:
         return {
             "status": RESPONSE_STATUS_SUCCESS,
             "message": "用户注册成功",
-            "data": {"user_id": user_id, "account": request.account, "nickname": request.nickname}
+            "data": {"user_id": user_id, "username": request.username, "nickname": request.nickname}
         }
     except HTTPException as e:
         raise e
@@ -98,7 +98,7 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends()) -> Dict[s
     """用户登录接口，返回JWT令牌"""
     try:
         # 获取用户
-        user = db_service.get_user_by_account(form_data.username)
+        user = db_service.get_user_by_username(form_data.username)
         if not user:
             return {
                 "status": RESPONSE_STATUS_FAILED,
@@ -128,7 +128,7 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends()) -> Dict[s
                 "access_token": access_token,
                 "token_type": "bearer",
                 "user_id": user["id"],
-                "account": user["account"],
+                "username": user["username"],
                 "nickname": user["nickname"]
             }
         }

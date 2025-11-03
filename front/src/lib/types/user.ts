@@ -1,6 +1,6 @@
 // 用户登录接口
 export interface UserLoginRequest {
-  account: string;
+  username: string;
   password: string;
 }
 

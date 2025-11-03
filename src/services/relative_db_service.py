@@ -58,7 +58,7 @@ class RelativeDBService:
             create_users_table_query = """
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                account VARCHAR(50) NOT NULL UNIQUE,
+                username VARCHAR(50) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
                 nickname VARCHAR(100) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -187,12 +187,12 @@ class RelativeDBService:
             logger.error(f"获取文档信息失败: {str(e)}")
             return None
     
-    def create_user(self, account: str, password: str, nickname: str) -> Optional[int]:
+    def create_user(self, username: str, password: str, nickname: str) -> Optional[int]:
         """
         创建新用户
         
         Args:
-            account: 用户账号
+            username: 用户账号
             password: 加密后的密码
             nickname: 用户昵称
             
@@ -206,8 +206,8 @@ class RelativeDBService:
             return None
         
         try:
-            query = "INSERT INTO users (account, password, nickname) VALUES (%s, %s, %s)"
-            self.cursor.execute(query, (account, password, nickname))
+            query = "INSERT INTO users (username, password, nickname) VALUES (%s, %s, %s)"
+            self.cursor.execute(query, (username, password, nickname))
             self.connection.commit()
             return self.cursor.lastrowid
         except Error as e:
@@ -216,12 +216,12 @@ class RelativeDBService:
                 self.connection.rollback()
             return None
     
-    def get_user_by_account(self, account: str) -> Optional[Dict[str, Any]]:
+    def get_user_by_username(self, username: str) -> Optional[Dict[str, Any]]:
         """
         通过账号获取用户信息
         
         Args:
-            account: 用户账号
+            username: 用户账号
             
         Returns:
             用户信息字典，不存在则返回None
@@ -233,8 +233,8 @@ class RelativeDBService:
             return None
         
         try:
-            query = "SELECT id, account, nickname, created_at FROM users WHERE account = %s"
-            self.cursor.execute(query, (account,))
+            query = "SELECT id, username, nickname, created_at FROM users WHERE username = %s"
+            self.cursor.execute(query, (username,))
             return self.cursor.fetchone()
         except Error as e:
             logger.error(f"获取用户信息失败: {str(e)}")
@@ -257,7 +257,7 @@ class RelativeDBService:
             return None
         
         try:
-            query = "SELECT id, account, nickname, created_at FROM users WHERE id = %s"
+            query = "SELECT id, username, nickname, created_at FROM users WHERE id = %s"
             self.cursor.execute(query, (user_id,))
             return self.cursor.fetchone()
         except Error as e:

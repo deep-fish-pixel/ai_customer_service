@@ -7,9 +7,9 @@
     import {RESPONSE_STATUS_SUCCESS} from "../../../constants";
 
 
-    let account: string = $state('');
-    let accountDirty = $state(false);
-    let accountInvalid = $state(false);
+    let username: string = $state('');
+    let usernameDirty = $state(false);
+    let usernameInvalid = $state(false);
     let password: string = $state('');
     let passwordDirty = $state(false);
     let passwordInvalid = $state(false);
@@ -17,15 +17,15 @@
 
     const { onSwitch } = $props();
 
-    function handlerAccountChange() {
+    function handlerUsernameChange() {
         // 验证输入是否符合要求
-        if (account) {
+        if (username) {
             // 正则表达式：只允许下划线、数字和字母
-            accountInvalid = !/^\w+$/.test(account);
+            usernameInvalid = !/^\w+$/.test(username);
         } else {
-            accountInvalid = true;
+            usernameInvalid = true;
         }
-        console.log('handlerAccountChange======', account, accountInvalid)
+        console.log('handlerUsernameChange======', username, usernameInvalid)
     }
 
     function handlerPasswordChange() {
@@ -47,7 +47,7 @@
     async function handleUserConfirm() {
         try {
             const response = await login({
-                account,
+                username,
                 password,
             })
 
@@ -67,16 +67,16 @@
     <Content id="simple-content">
         <Textfield
                 type="text"
-                bind:value={account}
-                bind:invalid={accountInvalid}
-                bind:dirty={accountDirty}
+                bind:value={username}
+                bind:invalid={usernameInvalid}
+                bind:dirty={usernameDirty}
                 label="账号"
                 style="min-width: 450px;"
-                oninput={handlerAccountChange}
+                oninput={handlerUsernameChange}
         >
             {#snippet helper()}
-                <HelperText validationMsg={accountInvalid && accountDirty}>
-                    {accountInvalid && accountDirty ? '账号只能包含字母、数字和下划线' : ''}
+                <HelperText validationMsg={usernameInvalid && usernameDirty}>
+                    {usernameInvalid && usernameDirty ? '账号只能包含字母、数字和下划线' : ''}
                 </HelperText>
             {/snippet}
         </Textfield>
@@ -98,7 +98,7 @@
     </Content>
     <div class="buttons">
         <Button class="confirm" variant="raised"  disabled={
-            !account || accountInvalid ||
+            !username || usernameInvalid ||
             !password || passwordInvalid
         } onclick={handleUserConfirm}>
             <Label>确定</Label>
