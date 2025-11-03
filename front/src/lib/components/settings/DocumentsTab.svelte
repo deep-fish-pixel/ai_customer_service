@@ -90,7 +90,7 @@
 
 <div class="document-tab">
   <!-- 文件列表区域 -->
-  {#if documentList.length}
+  {#if documentList && documentList.length}
     <div class="file-list-container">
       <List class="file-list">
         {#each documentList as document, i}

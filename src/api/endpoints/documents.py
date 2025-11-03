@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Header, UploadFile, File
-from typing import Dict, Any, List
-
 from src import RESPONSE_STATUS_SUCCESS, Response
+from src.api.endpoints.user import get_current_user_id
 from src.services.document_service import document_service
-from src.api.endpoints import get_user_id
 
 # 创建路由器
 router = APIRouter()
@@ -11,7 +9,7 @@ router = APIRouter()
 @router.post("/upload", response_model=Response)
 async def upload_document(
     file: UploadFile = File(...),
-    user_id: str = Depends(get_user_id)
+    user_id: int = Depends(get_current_user_id),
 ) -> Response:
     """
     上传文档
@@ -34,7 +32,7 @@ async def upload_document(
 @router.delete("/{file_name}", response_model=Response)
 async def delete_document(
     file_name: str,
-    user_id: str = Depends(get_user_id)
+    user_id: int = Depends(get_current_user_id),
 ) -> Response:
     """
     删除文档
@@ -56,7 +54,7 @@ async def delete_document(
 
 @router.get("/", response_model=Response)
 async def list_documents(
-    user_id: str = Depends(get_user_id)
+    user_id: int = Depends(get_current_user_id),
 ) -> Response:
     """
     列出用户的所有文档

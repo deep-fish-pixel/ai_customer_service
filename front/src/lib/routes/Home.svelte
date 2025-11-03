@@ -20,14 +20,14 @@
     // 状态管理
     let inputContainer: HTMLElement;
     let messageContainer: HTMLElement;
-    let messages: Message[] = [];
-    let inputMessage: string = '';
-    let files: FileItem[] = [];
-    let tools: ToolConfig[] = [];
-    let height = 500;
-    let focus = false;
+    let messages: Message[] = $state([]);
+    let inputMessage = $state('');
+    let files: FileItem[] = $state([]);
+    let tools: ToolConfig[] = $state([]);
+    let height = $state(500);
+    let focus = $state(false);
     let loginVisible = $state(false);
-    let disabled = !inputMessage || !getUserId();
+    let disabled =  $derived(!inputMessage || !getUserId());
 
     // 初始化示例消息
     onMount(async () => {
@@ -215,6 +215,7 @@
 
     const handleClose = () => {
         loginVisible = false;
+        window.location.reload();
     }
 </script>
 
@@ -243,7 +244,7 @@
                                 textarea={true}
                                 variant="outlined"
                                 value={inputMessage}
-                                oninput={(e) => inputMessage = (e.target as HTMLTextAreaElement)?.value}
+                                oninput={(e: any) => inputMessage = e.target?.value}
                                 onkeydown={handleKeyPress}
                                 onfocus={() => handleFocus(true)}
                                 onfocusout={() => handleFocus(false)}

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Paper, { Content } from '@smui/paper';
   import type { Message, } from "../types/chat";
   
   // 从父组件接收的属性

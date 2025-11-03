@@ -32,5 +32,5 @@ export function getUser() {
 }
 
 export function getUserId() {
-    return userinfo.user_id;
+    return getUser().username;
 }

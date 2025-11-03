@@ -5,7 +5,7 @@ from typing import AsyncGenerator
 from typing import Dict, Any, List, Optional, TypedDict
 
 from src import RESPONSE_STATUS_FAILED
-from src.api.endpoints import get_user_id
+from src.api.endpoints.user import get_current_user_id
 
 
 class ChatMessage(TypedDict):
@@ -26,7 +26,7 @@ class ChatRequest(BaseModel):
 @router.post("/invoke", response_model=Dict[str, Any])
 async def send_message_invoke(
     request: ChatRequest,
-    user_id: str = Depends(get_user_id)
+    user_id: int = Depends(get_current_user_id),
 ) -> Dict[str, Any]:
     """
     发送消息给客服
@@ -80,8 +80,10 @@ async def mock_chain_stream(query: str):
 
 
 
-async def stream_generator(request: ChatRequest,
-                           user_id: str = Depends(get_user_id), ) -> AsyncGenerator[str, None]:
+async def stream_generator(
+        request: ChatRequest,
+        user_id: int = Depends(get_current_user_id),
+    ) -> AsyncGenerator[str, None]:
     """处理流式生成器"""
     try:
         # 在线程池中运行同步的chat_with_rag，避免阻塞事件循环
@@ -138,7 +140,7 @@ async def stream_generator(request: ChatRequest,
 @router.post("/stream")
 async def send_message_stream(
         request: ChatRequest,
-        user_id: str = Depends(get_user_id),
+        user_id: int = Depends(get_current_user_id),
         stream: bool = False
 ):
     """

@@ -22,6 +22,7 @@
     async function handleLoginSuccess(user: User){
         setUser(user);
         visible = false;
+        onclose();
     }
 </script>
 

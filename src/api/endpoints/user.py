@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import logging
 
 from src import RESPONSE_STATUS_SUCCESS, RESPONSE_STATUS_FAILED
@@ -28,6 +28,18 @@ class UserRegisterRequest(BaseModel):
 class UserLoginRequest(BaseModel):
     username: str
     password: str
+
+
+async def get_current_user_id(token: str = Depends(oauth2_scheme)) ->  int | None:
+    user_id = auth_service.extract_user_id_from_token(token)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="无效的认证令牌",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return user_id
 
 # 依赖项：获取当前用户
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
