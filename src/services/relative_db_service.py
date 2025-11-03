@@ -54,6 +54,18 @@ class RelativeDBService:
             return
         
         try:
+            # 创建用户表
+            create_users_table_query = """
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                account VARCHAR(50) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL,
+                nickname VARCHAR(100) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+            self.cursor.execute(create_users_table_query)
+            
             # 创建documents表
             create_documents_table_query = """
             CREATE TABLE IF NOT EXISTS documents (
@@ -66,7 +78,8 @@ class RelativeDBService:
                 chunks_count INT NOT NULL,
                 upload_time DATETIME NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY unique_user_file (user_id, file_name)
+                UNIQUE KEY unique_user_file (user_id, file_name),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
             """
             
@@ -172,6 +185,83 @@ class RelativeDBService:
             
         except Error as e:
             logger.error(f"获取文档信息失败: {str(e)}")
+            return None
+    
+    def create_user(self, account: str, password: str, nickname: str) -> Optional[int]:
+        """
+        创建新用户
+        
+        Args:
+            account: 用户账号
+            password: 加密后的密码
+            nickname: 用户昵称
+            
+        Returns:
+            新用户ID，失败则返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return None
+        
+        try:
+            query = "INSERT INTO users (account, password, nickname) VALUES (%s, %s, %s)"
+            self.cursor.execute(query, (account, password, nickname))
+            self.connection.commit()
+            return self.cursor.lastrowid
+        except Error as e:
+            logger.error(f"创建用户失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return None
+    
+    def get_user_by_account(self, account: str) -> Optional[Dict[str, Any]]:
+        """
+        通过账号获取用户信息
+        
+        Args:
+            account: 用户账号
+            
+        Returns:
+            用户信息字典，不存在则返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return None
+        
+        try:
+            query = "SELECT id, account, nickname, created_at FROM users WHERE account = %s"
+            self.cursor.execute(query, (account,))
+            return self.cursor.fetchone()
+        except Error as e:
+            logger.error(f"获取用户信息失败: {str(e)}")
+            return None
+    
+    def get_user_by_id(self, user_id: int) -> Optional[Dict[str, Any]]:
+        """
+        通过ID获取用户信息
+        
+        Args:
+            user_id: 用户ID
+            
+        Returns:
+            用户信息字典，不存在则返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return None
+        
+        try:
+            query = "SELECT id, account, nickname, created_at FROM users WHERE id = %s"
+            self.cursor.execute(query, (user_id,))
+            return self.cursor.fetchone()
+        except Error as e:
+            logger.error(f"获取用户信息失败: {str(e)}")
             return None
     
     def delete_document_info(self, user_id: str, file_name: str) -> bool:

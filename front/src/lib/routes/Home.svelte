@@ -10,7 +10,7 @@
     import SendIcon from "../icons/SendIcon.svelte";
     import { sendChatMessageStream } from '../services/chatService';
     import Toast from "../components/Toast.svelte";
-    import HomeSpaceIdConfirm from "../components/space/HomeSpaceIdConfirm.svelte";
+    import UserConfirm from "../components/user/UserConfirm.svelte";
     import getSpaceId from "../utils/getUserId";
 
 
@@ -248,7 +248,7 @@
             />
         </div>
     </div>
-    <HomeSpaceIdConfirm visible={true}></HomeSpaceIdConfirm>
+    <UserConfirm visible={true}></UserConfirm>
 </div>
 
 <style lang="scss">

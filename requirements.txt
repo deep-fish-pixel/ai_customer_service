@@ -15,3 +15,5 @@ anthropic
 mysql-connector-python==8.3.0
 tiktoken
 python-dotenv
+PyJWT
+passlib
