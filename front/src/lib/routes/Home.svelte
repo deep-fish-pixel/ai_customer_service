@@ -3,11 +3,12 @@
     import SettingsPanel from '../components/settings/SettingsPanel.svelte';
     import ChatMessage from '../components/ChatMessage.svelte';
     import Textfield from '@smui/textfield';
-    import Button from '@smui/button';
+    import Button, { Label } from '@smui/button';
     import Paper from '@smui/paper';
     import type {FileItem, ToolConfig} from "../types";
     import type { Message, } from "../types/chat";
     import SendIcon from "../icons/SendIcon.svelte";
+    import UserIcon from "../../assets/user.svg";
     import { sendChatMessageStream } from '../services/chatService';
     import Toast from "../components/Toast.svelte";
     import UserConfirm from "../components/user/UserConfirm.svelte";
@@ -15,6 +16,10 @@
     import {getUserinfo} from "../services/userService";
     import {RESPONSE_STATUS_FAILED} from "../../constants";
     import {getTokenAuthorization} from "../utils/authorization";
+    import Icon from '@smui/textfield/icon';
+    import IconButton from '@smui/icon-button';
+
+
 
 
     // 状态管理
@@ -222,7 +227,8 @@
 <div class="app-container">
     <Toast></Toast>
     <header class="header">
-        AI超级智能客服
+        <p>AI超级智能客服</p>
+        <img class="user-icon" src={UserIcon} />
     </header>
     <div class="content">
         <div class="chat-container">
@@ -299,13 +305,26 @@
 
   .header{
     width: 100%;
-    color: var(--mainTextColor);
+    color: #fff;
     font-size: 20px;
     font-style: normal;
     font-weight: 500;
     line-height: 24px;
-    padding: 14px 20px;
+    padding: 14px 20px 10px;
     gap: 12px;
+
+    display: flex;
+
+    p{
+      flex: 1;
+    }
+
+    .user-icon {
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+    }
   }
 
   .content {
