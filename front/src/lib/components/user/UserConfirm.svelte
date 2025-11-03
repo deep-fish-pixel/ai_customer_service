@@ -31,6 +31,7 @@
         aria-labelledby="simple-title"
         aria-describedby="simple-content"
         scrimClickAction=""
+        escapeKeyAction=""
 >
     {#if isLogin}
         <UserLogin onSwitch={handleToRegister} onLoginSuccess={handleLoginSuccess}></UserLogin>

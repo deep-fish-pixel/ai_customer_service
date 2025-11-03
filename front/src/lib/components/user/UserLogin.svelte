@@ -64,13 +64,14 @@
 </script>
 
 <div class="user-register">
-    <Title class="simple-title">注册账号</Title>
+    <Title class="simple-title">登录账号</Title>
     <Content id="simple-content">
         <Textfield
                 type="text"
                 bind:value={username}
                 bind:invalid={usernameInvalid}
                 bind:dirty={usernameDirty}
+                autofocus
                 label="账号"
                 style="min-width: 450px;"
                 oninput={handlerUsernameChange}
@@ -124,7 +125,7 @@
       margin-bottom: 10px;
 
       :global(.confirm){
-        width: 70%;
+        width: 90%;
       }
       :global(.text){
         font-size: 12px;

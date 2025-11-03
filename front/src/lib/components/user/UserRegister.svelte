@@ -81,6 +81,7 @@
                 bind:value={username}
                 bind:invalid={usernameInvalid}
                 bind:dirty={usernameDirty}
+                autofocus
                 label="账号"
                 style="min-width: 450px;"
                 oninput={handlerUsernameChange}
@@ -150,7 +151,7 @@
       margin-bottom: 10px;
 
       :global(.confirm){
-        width: 70%;
+        width: 90%;
       }
       :global(.text){
         font-size: 12px;

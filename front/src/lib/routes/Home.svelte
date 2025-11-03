@@ -8,19 +8,14 @@
     import type {FileItem, ToolConfig} from "../types";
     import type { Message, } from "../types/chat";
     import SendIcon from "../icons/SendIcon.svelte";
-    import UserIcon from "../../assets/user.svg";
+    import userIcon from "../../assets/user.svg";
     import { sendChatMessageStream } from '../services/chatService';
     import Toast from "../components/Toast.svelte";
     import UserConfirm from "../components/user/UserConfirm.svelte";
-    import {getUserId, setUser} from "../utils/getUser";
+    import {getUserId, setUser, getUser, } from "../utils/getUser";
     import {getUserinfo} from "../services/userService";
     import {RESPONSE_STATUS_FAILED} from "../../constants";
     import {getTokenAuthorization} from "../utils/authorization";
-    import Icon from '@smui/textfield/icon';
-    import IconButton from '@smui/icon-button';
-
-
-
 
     // 状态管理
     let inputContainer: HTMLElement;
@@ -222,13 +217,21 @@
         loginVisible = false;
         window.location.reload();
     }
+
+    const handleUserClick = () => {
+        debugger
+        if(!getUser().nickname) {
+            loginVisible = true;
+        }
+    }
 </script>
 
 <div class="app-container">
     <Toast></Toast>
     <header class="header">
         <p>AI超级智能客服</p>
-        <img class="user-icon" src={UserIcon} />
+        <img class="user-icon" src={userIcon} width="30" height="30" alt="user" onclick={handleUserClick} />
+        <span class="user-nickname">{getUser().nickname}</span>
     </header>
     <div class="content">
         <div class="chat-container">
@@ -324,6 +327,9 @@
       width: 30px;
       height: 30px;
       cursor: pointer;
+    }
+    .user-nickname{
+      font-size: 14px;
     }
   }
 
