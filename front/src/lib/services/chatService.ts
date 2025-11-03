@@ -1,4 +1,5 @@
-import type { ChatRequest, Response, } from '../types/chat';
+import type { ChatRequest, } from '../types/chat';
+import type {Response} from '../types/request';
 import { request } from './apiClient';
 import type { Message, } from "../types/chat";
 import {API_BASE_URL} from "../../constants";

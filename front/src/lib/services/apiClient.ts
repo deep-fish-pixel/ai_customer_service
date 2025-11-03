@@ -1,5 +1,6 @@
 import {showToast} from "../utils/toast";
-import type {Response} from "../types/chat";
+import type {Response} from "../types/request";
+import {RESPONSE_STATUS_FAILED} from "../../constants";
 
 export interface RequestOptions extends RequestInit {
   headers?: Record<string, string>;
@@ -38,7 +39,7 @@ export async function request<T>(
 
     if (!response.ok) {
       return {
-        status: 'failed',
+        status: RESPONSE_STATUS_FAILED,
         data: null as any,
         message: `服务器错误: ${response.status} ${response.statusText}`
       };
@@ -56,14 +57,14 @@ export async function request<T>(
 
     if (typeof error === 'object' && error !== null && 'name' in error && error.name === 'AbortError') {
       return {
-        status: 'failed',
+        status: RESPONSE_STATUS_FAILED,
         data: null as any,
         message: '请求超时，请稍后重试'
       };
     }
 
     return {
-      status: 'failed',
+      status: RESPONSE_STATUS_FAILED,
       data: null as any,
       message: '网络连接错误，请检查是否正常启用: python main.py'
     };

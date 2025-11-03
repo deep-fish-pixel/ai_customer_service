@@ -2,42 +2,33 @@
     import Button, { Label } from '@smui/button';
     import Textfield from '@smui/textfield';
     import HelperText from '@smui/textfield/helper-text';
-    import { navigate, useRouter, useLocation, useHistory } from "svelte5-router";
-    import Dialog, { Title, Content, Actions } from '@smui/dialog';
+    import { Title, Content, } from '@smui/dialog';
+    import {register} from "../../services/userService";
+    import {RESPONSE_STATUS_SUCCESS} from "../../../constants";
 
 
-    let username: string | null = $state(null);
-    let usernameDirty = $state(false);
-    let usernameInvalid = $state(false);
-    let password: string | null = $state(null);
+    let account: string = $state('');
+    let accountDirty = $state(false);
+    let accountInvalid = $state(false);
+    let password: string = $state('');
     let passwordDirty = $state(false);
     let passwordInvalid = $state(false);
     let passwordInvalidMessage = $state('');
-    let nickname: string | null = $state(null);
+    let nickname: string = $state('');
     let nicknameDirty = $state(false);
     let nicknameInvalid = $state(false);
-    const router = useRouter();
-    const location = useLocation();
-    const history = useHistory();
 
-    let isSpace = $derived(history.location.pathname.match(/^\/space\/\w+$/));
-    let visible = $state(!isSpace);
+    const { onSwitch } = $props();
 
-    // $effect(() => {
-    //     if (!history.location.pathname.match(/^\/user\/\w+$/)) {
-    //         visible = true;
-    //     }
-    // });
-
-    function handlerUsernameChange() {
+    function handlerAccountChange() {
         // 验证输入是否符合要求
-        if (username) {
+        if (account) {
             // 正则表达式：只允许下划线、数字和字母
-            usernameInvalid = !/^\w+$/.test(username);
+            accountInvalid = !/^\w+$/.test(account);
         } else {
-            usernameInvalid = true;
+            accountInvalid = true;
         }
-        console.log('handlerUsernameChange======', username, usernameInvalid)
+        console.log('handlerAccountChange======', account, accountInvalid)
     }
 
     function handlerPasswordChange() {
@@ -64,8 +55,21 @@
         console.log('handlerNicknameChange======', nickname, nicknameInvalid)
     }
 
-    const confirm = async () => {
-        navigate(`/space/${username}`);
+    async function handleUserConfirm() {
+        try {
+            const response = await register({
+                account,
+                password,
+                nickname
+            })
+
+            if (response.status === RESPONSE_STATUS_SUCCESS) {
+                onSwitch();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 </script>
 
@@ -74,16 +78,16 @@
     <Content id="simple-content">
         <Textfield
                 type="text"
-                bind:value={username}
-                bind:invalid={usernameInvalid}
-                bind:dirty={usernameDirty}
+                bind:value={account}
+                bind:invalid={accountInvalid}
+                bind:dirty={accountDirty}
                 label="账号"
                 style="min-width: 450px;"
-                oninput={handlerUsernameChange}
+                oninput={handlerAccountChange}
         >
             {#snippet helper()}
-                <HelperText validationMsg={usernameInvalid && usernameDirty}>
-                    {usernameInvalid && usernameDirty ? '账号只能包含字母、数字和下划线' : ''}
+                <HelperText validationMsg={accountInvalid && accountDirty}>
+                    {accountInvalid && accountDirty ? '账号只能包含字母、数字和下划线' : ''}
                 </HelperText>
             {/snippet}
         </Textfield>
@@ -120,13 +124,13 @@
     </Content>
     <div class="buttons">
         <Button class="confirm" variant="raised"  disabled={
-            !username || usernameInvalid ||
+            !account || accountInvalid ||
             !password || passwordInvalid ||
             !nickname || nicknameInvalid
-        } onclick={confirm}>
+        } onclick={handleUserConfirm}>
             <Label>确定</Label>
         </Button>
-        <Button class="text" onclick={() => clicked++}>
+        <Button class="text" onclick={onSwitch}>
             <Label>返回登录</Label>
         </Button>
     </div>
@@ -150,6 +154,7 @@
       }
       :global(.text){
         font-size: 12px;
+        margin-top: 10px;
       }
     }
   }

@@ -1,40 +1,30 @@
 <script lang="ts">
-    import Button, { Label } from '@smui/button';
-    import Textfield from '@smui/textfield';
-    import HelperText from '@smui/textfield/helper-text';
-    import { navigate, useRouter, useLocation, useHistory } from "svelte5-router";
     import Dialog, { Title, Content, Actions } from '@smui/dialog';
     import UserLogin from './UserLogin.svelte';
     import UserRegister from './UserRegister.svelte';
 
-
-    let focused = $state(false);
-    let username: string | null = $state(null);
-    let usernameDirty = $state(false);
-    let usernameInvalid = $state(false);
-    let password: string | null = $state(null);
-    let passwordDirty = $state(false);
-    let passwordInvalid = $state(false);
-    const router = useRouter();
-    const location = useLocation();
-    const history = useHistory();
-
     let visible = $state(true);
+    let isLogin = $state(true);
+
+    function handleToRegister(){
+        isLogin = false;
+    }
+    function handleToLogin(){
+        isLogin = true;
+    }
 </script>
 
 <Dialog
         bind:open={visible}
         aria-labelledby="simple-title"
         aria-describedby="simple-content"
-        onclick={(e) => {
-          // 禁止关闭
-          setTimeout(() => {
-            visible = true;
-          }, 80)
-        }}
+        scrimClickAction=""
 >
-    <UserLogin></UserLogin>
-    <UserRegister></UserRegister>
+    {#if isLogin}
+        <UserLogin onSwitch={handleToRegister}></UserLogin>
+    {:else}
+        <UserRegister onSwitch={handleToLogin}></UserRegister>
+    {/if}
 </Dialog>
 
 <style lang="scss">

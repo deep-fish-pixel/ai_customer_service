@@ -2,35 +2,33 @@
     import Button, { Label } from '@smui/button';
     import Textfield from '@smui/textfield';
     import HelperText from '@smui/textfield/helper-text';
-    import { navigate, useRouter, useLocation, useHistory } from "svelte5-router";
-    import Dialog, { Title, Content, Actions } from '@smui/dialog';
+    import { Title, Content, } from '@smui/dialog';
+    import {login} from "../../services/userService";
+    import {RESPONSE_STATUS_SUCCESS} from "../../../constants";
 
 
-    let username: string | null = $state(null);
-    let usernameDirty = $state(false);
-    let usernameInvalid = $state(false);
-    let password: string | null = $state(null);
+    let account: string = $state('');
+    let accountDirty = $state(false);
+    let accountInvalid = $state(false);
+    let password: string = $state('');
     let passwordDirty = $state(false);
     let passwordInvalid = $state(false);
     let passwordInvalidMessage = $state('');
-    const router = useRouter();
-    const location = useLocation();
-    const history = useHistory();
 
+    const { onSwitch } = $props();
 
-    function handlerUsernameChange() {
+    function handlerAccountChange() {
         // 验证输入是否符合要求
-        if (username) {
+        if (account) {
             // 正则表达式：只允许下划线、数字和字母
-            usernameInvalid = !/^\w+$/.test(username);
+            accountInvalid = !/^\w+$/.test(account);
         } else {
-            usernameInvalid = true;
+            accountInvalid = true;
         }
-        console.log('handlerUsernameChange======', username, usernameInvalid)
+        console.log('handlerAccountChange======', account, accountInvalid)
     }
 
     function handlerPasswordChange() {
-        debugger
         // 验证输入是否符合要求
         if (!password || !password.trim()) {
             passwordInvalidMessage = '密码不能为空';
@@ -45,26 +43,40 @@
         console.log('handlerPasswordChange======', password, passwordInvalidMessage)
     }
 
-    const confirm = async () => {
-        navigate(`/space/${username}`);
+
+    async function handleUserConfirm() {
+        try {
+            const response = await login({
+                account,
+                password,
+            })
+
+            debugger
+            if (response.status === RESPONSE_STATUS_SUCCESS) {
+                debugger
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 </script>
 
 <div class="user-register">
-    <Title class="simple-title">登录账号</Title>
+    <Title class="simple-title">注册账号</Title>
     <Content id="simple-content">
         <Textfield
                 type="text"
-                bind:value={username}
-                bind:invalid={usernameInvalid}
-                bind:dirty={usernameDirty}
+                bind:value={account}
+                bind:invalid={accountInvalid}
+                bind:dirty={accountDirty}
                 label="账号"
                 style="min-width: 450px;"
-                oninput={handlerUsernameChange}
+                oninput={handlerAccountChange}
         >
             {#snippet helper()}
-                <HelperText validationMsg={usernameInvalid && usernameDirty}>
-                    {usernameInvalid && usernameDirty ? '账号只能包含字母、数字和下划线' : ''}
+                <HelperText validationMsg={accountInvalid && accountDirty}>
+                    {accountInvalid && accountDirty ? '账号只能包含字母、数字和下划线' : ''}
                 </HelperText>
             {/snippet}
         </Textfield>
@@ -85,13 +97,13 @@
         </Textfield>
     </Content>
     <div class="buttons">
-        <Button class="confirm" variant="raised" disabled={
-            !username || usernameInvalid ||
+        <Button class="confirm" variant="raised"  disabled={
+            !account || accountInvalid ||
             !password || passwordInvalid
-        } onclick={confirm}>
+        } onclick={handleUserConfirm}>
             <Label>确定</Label>
         </Button>
-        <Button class="text" onclick={() => clicked++}>
+        <Button class="text" onclick={onSwitch}>
             <Label>立即注册</Label>
         </Button>
     </div>
@@ -115,6 +127,7 @@
       }
       :global(.text){
         font-size: 12px;
+        margin-top: 10px;
       }
     }
   }

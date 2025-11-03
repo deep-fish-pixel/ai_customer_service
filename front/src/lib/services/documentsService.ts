@@ -1,6 +1,6 @@
 import { request } from './apiClient';
 import type { DocumentFile, } from '../types/document';
-import type {ApiError, Response, } from '../types/chat';
+import type {ApiError, Response} from '../types/request';
 import {API_BASE_URL} from "../../constants";
 import getHeaders from "../utils/getHeaders";
 
