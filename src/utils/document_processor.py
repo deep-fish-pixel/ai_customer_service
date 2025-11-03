@@ -1,6 +1,7 @@
 import os
 from typing import List, Dict, Any
-from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader
+from langchain.schema import Document
+from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader, ToMarkdownLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import markdown
 from bs4 import BeautifulSoup
@@ -39,7 +40,9 @@ class DocumentProcessor:
                 html = markdown.markdown(md_content)
                 soup = BeautifulSoup(html, 'html.parser')
                 text = soup.get_text()
-                documents = [{"page_content": text, "metadata": {"source": file_path}}]
+                documents = [
+                    Document(page_content=text, metadata={"source": file_path}),
+                ]
             else:
                 raise ValueError(f"不支持的文件格式: {file_ext}")
             
