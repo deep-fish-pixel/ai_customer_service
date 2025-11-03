@@ -22,7 +22,7 @@ class DocumentService:
         # 确保上传目录存在
         os.makedirs(self.upload_dir, exist_ok=True)
     
-    async def save_uploaded_file(self, space_id: str, file: UploadFile) -> dict[str, str | None] | str:
+    async def save_uploaded_file(self, user_id: str, file: UploadFile) -> dict[str, str | None] | str:
         """
         保存上传的文件
         
@@ -43,29 +43,29 @@ class DocumentService:
         
         # 保存文件
         # 确保用户特定的上传目录存在
-        space_upload_dir = os.path.join(self.upload_dir, space_id)
-        os.makedirs(space_upload_dir, exist_ok=True)
+        user_upload_dir = os.path.join(self.upload_dir, user_id)
+        os.makedirs(user_upload_dir, exist_ok=True)
         
-        file_path = os.path.join(space_upload_dir, file.filename)
+        file_path = os.path.join(user_upload_dir, file.filename)
         with open(file_path, "wb") as buffer:
             content = await file.read()
             buffer.write(content)
         
         return file_path
     
-    async def upload_and_process_document(self, file: UploadFile, space_id: str) -> Response:
+    async def upload_and_process_document(self, file: UploadFile, user_id: str) -> Response:
         """
         上传并处理文档
         
         Args:
             file: 上传的文件
-            space_id: 空间ID
+            user_id: 用户ID
             
         Returns:
             处理结果
         """
         try:
-            document_info = relative_db_service.get_document_info(space_id, file.filename)
+            document_info = relative_db_service.get_document_info(user_id, file.filename)
 
             if (document_info != None):
                 return {
@@ -74,7 +74,7 @@ class DocumentService:
                     "response": document_info
                 }
             # 保存文件
-            file_path = await self.save_uploaded_file(space_id, file)
+            file_path = await self.save_uploaded_file(user_id, file)
             
             # 获取文档元数据
             metadata = self.document_processor.get_document_metadata(file_path)
@@ -85,13 +85,13 @@ class DocumentService:
             # 切分文档
             chunks = self.document_processor.split_documents(documents)
             
-            # 为每个文档块添加空间ID和文档信息
+            # 为每个文档块添加用户ID和文档信息
             for chunk in chunks:
-                chunk.metadata["space_id"] = space_id
+                chunk.metadata["user_id"] = user_id
                 chunk.metadata["document_name"] = file.filename
             
             # 存储到向量数据库
-            collection_name = f"space_{space_id}_documents"
+            collection_name = f"user_{user_id}_documents"
             document_ids = vector_db_service.add_documents(collection_name, chunks)
 
             # 保存文档信息
@@ -105,7 +105,7 @@ class DocumentService:
             }
             
             # 存储文档信息到数据库
-            relative_db_service.save_document_info(space_id, document_info)
+            relative_db_service.save_document_info(user_id, document_info)
             
             return {
                 "status": RESPONSE_STATUS_SUCCESS,
@@ -123,19 +123,19 @@ class DocumentService:
                 "response": None
             }
     
-    async def delete_document(self, space_id: str, file_name: str) -> Response:
+    async def delete_document(self, user_id: str, file_name: str) -> Response:
         """
         删除文档
         
         Args:
-            space_id: 空间ID
+            user_id: 用户ID
             file_name: 文件名
             
         Returns:
             删除结果
         """
         # 从数据库获取文档信息
-        document_info = relative_db_service.get_document_info(space_id, file_name)
+        document_info = relative_db_service.get_document_info(user_id, file_name)
         
         if not document_info:
             return {
@@ -146,7 +146,7 @@ class DocumentService:
         
         try:
             # 从向量数据库删除
-            collection_name = f"space_{space_id}_documents"
+            collection_name = f"user_{user_id}_documents"
             vector_db_service.delete_documents(collection_name, document_info["document_ids"])
             
             # 删除本地文件
@@ -154,7 +154,7 @@ class DocumentService:
                 os.remove(document_info["file_path"])
             
             # 从数据库删除文档信息
-            relative_db_service.delete_document_info(space_id, file_name)
+            relative_db_service.delete_document_info(user_id, file_name)
             
             return {
                 "status": RESPONSE_STATUS_SUCCESS,
@@ -169,12 +169,12 @@ class DocumentService:
                 "response": None
             }
 
-    async def list_documents(self, space_id: str) -> List[Dict[str, Any]]:
+    async def list_documents(self, user_id: str) -> List[Dict[str, Any]]:
         """
-        列出空间的所有文档
+        列出用户的所有文档
         
         Args:
-            space_id: 空间ID
+            space_id: 用户ID
             
         Returns:
             文档列表

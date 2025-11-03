@@ -13,7 +13,7 @@
   import type {DocumentFile} from "../../types/document";
   import {formatDate} from "../../utils/date";
   import Dialog, { Title, Content, Actions } from '@smui/dialog';
-  import getSpaceId from "../../utils/getSpaceId";
+  import getUserId from "../../utils/getUserId";
 
 
   const ButtonName = '上传知识库';
@@ -75,7 +75,7 @@
   }
 
   async function getDocuments() {
-    if(getSpaceId()) {
+    if(getUserId()) {
       documentList = await getDocumentList();
     }
   }
@@ -120,7 +120,7 @@
         class="file-button"
         variant="raised"
         color="primary"
-        disabled={!getSpaceId()}
+        disabled={!getUserId()}
       >
         { buttonName }
       </Button>

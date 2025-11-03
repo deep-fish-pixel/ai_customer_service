@@ -1,5 +1,5 @@
 
-import getSpaceId from "./getSpaceId";
+import getUserId from "./getUserId";
 
 /**
  * 创建基础请求头
@@ -7,7 +7,7 @@ import getSpaceId from "./getSpaceId";
  */
 export default function (contentType?: string) {
     const headers: Record<string, string> = {
-        'X-Space-ID': getSpaceId()
+        'X-User-ID': getUserId()
     };
 
     if (contentType) {

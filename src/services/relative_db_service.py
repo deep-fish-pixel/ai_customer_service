@@ -58,7 +58,7 @@ class RelativeDBService:
             create_documents_table_query = """
             CREATE TABLE IF NOT EXISTS documents (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                space_id VARCHAR(255) NOT NULL,
+                user_id VARCHAR(255) NOT NULL,
                 file_name VARCHAR(255) NOT NULL,
                 file_path VARCHAR(512) NOT NULL,
                 file_size INT NOT NULL,
@@ -66,7 +66,7 @@ class RelativeDBService:
                 chunks_count INT NOT NULL,
                 upload_time DATETIME NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY unique_space_file (space_id, file_name)
+                UNIQUE KEY unique_user_file (user_id, file_name)
             )
             """
             
@@ -77,12 +77,12 @@ class RelativeDBService:
         except Error as e:
             logger.error(f"创建数据表失败: {str(e)}")
     
-    def save_document_info(self, space_id: str, document_info: Dict[str, Any]) -> bool:
+    def save_document_info(self, user_id: str, document_info: Dict[str, Any]) -> bool:
         """
         保存文档信息到数据库
         
         Args:
-            space_id: 空间ID
+            user_id: 用户ID
             document_info: 文档信息字典
             
         Returns:
@@ -101,7 +101,7 @@ class RelativeDBService:
             # 使用INSERT ON DUPLICATE KEY UPDATE处理重复键
             query = """
             INSERT INTO documents 
-            (space_id, file_name, file_path, file_size, document_ids, chunks_count, upload_time)
+            (user_id, file_name, file_path, file_size, document_ids, chunks_count, upload_time)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
             file_path = VALUES(file_path),
@@ -112,7 +112,7 @@ class RelativeDBService:
             """
             
             values = (
-                space_id,
+                user_id,
                 document_info['file_name'],
                 document_info['file_path'],
                 document_info['file_size'],
@@ -123,7 +123,7 @@ class RelativeDBService:
             
             self.cursor.execute(query, values)
             self.connection.commit()
-            logger.info(f"文档信息保存成功: {space_id} - {document_info['file_name']}")
+            logger.info(f"文档信息保存成功: {user_id} - {document_info['file_name']}")
             return True
             
         except Error as e:
@@ -132,12 +132,12 @@ class RelativeDBService:
                 self.connection.rollback()
             return False
     
-    def get_document_info(self, space_id: str, file_name: str) -> Optional[Dict[str, Any]]:
+    def get_document_info(self, user_id: str, file_name: str) -> Optional[Dict[str, Any]]:
         """
         获取文档信息
         
         Args:
-            space_id: 空间ID
+            user_id: 用户ID
             file_name: 文件名
             
         Returns:
@@ -151,13 +151,13 @@ class RelativeDBService:
         
         try:
             query = """
-            SELECT id, space_id, file_name, file_path, file_size, document_ids, 
+            SELECT id, user_id, file_name, file_path, file_size, document_ids, 
                    chunks_count, upload_time, created_at
             FROM documents 
-            WHERE space_id = %s AND file_name = %s
+            WHERE user_id = %s AND file_name = %s
             """
             
-            self.cursor.execute(query, (space_id, file_name))
+            self.cursor.execute(query, (user_id, file_name))
             result = self.cursor.fetchone()
             
             if result:
@@ -174,12 +174,12 @@ class RelativeDBService:
             logger.error(f"获取文档信息失败: {str(e)}")
             return None
     
-    def delete_document_info(self, space_id: str, file_name: str) -> bool:
+    def delete_document_info(self, user_id: str, file_name: str) -> bool:
         """
         删除文档信息
         
         Args:
-            space_id: 空间ID
+            user_id: 用户ID
             file_name: 文件名
             
         Returns:
@@ -192,11 +192,11 @@ class RelativeDBService:
             return False
         
         try:
-            query = "DELETE FROM documents WHERE space_id = %s AND file_name = %s"
-            self.cursor.execute(query, (space_id, file_name))
+            query = "DELETE FROM documents WHERE user_id = %s AND file_name = %s"
+            self.cursor.execute(query, (user_id, file_name))
             self.connection.commit()
             
-            logger.info(f"文档信息删除成功: {space_id} - {file_name}")
+            logger.info(f"文档信息删除成功: {user_id} - {file_name}")
             return self.cursor.rowcount > 0
             
         except Error as e:
@@ -207,10 +207,10 @@ class RelativeDBService:
     
     def list_space_documents(self, space_id: str) -> List[Dict[str, Any]]:
         """
-        获取空间的所有文档信息
+        获取用户的所有文档信息
         
         Args:
-            space_id: 空间ID
+            space_id: 用户ID
             
         Returns:
             文档信息列表

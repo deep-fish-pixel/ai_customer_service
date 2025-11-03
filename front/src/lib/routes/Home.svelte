@@ -11,7 +11,7 @@
     import { sendChatMessageStream } from '../services/chatService';
     import Toast from "../components/Toast.svelte";
     import HomeSpaceIdConfirm from "../components/space/HomeSpaceIdConfirm.svelte";
-    import getSpaceId from "../utils/getSpaceId";
+    import getSpaceId from "../utils/getUserId";
 
 
     // 状态管理

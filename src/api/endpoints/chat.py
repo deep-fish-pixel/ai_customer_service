@@ -5,7 +5,7 @@ from typing import AsyncGenerator
 from typing import Dict, Any, List, Optional, TypedDict
 
 from src import RESPONSE_STATUS_FAILED
-from src.api.endpoints import get_space_id
+from src.api.endpoints import get_user_id
 
 
 class ChatMessage(TypedDict):
@@ -26,14 +26,14 @@ class ChatRequest(BaseModel):
 @router.post("/invoke", response_model=Dict[str, Any])
 async def send_message_invoke(
     request: ChatRequest,
-    space_id: str = Depends(get_space_id)
+    user_id: str = Depends(get_user_id)
 ) -> Dict[str, Any]:
     """
     发送消息给客服
     
     Args:
         request: 聊天请求
-        space_id: 空间ID
+        user_id: 用户ID
         
     Returns:
         聊天响应
@@ -42,7 +42,7 @@ async def send_message_invoke(
         if request.use_rag:
             # 使用RAG功能
             response = await chat_service.chat_with_rag(
-                space_id=space_id,
+                user_id=user_id,
                 query=request.message,
                 history=request.history
             )
@@ -81,12 +81,12 @@ async def mock_chain_stream(query: str):
 
 
 async def stream_generator(request: ChatRequest,
-                           space_id: str = Depends(get_space_id), ) -> AsyncGenerator[str, None]:
+                           user_id: str = Depends(get_user_id), ) -> AsyncGenerator[str, None]:
     """处理流式生成器"""
     try:
         # 在线程池中运行同步的chat_with_rag，避免阻塞事件循环
         result = await chat_service.chat_with_rag(
-            space_id=space_id,
+            user_id=user_id,
             query=request.message,
             history=request.history or [],
             stream=True
@@ -138,7 +138,7 @@ async def stream_generator(request: ChatRequest,
 @router.post("/stream")
 async def send_message_stream(
         request: ChatRequest,
-        space_id: str = Depends(get_space_id),
+        user_id: str = Depends(get_user_id),
         stream: bool = False
 ):
     """
@@ -146,7 +146,7 @@ async def send_message_stream(
 
     Args:
         request: 聊天请求
-        space_id: 空间ID
+        user_id: 用户ID
         stream: 是否启用流式响应
 
     Returns:
@@ -156,7 +156,7 @@ async def send_message_stream(
         if request.use_rag:
             if stream:
                 async def event_generator():
-                    async for chunk in stream_generator(request, space_id):
+                    async for chunk in stream_generator(request, user_id):
                         if chunk:
                             # 发送数据块，格式符合Server-Sent Events
                             yield f"data: {chunk}\n\n"
@@ -168,7 +168,7 @@ async def send_message_stream(
             else:
                 # 普通响应处理
                 response = await chat_service.chat_with_rag(
-                    space_id=space_id,
+                    user_id=space_id,
                     query=request.message,
                     history=request.history
                 )

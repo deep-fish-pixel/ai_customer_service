@@ -26,19 +26,19 @@ class ChatService:
         )
         self.output_parser = StrOutputParser()
     
-    def get_rag_context(self, space_id: str, query: str, k: int = 3) -> List[str]:
+    def get_rag_context(self, user_id: str, query: str, k: int = 3) -> List[str]:
         """
         获取RAG上下文
         
         Args:
-            space_id: 空间ID
+            user_id: 用户ID
             query: 查询内容
             k: 返回的文档数量
             
         Returns:
             上下文文本列表
         """
-        collection_name = f"space_{space_id}_documents"
+        collection_name = f"user_{user_id}_documents"
         try:
             # 搜索相似文档
             similar_docs = vector_db_service.similarity_search(collection_name, query, k=k)
@@ -49,12 +49,12 @@ class ChatService:
             print(f"获取RAG上下文失败: {e}")
             return []
     
-    async def chat_with_rag(self, space_id: str, query: str, history: List[Dict[str, str]] = None, stream: bool = False) -> Any:
+    async def chat_with_rag(self, user_id: str, query: str, history: List[Dict[str, str]] = None, stream: bool = False) -> Any:
         """
         使用RAG进行聊天
         
         Args:
-            space_id: 空间ID
+            user_id: 用户ID
             query: 用户查询
             history: 聊天历史
             stream: 是否流式返回
@@ -64,7 +64,7 @@ class ChatService:
         """
         try:
             # 获取RAG上下文
-            context = self.get_rag_context(space_id, query)
+            context = self.get_rag_context(user_id, query)
             
             # 构建提示模板
             prompt_template = ChatPromptTemplate.from_template("""
