@@ -39,6 +39,7 @@ export async function request<T>(
     if (!response.ok) {
       return {
         status: 'failed',
+        data: null as any,
         message: `服务器错误: ${response.status} ${response.statusText}`
       };
     }
@@ -56,12 +57,14 @@ export async function request<T>(
     if (typeof error === 'object' && error !== null && 'name' in error && error.name === 'AbortError') {
       return {
         status: 'failed',
+        data: null as any,
         message: '请求超时，请稍后重试'
       };
     }
 
     return {
       status: 'failed',
+      data: null as any,
       message: '网络连接错误，请检查是否正常启用: python main.py'
     };
   }

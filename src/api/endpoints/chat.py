@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 import asyncio
 from typing import AsyncGenerator
@@ -98,7 +98,7 @@ async def stream_generator(request: ChatRequest,
             if result.get('status') == RESPONSE_STATUS_FAILED:
                 yield result.get(RESPONSE_STATUS_FAILED, '处理请求失败')
             else:
-                yield result.get('response', '')
+                yield result.get('data', '')
         elif hasattr(result, '__aiter__'):
             # 处理异步迭代器
             async for chunk in result:
@@ -168,7 +168,7 @@ async def send_message_stream(
             else:
                 # 普通响应处理
                 response = await chat_service.chat_with_rag(
-                    user_id=space_id,
+                    user_id=user_id,
                     query=request.message,
                     history=request.history
                 )

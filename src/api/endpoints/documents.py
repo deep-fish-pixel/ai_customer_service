@@ -62,17 +62,17 @@ async def list_documents(
     列出用户的所有文档
     
     Args:
-        space_id: 用户ID
+        user_id: 用户ID
         
     Returns:
         Response
     """
     try:
-        documents = await document_service.list_documents(space_id)
+        documents = await document_service.list_documents(user_id)
         return {
           "status": RESPONSE_STATUS_SUCCESS,
           "message":"",
-          "response": documents,
+          "data": documents,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

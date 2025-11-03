@@ -9,5 +9,5 @@ class Response(TypedDict):
     # status: Union[RESPONSE_STATUS_SUCCESS, RESPONSE_STATUS_FAILED]
     status: str
     message: Union[str, None]
-    response: Any
+    data: Any
 

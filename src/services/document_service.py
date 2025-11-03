@@ -38,7 +38,7 @@ class DocumentService:
             return {
                 "status": RESPONSE_STATUS_FAILED,
                 "message": f"不支持的文件格式: {file_ext}",
-                "response": None
+                "data": None
             }
         
         # 保存文件
@@ -71,7 +71,7 @@ class DocumentService:
                 return {
                     "status": "failed",
                     "message": "文档已上传过",
-                    "response": document_info
+                    "data": document_info
                 }
             # 保存文件
             file_path = await self.save_uploaded_file(user_id, file)
@@ -110,7 +110,7 @@ class DocumentService:
             return {
                 "status": RESPONSE_STATUS_SUCCESS,
                 "message": "文档上传成功",
-                "response": document_info
+                "data": document_info
             }
             
         except Exception as e:
@@ -120,7 +120,7 @@ class DocumentService:
             return {
                 "status": RESPONSE_STATUS_FAILED,
                 "message": f"文档处理失败: {str(e)}",
-                "response": None
+                "data": None
             }
     
     async def delete_document(self, user_id: str, file_name: str) -> Response:
@@ -141,7 +141,7 @@ class DocumentService:
             return {
                 "status": RESPONSE_STATUS_FAILED,
                 "message": "文档不存在",
-                "response": None
+                "data": None
             }
         
         try:
@@ -159,14 +159,14 @@ class DocumentService:
             return {
                 "status": RESPONSE_STATUS_SUCCESS,
                 "message": "文档删除成功",
-                "response": document_info['file_path']
+                "data": document_info['file_path']
             }
             
         except Exception as e:
             return {
                 "status": RESPONSE_STATUS_FAILED,
                 "message": f"文档删除失败: {str(e)}",
-                "response": None
+                "data": None
             }
 
     async def list_documents(self, user_id: str) -> List[Dict[str, Any]]:
@@ -174,13 +174,13 @@ class DocumentService:
         列出用户的所有文档
         
         Args:
-            space_id: 用户ID
+            user_id: 用户ID
             
         Returns:
             文档列表
         """
         # 从数据库获取用户文档列表
-        return relative_db_service.list_space_documents(space_id)
+        return relative_db_service.list_space_documents(user_id)
 
 # 创建全局文档服务实例
 document_service = DocumentService()

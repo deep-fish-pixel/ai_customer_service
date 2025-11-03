@@ -111,7 +111,7 @@ class ChatService:
                 
                 return {
                     "status": RESPONSE_STATUS_SUCCESS,
-                    "response": response,
+                    "data": response,
                     "has_context": len(context) > 0
                 }
                 
@@ -160,7 +160,7 @@ class ChatService:
             
             return {
                 "status": RESPONSE_STATUS_SUCCESS,
-                "response": response
+                "data": response
             }
             
         except Exception as e:

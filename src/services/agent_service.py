@@ -155,7 +155,7 @@ class AgentService:
         处理会议预约请求
         
         Args:
-            space_id: 用户ID
+            user_id: 用户ID
             request_text: 会议预约请求文本
             
         Returns:
@@ -198,9 +198,9 @@ class AgentService:
                 }
             
             # 保存会议记录
-            if space_id not in self.meeting_records:
-                self.meeting_records[space_id] = []
-            self.meeting_records[space_id].append({
+            if user_id not in self.meeting_records:
+                self.meeting_records[user_id] = []
+            self.meeting_records[user_id].append({
                 **meeting_info,
                 "request_time": datetime.now().isoformat(),
                 "status": "scheduled"
@@ -249,29 +249,29 @@ class AgentService:
                 "message": f"处理会议预约请求失败: {str(e)}"
             }
     
-    async def list_leave_records(self, space_id: str) -> List[Dict[str, Any]]:
+    async def list_leave_records(self, user_id: str) -> List[Dict[str, Any]]:
         """
         列出用户的请假记录
         
         Args:
-            space_id: 用户ID
+            user_id: 用户ID
             
         Returns:
             请假记录列表
         """
-        return self.leave_records.get(space_id, [])
+        return self.leave_records.get(user_id, [])
     
-    async def list_meeting_records(self, space_id: str) -> List[Dict[str, Any]]:
+    async def list_meeting_records(self, user_id: str) -> List[Dict[str, Any]]:
         """
         列出用户的会议记录
         
         Args:
-            space_id: 用户ID
+            user_id: 用户ID
             
         Returns:
             会议记录列表
         """
-        return self.meeting_records.get(space_id, [])
+        return self.meeting_records.get(user_id, [])
 
 # 创建全局Agent服务实例
 agent_service = AgentService()

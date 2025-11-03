@@ -1,5 +1,5 @@
 import { request } from './apiClient';
-import type { DocumentFile, DocumentListResponse } from '../types/document';
+import type { DocumentFile, } from '../types/document';
 import type {ApiError, Response, } from '../types/chat';
 import {API_BASE_URL} from "../../constants";
 import getHeaders from "../utils/getHeaders";
@@ -35,7 +35,7 @@ export async function uploadDocument(file: File, onProgress?: (progress: number)
     throw new Error(response.message || '文件上传失败');
   }
 
-  return response.response;
+  return response.data;
 }
 
 /**
@@ -52,7 +52,7 @@ export async function getDocumentList(): Promise<DocumentFile[]> {
     throw new Error(response.message || '获取知识库列表失败');
   }
 
-  return response.response;
+  return response.data;
 }
 
 /**

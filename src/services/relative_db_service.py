@@ -205,12 +205,12 @@ class RelativeDBService:
                 self.connection.rollback()
             return False
     
-    def list_space_documents(self, space_id: str) -> List[Dict[str, Any]]:
+    def list_space_documents(self, user_id: str) -> List[Dict[str, Any]]:
         """
         获取用户的所有文档信息
         
         Args:
-            space_id: 用户ID
+            user_id: 用户ID
             
         Returns:
             文档信息列表
@@ -223,14 +223,14 @@ class RelativeDBService:
         
         try:
             query = """
-            SELECT id, space_id, file_name, file_path, file_size, document_ids, 
+            SELECT id, user_id, file_name, file_path, file_size, document_ids, 
                    chunks_count, upload_time, created_at
             FROM documents 
-            WHERE space_id = %s
+            WHERE user_id = %s
             ORDER BY upload_time DESC
             """
             
-            self.cursor.execute(query, (space_id,))
+            self.cursor.execute(query, (user_id,))
             results = self.cursor.fetchall()
             
             # 处理结果
