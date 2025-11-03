@@ -11,7 +11,10 @@
     import { sendChatMessageStream } from '../services/chatService';
     import Toast from "../components/Toast.svelte";
     import UserConfirm from "../components/user/UserConfirm.svelte";
-    import { getUserId } from "../utils/getUser";
+    import {getUserId, setUser} from "../utils/getUser";
+    import {getUserinfo} from "../services/userService";
+    import {RESPONSE_STATUS_FAILED} from "../../constants";
+    import {getTokenAuthorization} from "../utils/authorization";
 
 
     // 状态管理
@@ -23,11 +26,11 @@
     let tools: ToolConfig[] = [];
     let height = 500;
     let focus = false;
-
-    $: disabled = !inputMessage || !getUserId();
+    let loginVisible = $state(false);
+    let disabled = !inputMessage || !getUserId();
 
     // 初始化示例消息
-    onMount(() => {
+    onMount(async () => {
         messages = [
             {
                 id: '1',
@@ -38,6 +41,25 @@
         ];
 
         resize();
+
+        try {
+            // 检测token是否有效
+            if(getTokenAuthorization().Authorization) {
+                const response = await getUserinfo();
+
+                if (response.status === RESPONSE_STATUS_FAILED) {
+                    if(response.data) {
+                        setUser(response.data)
+                    }
+                    loginVisible = true;
+                }
+            } else {
+                loginVisible = true;
+            }
+
+        }catch (e) {
+            console.error(e)
+        }
 
     });
 
@@ -190,6 +212,10 @@
     };
 
     window.addEventListener('resize', resize)
+
+    const handleClose = () => {
+        loginVisible = false;
+    }
 </script>
 
 <div class="app-container">
@@ -248,7 +274,7 @@
             />
         </div>
     </div>
-    <UserConfirm></UserConfirm>
+    <UserConfirm visible={loginVisible} onclose={handleClose}></UserConfirm>
 </div>
 
 <style lang="scss">

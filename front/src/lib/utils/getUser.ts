@@ -11,9 +11,23 @@ let userinfo: User = {
 
 export function setUser(user: User) {
     userinfo = user;
+    window.localStorage.setItem('user', JSON.stringify(user));
 }
 
 export function getUser() {
+    if(userinfo.token){
+        return userinfo;
+    }
+
+    const userString = window.localStorage.getItem('user');
+
+    if(userString){
+        const user = JSON.parse(userString);
+        if(user && user.token){
+            return userinfo = user;
+        }
+    }
+
     return userinfo;
 }
 

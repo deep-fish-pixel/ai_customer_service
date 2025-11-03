@@ -1,6 +1,6 @@
 import {showToast} from "../utils/toast";
 import type {Response} from "../types/request";
-import {RESPONSE_STATUS_FAILED} from "../../constants";
+import {RESPONSE_STATUS_FAILED,} from "../../constants";
 
 export interface RequestOptions extends RequestInit {
   headers?: Record<string, string>;
@@ -47,7 +47,7 @@ export async function request<T>(
 
     const data: Response<T> = await response.json();
 
-    if(data?.message) {
+    if(data.status === RESPONSE_STATUS_FAILED && data?.message) {
       showToast(data.message);
     }
 

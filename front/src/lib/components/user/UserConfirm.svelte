@@ -1,13 +1,17 @@
 <script lang="ts">
-    import Dialog, { Title, Content, Actions } from '@smui/dialog';
+    import Dialog from '@smui/dialog';
     import UserLogin from './UserLogin.svelte';
     import UserRegister from './UserRegister.svelte';
     import type {User} from "../../types/user";
     import {setUser} from "../../utils/getUser";
-    import {getUserinfo} from "../../services/userService";
 
-    let visible = $state(true);
+    const { visible: propVisible, onclose } = $props();
+    let visible = $state(false);
     let isLogin = $state(true);
+
+    $effect(() => {
+        visible = propVisible
+    });
 
     function handleToRegister(){
         isLogin = false;
@@ -17,10 +21,7 @@
     }
     async function handleLoginSuccess(user: User){
         setUser(user);
-        debugger
-        const userinfo = await getUserinfo();
-        console.log(userinfo);
-        debugger
+        visible = false;
     }
 </script>
 

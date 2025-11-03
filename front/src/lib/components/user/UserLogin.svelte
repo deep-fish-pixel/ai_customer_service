@@ -5,6 +5,7 @@
     import { Title, Content, } from '@smui/dialog';
     import {login} from "../../services/userService";
     import {RESPONSE_STATUS_SUCCESS} from "../../../constants";
+    import {showToast} from "../../utils/toast";
 
 
     let username: string = $state('');
@@ -51,9 +52,8 @@
                 password,
             })
 
-            debugger
             if (response.status === RESPONSE_STATUS_SUCCESS) {
-                debugger
+                showToast(response.message);
                 onLoginSuccess(response.data);
             }
         } catch (error) {

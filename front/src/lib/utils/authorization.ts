@@ -5,6 +5,6 @@ export  function getTokenAuthorization() {
     const user = getUser();
 
     return {
-        'Authorization': `${'Bearer' || user.token_type} ${user.token}`
+        'Authorization': `${user.token_type} ${user.token}`
     };
 }

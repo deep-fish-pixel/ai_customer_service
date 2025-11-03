@@ -117,7 +117,7 @@ async def login_user(user_data: UserLoginRequest) -> Dict[str, Any]:
         # 创建访问令牌
         access_token_expires = timedelta(minutes=30)
         access_token = auth_service.create_access_token(
-            data={"sub": user["id"]},
+            data={"sub": str(user["id"])},
             expires_delta=access_token_expires
         )
         
@@ -127,7 +127,6 @@ async def login_user(user_data: UserLoginRequest) -> Dict[str, Any]:
             "data": {
                 "token": access_token,
                 "token_type": "bearer",
-                "user_id": user["id"],
                 "username": user["username"],
                 "nickname": user["nickname"]
             }

@@ -38,7 +38,7 @@ class AuthService:
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-        user_id = AuthService.extract_user_id_from_token(encoded_jwt)
+        payload = AuthService.extract_user_id_from_token(encoded_jwt)
         return encoded_jwt
 
     @staticmethod
@@ -50,5 +50,8 @@ class AuthService:
             if user_id is None:
                 return None
             return user_id
-        except jwt.PyJWTError:
+        except jwt.exceptions.PyJWTError as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"JWT解码失败: {str(e)}")
             return None
