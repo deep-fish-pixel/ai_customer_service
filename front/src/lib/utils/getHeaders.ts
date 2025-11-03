@@ -1,5 +1,5 @@
-
-import getUserId from "./getUserId";
+import { getUserId } from "./getUser";
+import {getTokenAuthorization} from "./authorization";
 
 /**
  * 创建基础请求头
@@ -13,6 +13,8 @@ export default function (contentType?: string) {
     if (contentType) {
         headers['Content-Type'] = contentType;
     }
+
+    Object.assign(headers, getTokenAuthorization());
 
     return headers;
 };

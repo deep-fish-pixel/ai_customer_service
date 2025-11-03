@@ -15,7 +15,7 @@
     let passwordInvalid = $state(false);
     let passwordInvalidMessage = $state('');
 
-    const { onSwitch } = $props();
+    const { onSwitch, onLoginSuccess } = $props();
 
     function handlerUsernameChange() {
         // 验证输入是否符合要求
@@ -54,6 +54,7 @@
             debugger
             if (response.status === RESPONSE_STATUS_SUCCESS) {
                 debugger
+                onLoginSuccess(response.data);
             }
         } catch (error) {
             console.log(error);

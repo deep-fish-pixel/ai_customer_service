@@ -13,7 +13,7 @@
   import type {DocumentFile} from "../../types/document";
   import {formatDate} from "../../utils/date";
   import Dialog, { Title, Content, Actions } from '@smui/dialog';
-  import getUserId from "../../utils/getUserId";
+  import { getUserId } from "../../utils/getUser";
 
 
   const ButtonName = '上传知识库';

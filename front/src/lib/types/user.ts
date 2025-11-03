@@ -11,5 +11,7 @@ export interface UserRegisterRequest extends UserLoginRequest{
 
 // 用户信息
 export interface User extends UserRegisterRequest{
-  id: string;
+  user_id: string;
+  token?: string;
+  token_type?: string;
 }

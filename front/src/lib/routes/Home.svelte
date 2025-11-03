@@ -11,7 +11,7 @@
     import { sendChatMessageStream } from '../services/chatService';
     import Toast from "../components/Toast.svelte";
     import UserConfirm from "../components/user/UserConfirm.svelte";
-    import getSpaceId from "../utils/getUserId";
+    import { getUserId } from "../utils/getUser";
 
 
     // 状态管理
@@ -24,7 +24,7 @@
     let height = 500;
     let focus = false;
 
-    $: disabled = !inputMessage || !getSpaceId();
+    $: disabled = !inputMessage || !getUserId();
 
     // 初始化示例消息
     onMount(() => {
@@ -248,7 +248,7 @@
             />
         </div>
     </div>
-    <UserConfirm visible={true}></UserConfirm>
+    <UserConfirm></UserConfirm>
 </div>
 
 <style lang="scss">

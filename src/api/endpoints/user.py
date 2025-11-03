@@ -94,11 +94,11 @@ async def register_user(request: UserRegisterRequest) -> Dict[str, Any]:
         }
 
 @router.post("/login", response_model=Dict[str, Any])
-async def login_user(form_data: OAuth2PasswordRequestForm = Depends()) -> Dict[str, Any]:
+async def login_user(user_data: UserLoginRequest) -> Dict[str, Any]:
     """用户登录接口，返回JWT令牌"""
     try:
         # 获取用户
-        user = db_service.get_user_by_username(form_data.username)
+        user = db_service.get_user_by_username(user_data.username)
         if not user:
             return {
                 "status": RESPONSE_STATUS_FAILED,
@@ -107,7 +107,7 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends()) -> Dict[s
             }
         
         # 验证密码
-        if not auth_service.verify_password(form_data.password, user["password"]):
+        if not auth_service.verify_password(user_data.password, user["password"]):
             return {
                 "status": RESPONSE_STATUS_FAILED,
                 "message": "账号或密码错误",
@@ -125,7 +125,7 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends()) -> Dict[s
             "status": RESPONSE_STATUS_SUCCESS,
             "message": "登录成功",
             "data": {
-                "access_token": access_token,
+                "token": access_token,
                 "token_type": "bearer",
                 "user_id": user["id"],
                 "username": user["username"],

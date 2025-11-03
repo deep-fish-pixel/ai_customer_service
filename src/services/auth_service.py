@@ -37,6 +37,8 @@ class AuthService:
             expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+        user_id = AuthService.extract_user_id_from_token(encoded_jwt)
         return encoded_jwt
 
     @staticmethod

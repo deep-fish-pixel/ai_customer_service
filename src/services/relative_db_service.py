@@ -233,7 +233,7 @@ class RelativeDBService:
             return None
         
         try:
-            query = "SELECT id, username, nickname, created_at FROM users WHERE username = %s"
+            query = "SELECT id, username, nickname, password, created_at FROM users WHERE username = %s"
             self.cursor.execute(query, (username,))
             return self.cursor.fetchone()
         except Error as e:

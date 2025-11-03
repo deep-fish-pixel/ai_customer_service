@@ -2,6 +2,9 @@
     import Dialog, { Title, Content, Actions } from '@smui/dialog';
     import UserLogin from './UserLogin.svelte';
     import UserRegister from './UserRegister.svelte';
+    import type {User} from "../../types/user";
+    import {setUser} from "../../utils/getUser";
+    import {getUserinfo} from "../../services/userService";
 
     let visible = $state(true);
     let isLogin = $state(true);
@@ -12,6 +15,13 @@
     function handleToLogin(){
         isLogin = true;
     }
+    async function handleLoginSuccess(user: User){
+        setUser(user);
+        debugger
+        const userinfo = await getUserinfo();
+        console.log(userinfo);
+        debugger
+    }
 </script>
 
 <Dialog
@@ -21,7 +31,7 @@
         scrimClickAction=""
 >
     {#if isLogin}
-        <UserLogin onSwitch={handleToRegister}></UserLogin>
+        <UserLogin onSwitch={handleToRegister} onLoginSuccess={handleLoginSuccess}></UserLogin>
     {:else}
         <UserRegister onSwitch={handleToLogin}></UserRegister>
     {/if}
