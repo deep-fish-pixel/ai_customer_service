@@ -1,252 +1,252 @@
 <script lang="ts">
-    import { onMount, tick } from 'svelte';
-    import SettingsPanel from '../components/settings/SettingsPanel.svelte';
-    import ChatMessage from '../components/ChatMessage.svelte';
-    import Textfield from '@smui/textfield';
-    import Button, { Label } from '@smui/button';
-    import Paper from '@smui/paper';
-    import type {FileItem, ToolConfig} from "../types";
-    import type { Message, } from "../types/chat";
-    import SendIcon from "../icons/SendIcon.svelte";
-    import userIcon from "../../assets/user.svg";
-    import { sendChatMessageStream } from '../services/chatService';
-    import Toast from "../components/Toast.svelte";
-    import UserConfirm from "../components/user/UserConfirm.svelte";
-    import {getUserId, setUser, getUser, resetUser,} from "../utils/getUser";
-    import {getUserinfo} from "../services/userService";
-    import {RESPONSE_STATUS_FAILED} from "../../constants";
-    import {getTokenAuthorization} from "../utils/authorization";
+  import {onMount, tick} from 'svelte';
+  import SettingsPanel from '../components/settings/SettingsPanel.svelte';
+  import ChatMessage from '../components/ChatMessage.svelte';
+  import Textfield from '@smui/textfield';
+  import Button, {Label} from '@smui/button';
+  import Paper from '@smui/paper';
+  import type {FileItem, ToolConfig} from "../types";
+  import type {Message,} from "../types/chat";
+  import SendIcon from "../icons/SendIcon.svelte";
+  import userIcon from "../../assets/user.svg";
+  import {sendChatMessageStream} from '../services/chatService';
+  import Toast from "../components/Toast.svelte";
+  import UserConfirm from "../components/user/UserConfirm.svelte";
+  import {getUserId, setUser, getUser, resetUser,} from "../utils/getUser";
+  import {getUserinfo} from "../services/userService";
+  import {RESPONSE_STATUS_FAILED, RESPONSE_STATUS_FAILED_TOKEN_INVALID} from "../../constants";
+  import {getTokenAuthorization} from "../utils/authorization";
 
-    // 状态管理
-    let inputContainer: HTMLElement;
-    let messageContainer: HTMLElement;
-    let messages: Message[] = $state([]);
-    let inputMessage = $state('');
-    let files: FileItem[] = $state([]);
-    let tools: ToolConfig[] = $state([]);
-    let height = $state(500);
-    let focus = $state(false);
-    let loginVisible = $state(false);
-    let disabled =  $derived(!inputMessage || !getUserId());
-    let userinfo = $state(getUser());
+  // 状态管理
+  let inputContainer: HTMLElement;
+  let messageContainer: HTMLElement;
+  let messages: Message[] = $state([]);
+  let inputMessage = $state('');
+  let files: FileItem[] = $state([]);
+  let tools: ToolConfig[] = $state([]);
+  let height = $state(500);
+  let focus = $state(false);
+  let loginVisible = $state(false);
+  let disabled = $derived(!inputMessage || !getUserId());
+  let userinfo = $state(getUser());
 
-    // 初始化示例消息
-    onMount(async () => {
-        messages = [
-            {
-                id: '1',
-                content: '您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？',
-                sender: 'bot',
-                timestamp: new Date()
-            }
-        ];
+  // 初始化示例消息
+  onMount(async () => {
+    messages = [
+      {
+        id: '1',
+        content: '您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？',
+        sender: 'bot',
+        timestamp: new Date()
+      }
+    ];
 
-        resize();
+    resize();
 
-        try {
-            // 检测token是否有效
-            if(getTokenAuthorization().Authorization) {
-                const response = await getUserinfo();
+    try {
+      // 检测token是否有效
+      if (getTokenAuthorization().Authorization) {
+        const response = await getUserinfo();
 
-                debugger
+        if (response.status === RESPONSE_STATUS_FAILED || response.status === RESPONSE_STATUS_FAILED_TOKEN_INVALID) {
+          if (response.data) {
+            setUser(response.data)
+          }
+          loginVisible = true;
+          resetUser();
 
-                if (response.status === RESPONSE_STATUS_FAILED) {
-                    if(response.data) {
-                        setUser(response.data)
-                    }
-                    loginVisible = true;
-                    resetUser();
-                    userinfo = getUser();
-                }
-            } else {
-                loginVisible = true;
-                resetUser();
-                userinfo = getUser();
-            }
-
-        }catch (e) {
-            console.error(e)
+          userinfo = getUser();
         }
+      } else {
+        loginVisible = true;
+        resetUser();
+        userinfo = getUser();
+      }
 
-    });
+    } catch (e) {
+      console.error(e)
+    }
 
-    // 发送消息
-    const sendMessage = async () => {
-        if (!inputMessage.trim() ) return;
+  });
 
-        let abortStream: () => void;
+  // 发送消息
+  const sendMessage = async () => {
+    if (!inputMessage.trim()) return;
 
-        // 添加用户消息
-        const userMessage: Message = {
-            id: Date.now().toString(),
-            content: inputMessage.trim(),
-            sender: 'user',
-            timestamp: new Date()
-        };
+    let abortStream: () => void;
 
-        // 最近4条消息
-        const history = messages.slice(Math.max(0, messages.length - 10), messages.length);
-
-        messages = [...messages, userMessage];
-
-        // 创建临时机器人消息
-        const botMessageId = (Date.now() + 1).toString();
-        const botMessage: Message = {
-            id: botMessageId,
-            content: '',
-            sender: 'bot',
-            timestamp: new Date()
-        };
-        messages = [...messages, botMessage];
-
-        // 清空输入框
-        inputMessage = '';
-
-        // 滚动到底部
-        await tick();
-        scrollToBottom();
-
-        try {
-            // 使用流式请求
-            abortStream = sendChatMessageStream(
-                userMessage.content,
-                history,
-                (chunk) => {
-                    // 更新机器人消息内容
-                    messages = messages.map(msg =>
-                        msg.id === botMessageId ? { ...msg, content: msg.content + chunk } : msg
-                    );
-                    scrollToBottom();
-                },
-                () => {
-                    // 流结束
-                    scrollToBottom();
-                },
-                (error) => {
-                    // 处理错误
-                    messages = messages.map(msg =>
-                        msg.id === botMessageId ? {
-                            ...msg,
-                            content: `请求错误: ${error.message}`,
-                            sender: 'bot'
-                        } : msg
-                    );
-                    scrollToBottom();
-                }
-            );
-        } catch (error) {
-            messages = messages.map(msg =>
-                msg.id === botMessageId ? {
-                    ...msg,
-                    content: '连接服务器失败，请稍后重试',
-                    sender: 'bot'
-                } : msg
-            );
-            scrollToBottom();
-        }
-
-        // 提供取消功能
-        return () => abortStream && abortStream();
+    // 添加用户消息
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: inputMessage.trim(),
+      sender: 'user',
+      timestamp: new Date()
     };
 
-    // 处理输入框回车事件
-    const handleKeyPress = (e: KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey && !disabled) {
-            e.preventDefault();
-            sendMessage();
-        }
+    // 最近4条消息
+    const history = messages.slice(Math.max(0, messages.length - 10), messages.length);
+
+    messages = [...messages, userMessage];
+
+    // 创建临时机器人消息
+    const botMessageId = (Date.now() + 1).toString();
+    const botMessage: Message = {
+      id: botMessageId,
+      content: '',
+      sender: 'bot',
+      timestamp: new Date()
     };
+    messages = [...messages, botMessage];
+
+    // 清空输入框
+    inputMessage = '';
 
     // 滚动到底部
-    const scrollToBottom = () => {
-        if (messageContainer) {
-            messageContainer.scrollTop = messageContainer.scrollHeight;
+    await tick();
+    scrollToBottom();
+
+    try {
+      // 使用流式请求
+      abortStream = sendChatMessageStream(
+        userMessage.content,
+        history,
+        (chunk) => {
+          // 更新机器人消息内容
+          messages = messages.map(msg =>
+            msg.id === botMessageId ? {...msg, content: msg.content + chunk} : msg
+          );
+          scrollToBottom();
+        },
+        () => {
+          // 流结束
+          scrollToBottom();
+        },
+        (error) => {
+          // 处理错误
+          messages = messages.map(msg =>
+            msg.id === botMessageId ? {
+              ...msg,
+              content: `请求错误: ${error.message}`,
+              sender: 'bot'
+            } : msg
+          );
+          scrollToBottom();
         }
-    };
-
-    // 文件上传处理
-    const handleFileUpload = (file: File) => {
-        const newFile: FileItem = {
-            id: Date.now().toString(),
-            name: file.name,
-            uploadTime: new Date().toLocaleString('zh-CN'),
-            size: file.size
-        };
-        files = [...files, newFile];
-
-        // 模拟上传成功消息
-        const uploadMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            content: `文件 "${file.name}" 上传成功！`,
-            sender: 'bot',
-            timestamp: new Date()
-        };
-        messages = [...messages, uploadMessage];
-    };
-
-    // 文件删除处理
-    const handleFileDelete = (fileId: string) => {
-        files = files.filter(file => file.id !== fileId);
-    };
-
-    // 文件查看处理
-    const handleFileView = (fileId: string) => {
-        const file = files.find(f => f.id === fileId);
-        if (file) {
-            // 模拟查看文件操作
-            console.log('查看文件:', file.name);
-        }
-    };
-
-    // 工具切换处理
-    const handleToolToggle = (toolId: string, enabled: boolean) => {
-        tools = tools.map(tool =>
-            tool.id === toolId ? { ...tool, enabled } : tool
-        );
-    };
-
-    // 工具切换处理
-    const handleFocus = (focused: boolean) => {
-        focus = focused;
-        tick().then(() => resize());
-    };
-
-    const resize = () =>  {
-        height = window.innerHeight - 80 - (inputContainer ? inputContainer.clientHeight + 48 : 0);
-
-        // fix Textfield bug
-        inputContainer.querySelector('textarea')?.setAttribute('placeholder', '请输入您的问题...');
-    };
-
-    window.addEventListener('resize', resize)
-
-    const handleClose = () => {
-        loginVisible = false;
-        window.location.reload();
+      );
+    } catch (error) {
+      messages = messages.map(msg =>
+        msg.id === botMessageId ? {
+          ...msg,
+          content: '连接服务器失败，请稍后重试',
+          sender: 'bot'
+        } : msg
+      );
+      scrollToBottom();
     }
 
-    const handleUserClick = () => {
-        if(!userinfo.nickname) {
-            loginVisible = true;
-        }
+    // 提供取消功能
+    return () => abortStream && abortStream();
+  };
+
+  // 处理输入框回车事件
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey && !disabled) {
+      e.preventDefault();
+      sendMessage();
     }
+  };
+
+  // 滚动到底部
+  const scrollToBottom = () => {
+    if (messageContainer) {
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+  };
+
+  // 文件上传处理
+  const handleFileUpload = (file: File) => {
+    const newFile: FileItem = {
+      id: Date.now().toString(),
+      name: file.name,
+      uploadTime: new Date().toLocaleString('zh-CN'),
+      size: file.size
+    };
+    files = [...files, newFile];
+
+    // 模拟上传成功消息
+    const uploadMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      content: `文件 "${file.name}" 上传成功！`,
+      sender: 'bot',
+      timestamp: new Date()
+    };
+    messages = [...messages, uploadMessage];
+  };
+
+  // 文件删除处理
+  const handleFileDelete = (fileId: string) => {
+    files = files.filter(file => file.id !== fileId);
+  };
+
+  // 文件查看处理
+  const handleFileView = (fileId: string) => {
+    const file = files.find(f => f.id === fileId);
+    if (file) {
+      // 模拟查看文件操作
+      console.log('查看文件:', file.name);
+    }
+  };
+
+  // 工具切换处理
+  const handleToolToggle = (toolId: string, enabled: boolean) => {
+    tools = tools.map(tool =>
+      tool.id === toolId ? {...tool, enabled} : tool
+    );
+  };
+
+  // 工具切换处理
+  const handleFocus = (focused: boolean) => {
+    focus = focused;
+    tick().then(() => resize());
+  };
+
+  const resize = () => {
+    height = window.innerHeight - 80 - (inputContainer ? inputContainer.clientHeight + 48 : 0);
+
+    // fix Textfield bug
+    inputContainer.querySelector('textarea')?.setAttribute('placeholder', '请输入您的问题...');
+  };
+
+  window.addEventListener('resize', resize)
+
+  const handleClose = () => {
+    loginVisible = false;
+    window.location.reload();
+  }
+
+  const handleUserClick = () => {
+    if (!userinfo.nickname) {
+      loginVisible = true;
+    }
+  }
 </script>
 
 <div class="app-container">
     <Toast></Toast>
     <header class="header">
         <p>AI超级智能客服</p>
-        <img class="user-icon" src={userIcon} width="30" height="30" alt="user" onclick={handleUserClick} />
+        <img class="user-icon" src={userIcon} width="30" height="30" alt="user" onclick={handleUserClick}/>
         <span class="user-nickname">{userinfo.nickname}</span>
     </header>
     <div class="content">
         <div class="chat-container">
             <div class="chat-inner-container">
                 <!-- 消息列表 -->
-                <div class="messages-container hide-scrollbar" style={"height:" + height + "px;"} bind:this={messageContainer}>
+                <div class="messages-container hide-scrollbar" style={"height:" + height + "px;"}
+                     bind:this={messageContainer}>
                     <div class="messagess">
                         {#each messages as message}
-                            <ChatMessage message={message} />
+                            <ChatMessage message={message}/>
                         {/each}
                     </div>
                 </div>
@@ -312,7 +312,7 @@
     flex-direction: column;
   }
 
-  .header{
+  .header {
     width: 100%;
     color: #fff;
     font-size: 20px;
@@ -324,7 +324,7 @@
 
     display: flex;
 
-    p{
+    p {
       flex: 1;
     }
 
@@ -334,7 +334,8 @@
       height: 30px;
       cursor: pointer;
     }
-    .user-nickname{
+
+    .user-nickname {
       font-size: 14px;
     }
   }
@@ -354,7 +355,7 @@
     justify-content: center;
   }
 
-  .chat-inner-container{
+  .chat-inner-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -386,32 +387,39 @@
     gap: 8px;
     position: relative;
 
-    :global(.input-focusout){
+    :global(.input-focusout) {
       width: 100%;
       height: 56px;
+
       :global(textarea) {
         resize: none;
       }
     }
-    :global(.input-focus){
+
+    :global(.input-focus) {
       width: 100%;
       height: 100px;
+
       :global(textarea) {
         resize: none;
         width: 100%;
       }
     }
-    :global(.mdc-text-field__resizer){
+
+    :global(.mdc-text-field__resizer) {
       width: 100%;
       resize: none;
     }
-    :global(.mdc-notched-outline__leading){
+
+    :global(.mdc-notched-outline__leading) {
       border-width: 1px;
     }
-    :global(.mdc-notched-outline__trailing){
+
+    :global(.mdc-notched-outline__trailing) {
       border-width: 1px;
     }
-    :global(.send-button){
+
+    :global(.send-button) {
       min-width: 44px;
       overflow: hidden;
       padding: 0;
@@ -462,6 +470,7 @@
     overflow-y: auto;
     padding: 10px 14px;
   }
+
   .hide-scrollbar::-webkit-scrollbar {
     display: none; /* Chrome/Safari/Opera */
     width: 0;

@@ -1,6 +1,6 @@
 import {showToast} from "../utils/toast";
 import type {Response} from "../types/request";
-import {RESPONSE_STATUS_FAILED,} from "../../constants";
+import {RESPONSE_STATUS_FAILED, RESPONSE_STATUS_FAILED_TOKEN_INVALID,} from "../../constants";
 
 export interface RequestOptions extends RequestInit {
   headers?: Record<string, string>;
@@ -39,7 +39,7 @@ export async function request<T>(
 
     if (!response.ok) {
       return {
-        status: RESPONSE_STATUS_FAILED,
+        status: response.status === 401 ? RESPONSE_STATUS_FAILED_TOKEN_INVALID : RESPONSE_STATUS_FAILED,
         data: null as any,
         message: `服务器错误: ${response.status} ${response.statusText}`
       };

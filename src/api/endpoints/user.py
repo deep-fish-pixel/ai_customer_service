@@ -35,7 +35,7 @@ async def get_current_user_id(token: str = Depends(oauth2_scheme)) ->  int | Non
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="无效的认证令牌",
+            detail="用户令牌失效",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -47,7 +47,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="无效的认证令牌",
+            detail="用户令牌失效",
             headers={"WWW-Authenticate": "Bearer"},
         )
     

@@ -54,10 +54,13 @@ export function sendChatMessageStream(
     signal: abortController.signal
   })
     .then(response => {
+      if (response.status === 401) {
+        window.location.reload();
+      }
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error('No readable stream');
@@ -132,6 +135,7 @@ export function sendChatMessageStream(
       readChunk();
     })
     .catch(error => {
+        debugger
       onError(error);
     });
 

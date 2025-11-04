@@ -1,5 +1,5 @@
 // API错误类型
-import {RESPONSE_STATUS_FAILED, RESPONSE_STATUS_SUCCESS } from "../../constants";
+import {RESPONSE_STATUS_FAILED, RESPONSE_STATUS_FAILED_TOKEN_INVALID, RESPONSE_STATUS_SUCCESS} from "../../constants";
 
 export interface ApiError {
     type: 'network_error' | 'timeout' | 'server_error';
@@ -9,7 +9,7 @@ export interface ApiError {
 
 // 请求返回内容
 export interface Response<T> {
-    status: typeof RESPONSE_STATUS_SUCCESS | typeof RESPONSE_STATUS_FAILED;
+    status: typeof RESPONSE_STATUS_SUCCESS | typeof RESPONSE_STATUS_FAILED | typeof RESPONSE_STATUS_FAILED_TOKEN_INVALID;
     data: T;
     message: string;
 }
