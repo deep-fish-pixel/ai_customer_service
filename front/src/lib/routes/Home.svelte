@@ -12,7 +12,7 @@
     import { sendChatMessageStream } from '../services/chatService';
     import Toast from "../components/Toast.svelte";
     import UserConfirm from "../components/user/UserConfirm.svelte";
-    import {getUserId, setUser, getUser, } from "../utils/getUser";
+    import {getUserId, setUser, getUser, resetUser,} from "../utils/getUser";
     import {getUserinfo} from "../services/userService";
     import {RESPONSE_STATUS_FAILED} from "../../constants";
     import {getTokenAuthorization} from "../utils/authorization";
@@ -28,6 +28,7 @@
     let focus = $state(false);
     let loginVisible = $state(false);
     let disabled =  $derived(!inputMessage || !getUserId());
+    let userinfo = $state(getUser());
 
     // 初始化示例消息
     onMount(async () => {
@@ -47,14 +48,20 @@
             if(getTokenAuthorization().Authorization) {
                 const response = await getUserinfo();
 
+                debugger
+
                 if (response.status === RESPONSE_STATUS_FAILED) {
                     if(response.data) {
                         setUser(response.data)
                     }
                     loginVisible = true;
+                    resetUser();
+                    userinfo = getUser();
                 }
             } else {
                 loginVisible = true;
+                resetUser();
+                userinfo = getUser();
             }
 
         }catch (e) {
@@ -219,8 +226,7 @@
     }
 
     const handleUserClick = () => {
-        debugger
-        if(!getUser().nickname) {
+        if(!userinfo.nickname) {
             loginVisible = true;
         }
     }
@@ -231,7 +237,7 @@
     <header class="header">
         <p>AI超级智能客服</p>
         <img class="user-icon" src={userIcon} width="30" height="30" alt="user" onclick={handleUserClick} />
-        <span class="user-nickname">{getUser().nickname}</span>
+        <span class="user-nickname">{userinfo.nickname}</span>
     </header>
     <div class="content">
         <div class="chat-container">

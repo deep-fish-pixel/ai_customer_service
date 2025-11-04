@@ -1,13 +1,17 @@
 import type {User} from "../types/user";
 
-let userinfo: User = {
-    username: '',
-    password: '',
-    nickname: '',
-    user_id: '',
-    token: '',
-    token_type: '',
+
+function getDefaultUser() {
+    return {
+        username: '',
+        password: '',
+        nickname: '',
+        user_id: '',
+        token: '',
+        token_type: '',
+    }
 }
+let userinfo: User = getDefaultUser();
 
 export function setUser(user: User) {
     userinfo = user;
@@ -33,4 +37,9 @@ export function getUser() {
 
 export function getUserId() {
     return getUser().username;
+}
+
+export function resetUser() {
+    Object.assign(userinfo, getDefaultUser());
+    window.localStorage.setItem('user', JSON.stringify(userinfo));
 }
