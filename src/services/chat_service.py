@@ -7,7 +7,7 @@ from typing import Optional
 
 
 from src import RESPONSE_STATUS_FAILED, RESPONSE_STATUS_SUCCESS
-from src.services.graphs import get_task_graph
+from src.services.graphs import get_task_graph, SUPPORTED_TASKS
 from src.services.vector_db_service import vector_db_service
 from dotenv import load_dotenv
 
@@ -54,9 +54,6 @@ class ChatService:
     
     def classify_task(self, query: str) -> str:
         """将用户查询分类为支持的任务类型"""
-        SUPPORTED_TASKS = ["book_flight", "book_hotel", "schedule_meeting", "check_calendar", 
-                          "schedule_appointment", "request_leave", "check_weather", "check_personal_info"]
-
         prompt_template = ChatPromptTemplate.from_template("""
         你是任务分类器。分析用户查询并将其分类为以下任务类型之一: {supported_tasks}。
         只返回确切的任务类型字符串，不包含任何额外文本、解释或标点符号。
@@ -73,25 +70,24 @@ class ChatService:
 
         # 如果分类不明确则返回默认值
         return task_type if task_type in SUPPORTED_TASKS else "general_chat"
-    
+
     async def process_with_langgraph(self, task_type: str, user_id: str, query: str, 
                                     history: Optional[List[Dict[str, str]]] = None, 
                                     context: Optional[List[str]] = None) -> Any:
         """使用LangGraph处理特定任务"""
         graph = get_task_graph(task_type)
-        
+
         input_data = {
-            "user_id": user_id,
             "query": query,
-            "history": history or [],
-            "context": context or []
+            "task_type":task_type,
+            "history": history or []
         }
 
         app = graph.compile()
         # result = await app.ainvoke(input_data)
-        return app.astream(input_data)
+        # {'collect_info': {'query': '请提供您的出发城市、目的地和出行日期，我将为您预订航班。'}}
+        return app.astream({"xx": 111}, {"recursion_limit": 50})
 
-    
     async def chat_with_rag(self, user_id: str, query: str, history: List[Dict[str, str]] = None, stream: bool = False) -> Any:
         """
         使用RAG进行聊天
@@ -111,18 +107,11 @@ class ChatService:
 
             # 任务分类与路由
             task_type = self.classify_task(query)
-            SUPPORTED_TASKS = ["book_flight", "book_hotel", "schedule_meeting", "check_calendar", 
-                              "schedule_appointment", "request_leave", "check_weather", "check_personal_info"]
+
             if task_type in SUPPORTED_TASKS:
                 # 使用langgraph处理特定任务
                 result = await self.process_with_langgraph(task_type, user_id, query, history, context)
-                # return {
-                #     "status": RESPONSE_STATUS_SUCCESS,
-                #     "data": result,
-                #     "has_context": len(context) > 0
-                # }
-                return result;
-
+                return result
             # 构建提示模板
             prompt_template = ChatPromptTemplate.from_template("""
             你是小智，一个智能客服助手。请基于以下上下文信息回答用户的问题。

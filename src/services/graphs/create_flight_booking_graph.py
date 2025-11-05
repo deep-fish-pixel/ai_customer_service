@@ -7,7 +7,11 @@ def create_flight_booking_graph() -> StateGraph:
     graph = StateGraph(AgentState)
 
     def collect_info(state: AgentState):
-        return {"query": "请提供您的出发城市、目的地和出行日期，我将为您预订航班。"}
+        return {
+            **state,
+            "query": "请提供您的出发城市、目的地和出行日期，我将为您预订航班。",
+            "haha": "haha",
+        }
 
     graph.add_node("collect_info", collect_info)
     graph.set_entry_point("collect_info")

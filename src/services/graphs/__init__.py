@@ -11,7 +11,8 @@ from src.services.graphs.create_appointment_scheduling_graph import create_appoi
 
 
 
-
+SUPPORTED_TASKS = ["book_flight", "book_hotel", "schedule_meeting", "check_calendar",
+                   "schedule_appointment", "request_leave", "check_weather", "check_personal_info"]
 task_graphs = {
     "book_flight": create_flight_booking_graph,
     "book_hotel": create_hotel_booking_graph,
