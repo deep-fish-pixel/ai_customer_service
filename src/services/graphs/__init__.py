@@ -1,0 +1,31 @@
+from langgraph.graph import StateGraph
+
+from src.services.graphs.create_calendar_check_graph import create_calendar_check_graph
+from src.services.graphs.create_flight_booking_graph import create_flight_booking_graph
+from src.services.graphs.create_hotel_booking_graph import create_hotel_booking_graph
+from src.services.graphs.create_leave_request_graph import create_leave_request_graph
+from src.services.graphs.create_meeting_scheduling_graph import create_meeting_scheduling_graph
+from src.services.graphs.create_personal_info_graph import create_personal_info_graph
+from src.services.graphs.create_weather_check_graph import create_weather_check_graph
+from src.services.graphs.create_appointment_scheduling_graph import create_appointment_scheduling_graph
+
+
+
+
+task_graphs = {
+    "book_flight": create_flight_booking_graph,
+    "book_hotel": create_hotel_booking_graph,
+    "schedule_meeting": create_meeting_scheduling_graph,
+    "check_calendar": create_calendar_check_graph,
+    "schedule_appointment": create_appointment_scheduling_graph,
+    "request_leave": create_leave_request_graph,
+    "check_weather": create_weather_check_graph,
+    "check_personal_info": create_personal_info_graph
+}
+
+def get_task_graph(task_type: str) -> StateGraph:
+    """获取特定任务类型的LangGraph"""
+
+    if task_type not in task_graphs:
+        raise ValueError(f"不支持的任务类型: {task_type}")
+    return task_graphs[task_type]()
