@@ -142,8 +142,7 @@ def create_flight_booking_graph() -> StateGraph:
             from datetime import datetime
             datetime.strptime(booking_info["date"], "%Y-%m-%d")
 
-            result = await relative_db_service.insert(
-                "flight_bookings",
+            result = await relative_db_service.create_flight_bookings(
                 {
                     "user_id": user_id,
                     "origin": booking_info["origin"],

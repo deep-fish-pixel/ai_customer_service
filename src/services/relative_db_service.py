@@ -70,7 +70,7 @@ class RelativeDBService:
             create_documents_table_query = """
             CREATE TABLE IF NOT EXISTS documents (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id VARCHAR(255) NOT NULL,
+                user_id INT NOT NULL,
                 file_name VARCHAR(255) NOT NULL,
                 file_path VARCHAR(512) NOT NULL,
                 file_size INT NOT NULL,
@@ -84,6 +84,25 @@ class RelativeDBService:
             """
             
             self.cursor.execute(create_documents_table_query)
+
+            # # 创建航班预订表
+            create_flight_bookings_table_query = """
+            CREATE TABLE IF NOT EXISTS flight_bookings (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                origin VARCHAR(100) NOT NULL,
+                destination VARCHAR(100) NOT NULL,
+                departure_date DATE NOT NULL,
+                seat_class VARCHAR(50) NOT NULL,
+                seat_preference VARCHAR(50),
+                booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_canceled BOOLEAN DEFAULT FALSE,
+                canceled_time TIMESTAMP NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+            self.cursor.execute(create_flight_bookings_table_query)
+
             self.connection.commit()
             logger.info("数据表创建成功")
             
@@ -338,6 +357,73 @@ class RelativeDBService:
         except Error as e:
             logger.error(f"获取用户文档列表失败: {str(e)}")
             return []
+    
+    def list_flight_bookings(self, user_id: str) -> List[Dict[str, Any]]:
+        """
+        查询用户的所有飞机预定列表
+        
+        Args:
+            user_id: 用户ID
+            
+        Returns:
+            飞机预定列表
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return []
+        
+        try:
+            query = """
+            SELECT id, origin, destination, departure_date, seat_class, seat_preference, 
+                   booking_time, is_canceled, canceled_time
+            FROM flight_bookings 
+            WHERE user_id = %s
+            ORDER BY booking_time DESC
+            """
+            
+            self.cursor.execute(query, (user_id,))
+            return self.cursor.fetchall()
+            
+        except Error as e:
+            logger.error(f"查询航班预订失败: {str(e)}")
+            return []
+    
+    def cancel_flight_booking(self, user_id: str, booking_id: int) -> bool:
+        """
+        取消用户的某个飞机预定
+        
+        Args:
+            user_id: 用户ID
+            booking_id: 预订ID
+            
+        Returns:
+            是否取消成功
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return False
+        
+        try:
+            query = """
+            UPDATE flight_bookings 
+            SET is_canceled = TRUE, canceled_time = CURRENT_TIMESTAMP
+            WHERE id = %s AND user_id = %s
+            """
+            
+            self.cursor.execute(query, (booking_id, user_id))
+            self.connection.commit()
+            
+            return self.cursor.rowcount > 0
+            
+        except Error as e:
+            logger.error(f"取消航班预订失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return False
     
     def close(self):
         """关闭数据库连接"""
