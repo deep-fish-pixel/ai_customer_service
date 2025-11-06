@@ -82,6 +82,7 @@ class ChatService:
         graph = get_task_graph(task_type)
 
         input_data = {
+            "user_id": user_id,
             "query": query,
             "task_type":task_type,
             "history": history or []
