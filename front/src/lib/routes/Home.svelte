@@ -85,7 +85,7 @@
     };
 
     // 最近4条消息
-    const history = messages.slice(Math.max(0, messages.length - 10), messages.length);
+    const history = messages.slice(Math.max(0, messages.length - 20), messages.length);
 
     messages = [...messages, userMessage];
 
@@ -116,16 +116,33 @@
         (chunk) => {
           // 更新机器人消息内容
           // 任务类型
-          if (chunk && chunk.match(/\{'collect_info':/)) {
-            const response = new Function('return ' + chunk)();
-            const collect_info = response.collect_info;
+          debugger
+          if (chunk && chunk.match(/\{'extract_info':/)) {
+            return;
+          }
 
-            task_type = collect_info.task_type;
+          if (chunk && chunk.match(/\{'(task_response|collect_info|collect_origin)':/)) {
+            chunk = chunk.replace(/: None/g, ': null');
+            debugger
+            const response = new Function('return ' + chunk)();
+
+            if (!response || response.task_response === 0) {
+              return;
+            }
+
+            // 任务完成后结束任务类型
+            if (response.task_response === 2) {
+              task_type = '';
+            } else {
+              task_type = response.task_type;
+            }
+
+
             messages = messages.map(msg => {
               if (msg.id === botMessageId) {
                 return {
                   ...msg,
-                  content: msg.content + collect_info.query,
+                  content: msg.content + response.query,
                 }
               }
 

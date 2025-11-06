@@ -93,6 +93,7 @@ async def stream_generator(
             user_id=user_id,
             query=request.message,
             history=request.history or [],
+            task_type=request.task_type,
             stream=True
         )
 

@@ -76,12 +76,13 @@ class ChatService:
         user_id: str,
         query: str,
         history: Optional[List[Dict[str, str]]] = None,
-        task_type: str = '',
-        context: Optional[List[str]] = None) -> Any:
+        task_type: str = ''
+    ) -> Any:
         """使用LangGraph处理特定任务"""
         graph = get_task_graph(task_type)
 
         input_data = {
+            "task_response": 0,
             "user_id": user_id,
             "query": query,
             "task_type":task_type,
@@ -91,7 +92,11 @@ class ChatService:
         app = graph.compile()
         # result = await app.ainvoke(input_data)
         # {'collect_info': {'query': '请提供您的出发城市、目的地和出行日期，我将为您预订航班。'}}
-        return app.astream(input_data, {"recursion_limit": 50})
+        return app.astream(
+            input_data,
+            # {"recursion_limit": 50},
+            stream_mode="values"
+        )
 
     async def chat_with_rag(self, user_id: str, query: str, history: List[Dict[str, str]] = None, task_type: str = '', stream: bool = False) -> Any:
         """
@@ -117,7 +122,7 @@ class ChatService:
 
             if task_type in SUPPORTED_TASKS:
                 # 使用langgraph处理特定任务
-                result = await self.process_with_langgraph(user_id, query, history, task_type, context)
+                result = await self.process_with_langgraph(user_id, query, history, task_type)
                 return result
 
 

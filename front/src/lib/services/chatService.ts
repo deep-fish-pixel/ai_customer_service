@@ -46,7 +46,6 @@ export function sendChatMessageStream(
   onError: (error: Error) => void
 ): () => void {
   const requestData: ChatRequest = { message, history, task_type, stream: true };
-  debugger
   const abortController = new AbortController();
 
   // 使用fetch API处理POST流式请求

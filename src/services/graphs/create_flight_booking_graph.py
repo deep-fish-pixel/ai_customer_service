@@ -23,19 +23,19 @@ def create_flight_booking_graph() -> StateGraph:
 
     # 定义信息收集节点
     def collect_origin(state: AgentState):
-        return {** state, "query": "请问您的出发城市是哪里？"}
+        return {** state, "query": "请问您的出发城市是哪里？", "task_response": 1}
 
     def collect_destination(state: AgentState):
-        return {**state, "query": "请问您的目的地城市是哪里？"}
+        return {**state, "query": "请问您的目的地城市是哪里？", "task_response": 1}
 
     def collect_date(state: AgentState):
-        return {** state, "query": "请问您的出行日期是什么时候？(格式：YYYY-MM-DD)"}
+        return {** state, "query": "请问您的出行日期是什么时候？(格式：YYYY-MM-DD)", "task_response": 1}
 
     def collect_seat_class(state: AgentState):
-        return {**state, "query": "请问您需要什么座位等级？(经济舱/商务舱/头等舱)"}
+        return {**state, "query": "请问您需要什么座位等级？(经济舱/商务舱/头等舱)", "task_response": 1}
 
     def collect_seat_preference(state: AgentState):
-        return {** state, "query": "请问您有什么座位偏好？(靠窗/靠过道/中间/无偏好)"}
+        return {** state, "query": "请问您有什么座位偏好？(靠窗/靠过道/中间/无偏好)", "task_response": 1}
 
     # 定义信息提取和验证函数
     async def extract_info(state: AgentState) -> AgentState:
@@ -154,11 +154,11 @@ def create_flight_booking_graph() -> StateGraph:
                     "booking_time": "NOW()"
                 }
             )
-            return {** state, "booking_result": result, "query": "机票预订成功！您的订单已确认。"}
+            return {** state, "booking_result": result, "query": "机票预订成功！您的订单已确认。", "task_response": 2}
         except ValueError:
-            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format"}
+            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_response": 0}
         except Exception as e:
-            return {** state, "query": f"预订失败：{str(e)}", "error": str(e)}
+            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_response": 0}
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)
@@ -169,13 +169,10 @@ def create_flight_booking_graph() -> StateGraph:
     graph.add_node("collect_seat_preference", collect_seat_preference)
     # graph.add_node("create_question", create_question)
     graph.add_node("save_to_database", save_to_database)
-    graph.add_node("should_continue", should_continue)
-
     # 设置图的入口点
     graph.set_entry_point("extract_info")
 
     # 添加节点之间的边
-    graph.add_edge("extract_info", "should_continue")
     graph.add_edge("collect_origin", END)
     graph.add_edge("collect_destination", END)
     graph.add_edge("collect_date", END)
@@ -184,8 +181,8 @@ def create_flight_booking_graph() -> StateGraph:
 
     # 设置条件边，根据信息收集情况决定下一步
     graph.add_conditional_edges(
-        "should_continue",
-        lambda x: x,
+        "extract_info",
+        should_continue,
         {
             "collect_origin": "collect_origin",
             "collect_destination": "collect_destination",
