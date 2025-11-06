@@ -9,3 +9,4 @@ class AgentState(TypedDict):
     query: str
     task_type: str
     history: []
+    task_collected: dict
