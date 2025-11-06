@@ -21,6 +21,7 @@
   let inputContainer: HTMLElement;
   let messageContainer: HTMLElement;
   let messages: Message[] = $state([]);
+  let task_type = '';
   let inputMessage = $state('');
   let files: FileItem[] = $state([]);
   let tools: ToolConfig[] = $state([]);
@@ -106,15 +107,36 @@
     scrollToBottom();
 
     try {
+      debugger
       // 使用流式请求
       abortStream = sendChatMessageStream(
         userMessage.content,
         history,
+        task_type,
         (chunk) => {
           // 更新机器人消息内容
-          messages = messages.map(msg =>
-            msg.id === botMessageId ? {...msg, content: msg.content + chunk} : msg
-          );
+          // 任务类型
+          if (chunk && chunk.match(/\{'collect_info':/)) {
+            const response = new Function('return ' + chunk)();
+            const collect_info = response.collect_info;
+
+            task_type = collect_info.task_type;
+            messages = messages.map(msg => {
+              if (msg.id === botMessageId) {
+                return {
+                  ...msg,
+                  content: msg.content + collect_info.query,
+                }
+              }
+
+              return msg;
+            });
+          } else {
+              messages = messages.map(msg =>
+                  msg.id === botMessageId ? {...msg, content: msg.content + chunk} : msg
+              );
+          }
+
           scrollToBottom();
         },
         () => {
@@ -232,65 +254,65 @@
 </script>
 
 <div class="app-container">
-    <Toast></Toast>
-    <header class="header">
-        <p>AI超级智能客服</p>
-        <img class="user-icon" src={userIcon} width="30" height="30" alt="user" onclick={handleUserClick}/>
-        <span class="user-nickname">{userinfo.nickname}</span>
-    </header>
-    <div class="content">
-        <div class="chat-container">
-            <div class="chat-inner-container">
-                <!-- 消息列表 -->
-                <div class="messages-container hide-scrollbar" style={"height:" + height + "px;"}
-                     bind:this={messageContainer}>
-                    <div class="messagess">
-                        {#each messages as message}
-                            <ChatMessage message={message}/>
-                        {/each}
-                    </div>
-                </div>
-
-                <!-- 输入区域 -->
-                <Paper elevation={2} class="input-container">
-                    <div class="input-wrapper" bind:this={inputContainer}>
-                        <Textfield
-                                class={focus ? 'input-focus' : 'input-focusout'}
-                                textarea={true}
-                                variant="outlined"
-                                value={inputMessage}
-                                oninput={(e: any) => inputMessage = e.target?.value}
-                                onkeydown={handleKeyPress}
-                                onfocus={() => handleFocus(true)}
-                                onfocusout={() => handleFocus(false)}
-                                placeholder="请输入您的问题..."
-                        />
-                        <Button
-                                class="send-button"
-                                color="primary"
-                                onclick={sendMessage}
-                                disabled={disabled}
-                        >
-                            <SendIcon></SendIcon>
-                        </Button>
-                    </div>
-                </Paper>
-            </div>
+  <Toast></Toast>
+  <header class="header">
+    <p>AI超级智能客服</p>
+    <img class="user-icon" src={userIcon} width="30" height="30" alt="user" onclick={handleUserClick}/>
+    <span class="user-nickname">{userinfo.nickname}</span>
+  </header>
+  <div class="content">
+    <div class="chat-container">
+      <div class="chat-inner-container">
+        <!-- 消息列表 -->
+        <div class="messages-container hide-scrollbar" style={"height:" + height + "px;"}
+             bind:this={messageContainer}>
+          <div class="messagess">
+            {#each messages as message}
+              <ChatMessage message={message}/>
+            {/each}
+          </div>
         </div>
 
-        <!-- 右侧设置区域 -->
-        <div class="settings-container">
-            <SettingsPanel
-                    {files}
-                    {tools}
-                    onFileUpload={handleFileUpload}
-                    onFileDelete={handleFileDelete}
-                    onFileView={handleFileView}
-                    onToolToggle={handleToolToggle}
+        <!-- 输入区域 -->
+        <Paper elevation={2} class="input-container">
+          <div class="input-wrapper" bind:this={inputContainer}>
+            <Textfield
+                class={focus ? 'input-focus' : 'input-focusout'}
+                textarea={true}
+                variant="outlined"
+                value={inputMessage}
+                oninput={(e: any) => inputMessage = e.target?.value}
+                onkeydown={handleKeyPress}
+                onfocus={() => handleFocus(true)}
+                onfocusout={() => handleFocus(false)}
+                placeholder="请输入您的问题..."
             />
-        </div>
+            <Button
+                class="send-button"
+                color="primary"
+                onclick={sendMessage}
+                disabled={disabled}
+            >
+              <SendIcon></SendIcon>
+            </Button>
+          </div>
+        </Paper>
+      </div>
     </div>
-    <UserConfirm visible={loginVisible} onclose={handleClose}></UserConfirm>
+
+    <!-- 右侧设置区域 -->
+    <div class="settings-container">
+      <SettingsPanel
+          {files}
+          {tools}
+          onFileUpload={handleFileUpload}
+          onFileDelete={handleFileDelete}
+          onFileView={handleFileView}
+          onToolToggle={handleToolToggle}
+      />
+    </div>
+  </div>
+  <UserConfirm visible={loginVisible} onclose={handleClose}></UserConfirm>
 </div>
 
 <style lang="scss">

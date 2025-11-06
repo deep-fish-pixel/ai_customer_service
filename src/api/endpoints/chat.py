@@ -22,6 +22,7 @@ class ChatRequest(BaseModel):
     message: str
     history: Optional[List[ChatMessage]] = None
     use_rag: bool = True
+    task_type: str
 
 @router.post("/invoke", response_model=Dict[str, Any])
 async def send_message_invoke(
@@ -44,7 +45,8 @@ async def send_message_invoke(
             response = await chat_service.chat_with_rag(
                 user_id=user_id,
                 query=request.message,
-                history=request.history
+                history=request.history,
+                task_type=request.task_type
             )
         else:
             # 简单聊天

@@ -10,7 +10,6 @@ def create_flight_booking_graph() -> StateGraph:
         return {
             **state,
             "query": "请提供您的出发城市、目的地和出行日期，我将为您预订航班。",
-            "haha": "haha",
         }
 
     graph.add_node("collect_info", collect_info)

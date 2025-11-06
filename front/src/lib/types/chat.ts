@@ -11,5 +11,6 @@ export interface ChatRequest {
   message: string;
   use_rag?: boolean;
   stream?: boolean;
+  task_type?: string;
   history?: Array<Message>
 }

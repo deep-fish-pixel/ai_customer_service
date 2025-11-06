@@ -71,9 +71,13 @@ class ChatService:
         # 如果分类不明确则返回默认值
         return task_type if task_type in SUPPORTED_TASKS else "general_chat"
 
-    async def process_with_langgraph(self, task_type: str, user_id: str, query: str, 
-                                    history: Optional[List[Dict[str, str]]] = None, 
-                                    context: Optional[List[str]] = None) -> Any:
+    async def process_with_langgraph(
+        self,
+        user_id: str,
+        query: str,
+        history: Optional[List[Dict[str, str]]] = None,
+        task_type: str = '',
+        context: Optional[List[str]] = None) -> Any:
         """使用LangGraph处理特定任务"""
         graph = get_task_graph(task_type)
 
@@ -86,9 +90,9 @@ class ChatService:
         app = graph.compile()
         # result = await app.ainvoke(input_data)
         # {'collect_info': {'query': '请提供您的出发城市、目的地和出行日期，我将为您预订航班。'}}
-        return app.astream({"xx": 111}, {"recursion_limit": 50})
+        return app.astream(input_data, {"recursion_limit": 50})
 
-    async def chat_with_rag(self, user_id: str, query: str, history: List[Dict[str, str]] = None, stream: bool = False) -> Any:
+    async def chat_with_rag(self, user_id: str, query: str, history: List[Dict[str, str]] = None, task_type: str = '', stream: bool = False) -> Any:
         """
         使用RAG进行聊天
 
@@ -102,16 +106,20 @@ class ChatService:
             聊天响应
         """
         try:
-            # 获取RAG上下文
-            context = self.get_rag_context(user_id, query)
 
-            # 任务分类与路由
-            task_type = self.classify_task(query)
+            if task_type == '':
+                # 获取RAG上下文
+                context = self.get_rag_context(user_id, query)
+
+                # 任务分类与路由
+                task_type = self.classify_task(query)
 
             if task_type in SUPPORTED_TASKS:
                 # 使用langgraph处理特定任务
-                result = await self.process_with_langgraph(task_type, user_id, query, history, context)
+                result = await self.process_with_langgraph(user_id, query, history, task_type, context)
                 return result
+
+
             # 构建提示模板
             prompt_template = ChatPromptTemplate.from_template("""
             你是小智，一个智能客服助手。请基于以下上下文信息回答用户的问题。
