@@ -63,7 +63,6 @@ def create_flight_booking_graph() -> StateGraph:
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         请确保date字段符合YYYY-MM-DD格式，如果不符合，请返回null。
-        针对用户的回答是否合理，做出适当的回应，并提出收集信息的一个问题。
         只返回JSON，不要添加额外解释。
         """)
 

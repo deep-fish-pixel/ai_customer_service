@@ -22,7 +22,7 @@ async def getHistoryAndNextQuestion(question: str, last_question: str, last_ques
         用户的回答: {last_question_answer}
         当前问题：{question}
         
-        把美化后的问题进行返回，不要添加额外解释。
+        把美化后的问题进行返回，不要添加额外解释，也不要有任何分析，且回答中不能包含有：美化版本、这样表达等字样。
         """)
   chain = prompt | llm
   response = await chain.ainvoke({
