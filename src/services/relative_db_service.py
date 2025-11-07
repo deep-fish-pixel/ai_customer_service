@@ -104,6 +104,24 @@ class RelativeDBService:
             """
             self.cursor.execute(create_flight_bookings_table_query)
 
+            # 创建酒店预订表
+            create_hotel_bookings_table_query = """
+            CREATE TABLE IF NOT EXISTS hotel_bookings (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                city VARCHAR(100) NOT NULL,
+                checkin_date DATE NOT NULL,
+                checkout_date DATE NOT NULL,
+                room_type VARCHAR(50) NOT NULL,
+                guest_count INT NOT NULL,
+                booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_canceled BOOLEAN DEFAULT FALSE,
+                canceled_time TIMESTAMP NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+            self.cursor.execute(create_hotel_bookings_table_query)
+
             self.connection.commit()
             logger.info("数据表创建成功")
             
@@ -427,6 +445,113 @@ class RelativeDBService:
             
         except Error as e:
             logger.error(f"创建航班预订失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return False
+    
+    def create_hotel_booking(self, user_id: int, city: str, checkin_date: str, checkout_date: str, room_type: str, guest_count: int) -> bool:
+        """
+        创建新的酒店预订
+        
+        Args:
+            user_id: 用户ID
+            city: 城市
+            checkin_date: 入住日期
+            checkout_date: 退房日期
+            room_type: 房型
+            guest_count: 人数
+            
+        Returns:
+            是否创建成功
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return False
+        
+        try:
+            query = """
+            INSERT INTO hotel_bookings 
+            (user_id, city, checkin_date, checkout_date, room_type, guest_count)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            
+            values = (user_id, city, checkin_date, checkout_date, room_type, guest_count)
+            self.cursor.execute(query, values)
+            self.connection.commit()
+            logger.info(f"酒店预订创建成功: {user_id} - {city}")
+            return True
+            
+        except Error as e:
+            logger.error(f"创建酒店预订失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return False
+    
+    def list_hotel_bookings(self, user_id: str) -> List[Dict[str, Any]]:
+        """
+        查询用户的所有酒店预订列表
+        
+        Args:
+            user_id: 用户ID
+            
+        Returns:
+            酒店预订列表
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return []
+        
+        try:
+            query = """
+            SELECT id, city, checkin_date, checkout_date, room_type, guest_count, 
+                   booking_time, is_canceled, canceled_time
+            FROM hotel_bookings 
+            WHERE user_id = %s
+            ORDER BY booking_time DESC
+            """
+            
+            self.cursor.execute(query, (user_id,))
+            return self.cursor.fetchall()
+            
+        except Error as e:
+            logger.error(f"查询酒店预订失败: {str(e)}")
+            return []
+    
+    def cancel_hotel_booking(self, user_id: str, booking_id: int) -> bool:
+        """
+        取消用户的某个酒店预订
+        
+        Args:
+            user_id: 用户ID
+            booking_id: 预订ID
+            
+        Returns:
+            是否取消成功
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return False
+        
+        try:
+            query = """
+            UPDATE hotel_bookings 
+            SET is_canceled = TRUE, canceled_time = CURRENT_TIMESTAMP
+            WHERE id = %s AND user_id = %s
+            """
+            
+            self.cursor.execute(query, (booking_id, user_id))
+            self.connection.commit()
+            
+            return self.cursor.rowcount > 0
+            
+        except Error as e:
+            logger.error(f"取消酒店预订失败: {str(e)}")
             if self.connection.is_connected():
                 self.connection.rollback()
             return False
