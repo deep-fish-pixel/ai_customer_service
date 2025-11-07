@@ -11,3 +11,4 @@ class AgentState(TypedDict):
     task_type: str
     history: []
     task_collected: dict
+    exit: int

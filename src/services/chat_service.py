@@ -108,7 +108,8 @@ class ChatService:
             "user_id": user_id,
             "query": query,
             "task_type":task_type,
-            "history": history or []
+            "history": history or [],
+            "exit": 0,
         }
 
         app = graph.compile()
