@@ -1,6 +1,7 @@
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
 from src.services.graphs.agent_state import AgentState
+from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
@@ -22,20 +23,30 @@ def create_flight_booking_graph() -> StateGraph:
     graph = StateGraph(AgentState)
 
     # 定义信息收集节点
-    def collect_origin(state: AgentState):
-        return {** state, "query": "请问您的出发城市是哪里？", "task_response": 1}
+    async def collect_origin(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您的出发城市是哪里？", state['history'][-1], state['query'])
 
-    def collect_destination(state: AgentState):
-        return {**state, "query": "请问您的目的地城市是哪里？", "task_response": 1}
+        return {** state, "query": response.content, "task_response": 1}
 
-    def collect_date(state: AgentState):
-        return {** state, "query": "请问您的出行日期是什么时候？(格式：YYYY-MM-DD)", "task_response": 1}
+    async def collect_destination(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您的目的地城市是哪里？", state['history'][-1], state['query'])
 
-    def collect_seat_class(state: AgentState):
-        return {**state, "query": "请问您需要什么座位等级？(经济舱/商务舱/头等舱)", "task_response": 1}
+        return {**state, "query": response.content, "task_response": 1}
 
-    def collect_seat_preference(state: AgentState):
-        return {** state, "query": "请问您有什么座位偏好？(靠窗/靠过道/中间/无偏好)", "task_response": 1}
+    async def collect_date(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您的出行日期是什么时候？(格式：YYYY-MM-DD)", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_response": 1}
+
+    async def collect_seat_class(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您需要什么座位等级？(经济舱/商务舱/头等舱)", state['history'][-1], state['query'])
+
+        return {**state, "query": response.content, "task_response": 1}
+
+    async def collect_seat_preference(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您有什么座位偏好？(靠窗/靠过道/中间/无偏好)", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_response": 1}
 
     # 定义信息提取和验证函数
     async def extract_info(state: AgentState) -> AgentState:
@@ -52,6 +63,7 @@ def create_flight_booking_graph() -> StateGraph:
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         请确保date字段符合YYYY-MM-DD格式，如果不符合，请返回null。
+        针对用户的回答是否合理，做出适当的回应，并提出收集信息的一个问题。
         只返回JSON，不要添加额外解释。
         """)
 
@@ -142,16 +154,13 @@ def create_flight_booking_graph() -> StateGraph:
             from datetime import datetime
             datetime.strptime(booking_info["date"], "%Y-%m-%d")
 
-            result = await relative_db_service.create_flight_bookings(
-                {
-                    "user_id": user_id,
-                    "origin": booking_info["origin"],
-                    "destination": booking_info["destination"],
-                    "date": booking_info["date"],
-                    "seat_class": booking_info["seat_class"],
-                    "seat_preference": booking_info["seat_preference"],
-                    "booking_time": "NOW()"
-                }
+            result = relative_db_service.create_flight_booking(
+                user_id=user_id,
+                origin=booking_info["origin"],
+                destination=booking_info["destination"],
+                date=booking_info["date"],
+                seat_class=booking_info["seat_class"],
+                seat_preference=booking_info["seat_preference"]
             )
             return {** state, "booking_result": result, "query": "机票预订成功！您的订单已确认。", "task_response": 2}
         except ValueError:

@@ -5,6 +5,7 @@ from mysql.connector import Error
 from dotenv import load_dotenv
 from typing import List, Dict, Any, Optional
 import logging
+import datetime
 
 # 加载环境变量
 load_dotenv()
@@ -92,7 +93,7 @@ class RelativeDBService:
                 user_id INT NOT NULL,
                 origin VARCHAR(100) NOT NULL,
                 destination VARCHAR(100) NOT NULL,
-                departure_date DATE NOT NULL,
+                date DATE NOT NULL,
                 seat_class VARCHAR(50) NOT NULL,
                 seat_preference VARCHAR(50),
                 booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -376,7 +377,7 @@ class RelativeDBService:
         
         try:
             query = """
-            SELECT id, origin, destination, departure_date, seat_class, seat_preference, 
+            SELECT id, origin, destination, date, seat_class, seat_preference, 
                    booking_time, is_canceled, canceled_time
             FROM flight_bookings 
             WHERE user_id = %s
@@ -389,6 +390,46 @@ class RelativeDBService:
         except Error as e:
             logger.error(f"查询航班预订失败: {str(e)}")
             return []
+    
+    def create_flight_booking(self, user_id: int, origin: str, destination: str, date: str, seat_class: str, seat_preference: Optional[str] = None) -> bool:
+        """
+        创建新的航班预订
+        
+        Args:
+            user_id: 用户ID
+            origin: 出发地
+            destination: 目的地
+            date: 出发日期
+            seat_class: 座位等级
+            seat_preference: 座位偏好（可选）
+            
+        Returns:
+            是否创建成功
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return False
+        
+        try:
+            query = """
+            INSERT INTO flight_bookings 
+            (user_id, origin, destination, date, seat_class, seat_preference, booking_time)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+            
+            values = (user_id, origin, destination, date, seat_class, seat_preference, datetime.datetime.now())
+            self.cursor.execute(query, values)
+            self.connection.commit()
+            logger.info(f"航班预订创建成功: {user_id} - {origin} to {destination}")
+            return True
+            
+        except Error as e:
+            logger.error(f"创建航班预订失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return False
     
     def cancel_flight_booking(self, user_id: str, booking_id: int) -> bool:
         """

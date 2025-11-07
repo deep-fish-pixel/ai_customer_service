@@ -25,7 +25,7 @@ class ChatService:
             model="qwen-max",
             api_key=os.getenv("DASHSCOPE_API_KEY"),
             base_url=os.getenv("API_BASE_URL"),
-            temperature=0.7
+            temperature=0
         )
         self.output_parser = StrOutputParser()
     
@@ -52,11 +52,23 @@ class ChatService:
             print(f"获取RAG上下文失败: {e}")
             return []
     
-    def classify_task(self, query: str) -> str:
+    def classify_task(self, query: str) -> Dict[str, str]:
         """将用户查询分类为支持的任务类型"""
         prompt_template = ChatPromptTemplate.from_template("""
         你是任务分类器。分析用户查询并将其分类为以下任务类型之一: {supported_tasks}。
-        只返回确切的任务类型字符串，不包含任何额外文本、解释或标点符号。
+        
+        要求：
+            尽量严格匹配，如果不匹配则返回空。
+                实例1：
+                    我想出去玩
+                    没有跟定机票或定宾馆直接相关，故不需要匹配。
+                实例2：
+                    如何定机票？
+                    他只是在询问，没有让你定机票，故不需要匹配。
+                实例3：
+                    我想定个明天的机票
+                    有跟定机票相关，故需要匹配。
+            只返回确切的任务类型字符串，不包含任何额外文本、解释或标点符号。
         
         用户查询: {query}
         """
@@ -69,7 +81,17 @@ class ChatService:
         }).strip()
 
         # 如果分类不明确则返回默认值
-        return task_type if task_type in SUPPORTED_TASKS else "general_chat"
+        # return task_type if task_type in SUPPORTED_TASKS else "general_chat"
+        if task_type in SUPPORTED_TASKS:
+            return {
+                "task_type": task_type,
+                "question": "",
+            }
+        else:
+            return {
+                "task_type": '',
+                "question": task_type if task_type == '' else task_type
+            }
 
     async def process_with_langgraph(
         self,
@@ -118,7 +140,14 @@ class ChatService:
                 context = self.get_rag_context(user_id, query)
 
                 # 任务分类与路由
-                task_type = self.classify_task(query)
+                task = self.classify_task(query)
+
+                task_type = task['task_type']
+
+                question = task['question']
+
+                if question != '':
+                   return question
 
             if task_type in SUPPORTED_TASKS:
                 # 使用langgraph处理特定任务
