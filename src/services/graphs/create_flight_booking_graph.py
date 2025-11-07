@@ -6,7 +6,6 @@ from src.services.relative_db_service import relative_db_service
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from typing import Optional
-
 from src.utils.getOpenAI import getChatOpenAI
 
 
@@ -131,7 +130,10 @@ def create_flight_booking_graph() -> StateGraph:
                 seat_class=booking_info["seat_class"],
                 seat_preference=booking_info["seat_preference"]
             )
-            return {** state, "booking_result": result, "query": "机票预订成功！您的订单已确认。", "task_response": 2}
+            return {** state, "booking_result": result, "query": f"机票预订成功！您的订单已确认。预定机票信息如下："
+                                                                 f"[始发地:{booking_info["origin"]} 目的地:{booking_info["destination"]} "
+                                                                 f"时间:{booking_info["date"]} 座位等级:{booking_info["seat_class"]}"
+                                                                 f"座位偏好:{booking_info["seat_preference"]}]", "task_response": 2}
         except ValueError:
             return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_response": 0}
         except Exception as e:
