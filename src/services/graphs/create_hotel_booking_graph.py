@@ -128,8 +128,8 @@ def create_hotel_booking_graph() -> StateGraph:
         try:
             # 验证日期格式
             from datetime import datetime
-            checkin = datetime.datetime.strptime(booking_info["hotel_booking"].checkin_date, "%Y-%m-%d")
-            checkout = datetime.datetime.strptime(booking_info["hotel_booking"].checkout_date, "%Y-%m-%d")
+            checkin = datetime.strptime(booking_info["checkin_date"], "%Y-%m-%d")
+            checkout = datetime.strptime(booking_info["checkout_date"], "%Y-%m-%d")
             if checkout <= checkin:
                 return {** state, "query": "退房日期必须晚于入住日期。", "error": "start_date_less_end_date", "task_response": 0}
 
@@ -146,9 +146,9 @@ def create_hotel_booking_graph() -> StateGraph:
                                                                  f"退房日期:{booking_info["checkout_date"]} 房型:{booking_info["room_type"]} "
                                                                  f"人数:{booking_info["guest_count"]}]", "task_response": 2}
         except ValueError:
-            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_response": 0}
+            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_response": 1}
         except Exception as e:
-            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_response": 0}
+            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_response": 1}
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)

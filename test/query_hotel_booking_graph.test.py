@@ -5,14 +5,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.services.graphs import get_task_graph
 import asyncio
 
-task_type = "book_hotel"
+task_type = "query_book_hotel"
 
 graph = get_task_graph(task_type)
 
 input_data = {
     "user_id": '1',
-    "query": '帮我定宾馆',
-    "history": ['您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？'],
+    "query": '帮我查询预定宾馆信息',
+    "history": [],
     "context": [],
     "task_collected": {}
 }

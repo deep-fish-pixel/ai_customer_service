@@ -1,9 +1,11 @@
 from langgraph.graph import StateGraph
 
-from src.services.graphs.create_hotel_booking_graph import create_hotel_booking_graph
-from src.services.graphs.query_flight_booking_graph import query_flight_booking_graph
-from src.services.graphs.create_calendar_check_graph import create_calendar_check_graph
 from src.services.graphs.create_flight_booking_graph import create_flight_booking_graph
+from src.services.graphs.query_flight_booking_graph import query_flight_booking_graph
+from src.services.graphs.create_hotel_booking_graph import create_hotel_booking_graph
+from src.services.graphs.query_hotel_booking_graph import query_hotel_booking_graph
+
+from src.services.graphs.create_calendar_check_graph import create_calendar_check_graph
 from src.services.graphs.create_leave_request_graph import create_leave_request_graph
 from src.services.graphs.create_meeting_scheduling_graph import create_meeting_scheduling_graph
 from src.services.graphs.create_personal_info_graph import create_personal_info_graph
@@ -12,13 +14,24 @@ from src.services.graphs.create_appointment_scheduling_graph import create_appoi
 
 
 
-SUPPORTED_TASKS = ["book_flight", "query_book_flight", "book_hotel", "schedule_meeting", "check_calendar",
-                   "schedule_appointment", "request_leave", "check_weather", "check_personal_info"]
+SUPPORTED_TASKS = [
+    "book_flight", "query_book_flight",
+    "book_hotel", "query_book_hotel",
+    "schedule_meeting",
+    "check_calendar",
+    "schedule_appointment",
+    "request_leave",
+    "check_weather",
+    "check_personal_info"
+]
+
 task_graphs = {
     "book_flight": create_flight_booking_graph,
     "query_book_flight": query_flight_booking_graph,
 
     "book_hotel": create_hotel_booking_graph,
+    "query_book_hotel": query_hotel_booking_graph,
+
     "schedule_meeting": create_meeting_scheduling_graph,
     "check_calendar": create_calendar_check_graph,
     "schedule_appointment": create_appointment_scheduling_graph,
