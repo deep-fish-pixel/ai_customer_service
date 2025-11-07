@@ -103,45 +103,6 @@ def create_flight_booking_graph() -> StateGraph:
         else:
             return "save_to_database"
 
-    async def create_question(state: AgentState):
-        booking_info = FlightBookingInfo(**state.get("task_collected", {}))
-        user_response = [*state["history"], state["query"]]
-
-        # 创建LLM提示模板，用于解析和验证用户输入
-        prompt = ChatPromptTemplate.from_template("""
-        请根据当前已收集的信息和模板，判断当前已收集的信息是否完善。如果问题缺乏需要的信息，请生成一个友好的请求，明确指出需要补充的信息。若问题完善后，返回包含所有信息的完整问题。
-        当前已收集的信息: {existing_info}
-        ### 输出示例
-        {{
-            "isComplete": true,
-            "content": "`完整问题`"
-        }}
-        {{
-            "isComplete": false,
-            "content": "`友好的引导到需要补充信息`"
-        }}
-        """)
-
-        # 初始化LLM和解析器
-        llm = getChatOpenAI()
-        parser = JsonOutputParser(pydantic_object=FlightBookingInfo)
-
-        # 调用LLM提取信息
-        chain = prompt | llm | parser
-        extracted_info = await chain.ainvoke({
-            "existing_info": booking_info.dict(),
-            # "user_response": user_response
-        })
-
-        # 更新预订信息
-        updated_info = booking_info.dict()
-        for key, value in extracted_info.items():
-            if value is not None:
-                updated_info[key] = value
-
-        return {** state, "task_collected": updated_info}
-
-
 
     # 定义数据库存储节点
     async def save_to_database(state: AgentState):
