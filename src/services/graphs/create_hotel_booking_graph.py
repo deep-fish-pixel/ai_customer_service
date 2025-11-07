@@ -1,19 +1,16 @@
 from langgraph.graph import StateGraph, END
+from pydantic import BaseModel
 from src.services.graphs.agent_state import AgentState
 from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
-from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
-from typing import Optional, Dict, Any, List
-from pydantic import BaseModel
-import datetime
-
+from typing import Optional
 from src.utils.getOpenAI import getChatOpenAI
 
 
 class HotelBookingInfo(BaseModel):
-    """酒店预订信息模型"""
+    """宾馆预订信息模型"""
     city: Optional[str] = None
     checkin_date: Optional[str] = None
     checkout_date: Optional[str] = None
@@ -23,196 +20,160 @@ class HotelBookingInfo(BaseModel):
     exit: Optional[int] = 0
     error: Optional[str] = None
 
-# 更新AgentState以包含酒店预订信息
-class AgentState:
-    history: list
-    query: str
-    user_id: int
-    hotel_booking: HotelBookingInfo = HotelBookingInfo()
-    task_response: int = 0
-    exit: int = 0
-
-async def extract_info(state: AgentState) -> AgentState:
-    """使用LLM提取和验证酒店预订信息"""
-    if not state.query:
-        return state
-
-    # 定义输出格式
-    class InfoParser(HotelBookingInfo):
-        class Config:
-            extra = "allow"
-
-    parser = JsonOutputParser(pydantic_object=InfoParser)
-
-    # 创建提示模板
-    # prompt = ChatPromptTemplate.from_template("""
-    #     你是一个信息提取助手，需要从用户的回答中提取航班预订所需的信息。
-    #     请根据用户当前的回答，提取相关信息并以JSON格式返回。
-    #     当前已收集的信息: {existing_info}
-    #     用户的回答: {user_response}
-    #     需要提取的字段包括origin(城市), destination(终点), date(时间,格式YYYY-MM-DD), seat_class(座位等级), seat_preference(座位偏好)。
-    #     如果用户的回答中包含多个字段信息，请全部提取。
-    #     如果无法提取某个字段，保持该字段为null。
-    #     请确保date字段符合YYYY-MM-DD格式，如果不符合，请返回null。
-    #     如果用户输入[退出/不想继续/取消/后悔/反悔]等意思，则增加字段exit为1，否则为0。
-    #     只返回JSON，不要添加额外解释。
-    #     """)
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "您是酒店预订信息提取专家。请从用户输入中提取并验证酒店预订所需信息。"),
-        ("system", f"当前已收集信息: {state.hotel_booking.dict()}"),
-        ("system", "需要收集的信息: {['城市', '入住日期(YYYY-MM-DD)', '退房日期(YYYY-MM-DD)', '房型', '人数']}"),
-        ("user", "用户输入: {input}"),
-        ("system", f"请以JSON格式输出，确保日期格式正确且退房日期晚于入住日期。{parser.get_format_instructions()}")
-    ])
-
-    # 调用LLM
-    model = getChatOpenAI()
-    chain = prompt | model | parser
-
-    try:
-        result = await chain.ainvoke({
-            "input": state.query,
-            "booking_info": state.hotel_booking.dict()
-        })
-
-        # 更新状态中的预订信息
-        for key, value in result.items():
-            if value and hasattr(state.hotel_booking, key):
-                setattr(state.hotel_booking, key, value)
-
-        # 验证日期
-        if state.hotel_booking.checkin_date and state.hotel_booking.checkout_date:
-            try:
-                checkin = datetime.datetime.strptime(state.hotel_booking.checkin_date, "%Y-%m-%d")
-                checkout = datetime.datetime.strptime(state.hotel_booking.checkout_date, "%Y-%m-%d")
-                if checkout <= checkin:
-                    state.hotel_booking.error = "退房日期必须晚于入住日期"
-            except ValueError:
-                state.hotel_booking.error = "日期格式不正确，请使用YYYY-MM-DD格式"
-
-    except Exception as e:
-        state.hotel_booking.error = f"信息提取失败: {str(e)}"
-
-    return state
-
-async def should_continue(state: AgentState) -> str:
-    """判断是否需要继续收集信息"""
-    if state.hotel_booking.error:
-        return "collect_info"
-
-    # 检查是否所有信息都已收集
-    required_fields = ["city", "checkin_date", "checkout_date", "room_type", "guest_count"]
-    missing_fields = [field for field in required_fields if not getattr(state.hotel_booking, field)]
-
-    if not missing_fields:
-        return "save_to_database"
-    
-    # 根据缺失字段决定下一个收集节点
-    next_field = missing_fields[0]
-    return f"collect_{next_field}"
-
-async def collect_city(state: AgentState):
-    """收集城市信息"""
-    response = await getHistoryAndNextQuestion(
-        "请问您计划入住的城市是哪里？",
-        state.history[-1] if state.history else "",
-        state.query
-    )
-    return {**state, "query": response.content, "task_response": 1}
-
-async def collect_checkin_date(state: AgentState):
-    """收集入住日期"""
-    response = await getHistoryAndNextQuestion(
-        "请问您的入住日期是什么时候？(格式：YYYY-MM-DD)",
-        state.history[-1] if state.history else "",
-        state.query
-    )
-    return {**state, "query": response.content, "task_response": 1}
-
-async def collect_checkout_date(state: AgentState):
-    """收集退房日期"""
-    response = await getHistoryAndNextQuestion(
-        "请问您的退房日期是什么时候？(格式：YYYY-MM-DD)",
-        state.history[-1] if state.history else "",
-        state.query
-    )
-    return {**state, "query": response.content, "task_response": 1}
-
-async def collect_room_type(state: AgentState):
-    """收集房型信息"""
-    response = await getHistoryAndNextQuestion(
-        "请问您需要什么类型的房间？(例如：标准间、大床房、套房)",
-        state.history[-1] if state.history else "",
-        state.query
-    )
-    return {**state, "query": response.content, "task_response": 1}
-
-async def collect_guest_count(state: AgentState):
-    """收集入住人数"""
-    response = await getHistoryAndNextQuestion(
-        "请问入住人数是多少？",
-        state.history[-1] if state.history else "",
-        state.query
-    )
-    return {**state, "query": response.content, "task_response": 1}
-
-async def save_to_database(state: AgentState) -> AgentState:
-    """保存酒店预订信息到数据库"""
-    try:
-        # 调用酒店预订接口
-        result = relative_db_service.create_hotel_booking(
-            user_id=state.user_id,
-            city=state.hotel_booking.city,
-            checkin_date=state.hotel_booking.checkin_date,
-            checkout_date=state.hotel_booking.checkout_date,
-            room_type=state.hotel_booking.room_type,
-            guest_count=state.hotel_booking.guest_count
-        )
-
-        if result:
-            state.hotel_booking.booking_result = result
-            state.task_response = 2
-            state.query  = (
-                f"酒店预订成功！您的订单信息：\n"
-                f"城市：{state.hotel_booking.city}\n"
-                f"入住日期：{state.hotel_booking.checkin_date}\n"
-                f"退房日期：{state.hotel_booking.checkout_date}\n"
-                f"房型：{state.hotel_booking.room_type}\n"
-                f"人数：{state.hotel_booking.guest_count}"
-            )
-        else:
-            state.hotel_booking.error = "酒店预订失败，请稍后重试"
-
-    except Exception as e:
-        state.hotel_booking.error = f"预订处理失败: {str(e)}"
-
-    return state
 
 def create_hotel_booking_graph() -> StateGraph:
-    """创建酒店预订工作流"""
+    """创建宾馆预订工作流，收集所有必要信息并完成数据库存储"""
     graph = StateGraph(AgentState)
 
-    # 添加节点
+    # 定义信息收集节点
+    async def collect_city(state: AgentState):
+        """收集城市信息"""
+        response = await getHistoryAndNextQuestion("请问您计划入住的城市是哪里？", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_response": 1}
+
+    async def collect_checkin_date(state: AgentState):
+        """收集入住日期"""
+        response = await getHistoryAndNextQuestion("请问您的入住日期是什么时候？(格式：YYYY-MM-DD)", state['history'][-1], state['query'])
+
+        return {**state, "query": response.content, "task_response": 1}
+
+    async def collect_checkout_date(state: AgentState):
+        """收集退房日期"""
+        response = await getHistoryAndNextQuestion("请问您的退房日期是什么时候？(格式：YYYY-MM-DD)", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_response": 1}
+
+    async def collect_room_type(state: AgentState):
+        """收集房型信息"""
+        response = await getHistoryAndNextQuestion("请问您需要什么类型的房间？(例如：标准间、大床房、套房)", state['history'][-1], state['query'])
+
+        return {**state, "query": response.content, "task_response": 1}
+
+    async def collect_guest_count(state: AgentState):
+        """收集入住人数"""
+        response = await getHistoryAndNextQuestion("请问入住人数是多少？", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_response": 1}
+
+    async def goto_end(state: AgentState):
+        response = await getHistoryAndNextQuestion("已退出", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_response": 2}
+
+    # 定义信息提取和验证函数
+    async def extract_info(state: AgentState) -> AgentState:
+        booking_info = HotelBookingInfo(**state.get("task_collected", {}))
+        user_response = [*state["history"], state["query"]]
+
+        # 创建LLM提示模板，用于解析和验证用户输入
+        prompt = ChatPromptTemplate.from_template("""
+        你是一个信息提取助手，需要从用户的回答中提取宾馆预订所需的信息。
+        请根据用户当前的回答，提取相关信息并以JSON格式返回。
+        当前已收集的信息: {existing_info}
+        用户的回答: {user_response}
+        需要提取的字段包括city(入住城市), checkin_date(入住日期,格式YYYY-MM-DD), checkout_date(退房日期,格式YYYY-MM-DD), room_type(房间类型), guest_count(入住人数)。
+        如果用户的回答中包含多个字段信息，请全部提取。
+        如果无法提取某个字段，保持该字段为null。
+        请确保checkin_date和checkout_date字段符合YYYY-MM-DD格式，如果不符合，请返回null。
+        如果用户输入[退出/不想继续/取消/后悔/反悔]等意思，则增加字段exit为1，否则为0。
+        只返回JSON，不要添加额外解释。
+        """)
+
+        # 初始化LLM和解析器
+        llm = getChatOpenAI()
+        parser = JsonOutputParser(pydantic_object=HotelBookingInfo)
+
+        # 调用LLM提取信息
+        chain = prompt | llm | parser
+        extracted_info = await chain.ainvoke({
+            "existing_info": booking_info.dict(),
+            "user_response": user_response
+        })
+
+        # 更新预订信息
+        updated_info = booking_info.dict()
+        for key, value in extracted_info.items():
+            if value is not None:
+                updated_info[key] = value
+
+        return {** state, "task_collected": updated_info, "task_response": 0}
+
+    def should_continue(state: AgentState) -> str:
+        """判断是否需要继续收集信息"""
+        booking_info = HotelBookingInfo(**state.get("task_collected", {}))
+
+        if booking_info.exit == 1:
+            return "goto_end"
+        if not booking_info.city:
+            return "collect_city"
+        elif not booking_info.checkin_date:
+            return "collect_checkin_date"
+        elif not booking_info.checkout_date:
+            return "collect_checkout_date"
+        elif not booking_info.room_type:
+            return "collect_room_type"
+        elif not booking_info.guest_count:
+            return "collect_guest_count"
+        else:
+            return "save_to_database"
+
+
+    # 定义数据库存储节点
+    async def save_to_database(state: AgentState):
+        booking_info = state["task_collected"]
+        user_id = state["user_id"]
+
+        # 调用数据库服务存储宾馆信息
+        try:
+            # 验证日期格式
+            from datetime import datetime
+            checkin = datetime.datetime.strptime(booking_info["hotel_booking"].checkin_date, "%Y-%m-%d")
+            checkout = datetime.datetime.strptime(booking_info["hotel_booking"].checkout_date, "%Y-%m-%d")
+            if checkout <= checkin:
+                return {** state, "query": "退房日期必须晚于入住日期。", "error": "start_date_less_end_date", "task_response": 0}
+
+            result = relative_db_service.create_hotel_booking(
+                user_id=user_id,
+                city=booking_info["city"],
+                checkin_date=booking_info["checkin_date"],
+                checkout_date=booking_info["checkout_date"],
+                room_type=booking_info["room_type"],
+                guest_count=booking_info["guest_count"]
+            )
+            return {** state, "booking_result": result, "query": f"宾馆预订成功！您的订单信息："
+                                                                 f"[城市:{booking_info["city"]} 入住日期:{booking_info["checkin_date"]} "
+                                                                 f"退房日期:{booking_info["checkout_date"]} 房型:{booking_info["room_type"]} "
+                                                                 f"人数:{booking_info["guest_count"]}]", "task_response": 2}
+        except ValueError:
+            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_response": 0}
+        except Exception as e:
+            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_response": 0}
+
+    # 添加节点到图中
     graph.add_node("extract_info", extract_info)
-    graph.add_node("should_continue", should_continue)
     graph.add_node("collect_city", collect_city)
     graph.add_node("collect_checkin_date", collect_checkin_date)
     graph.add_node("collect_checkout_date", collect_checkout_date)
     graph.add_node("collect_room_type", collect_room_type)
     graph.add_node("collect_guest_count", collect_guest_count)
     graph.add_node("save_to_database", save_to_database)
-
-    # 设置入口点
+    graph.add_node("goto_end", goto_end)
+    # 设置图的入口点
     graph.set_entry_point("extract_info")
 
-    # 添加边
-    graph.add_edge("extract_info", "should_continue")
-    graph.add_edge("save_to_database", END)
+    # 添加节点之间的边
+    graph.add_edge("collect_city", END)
+    graph.add_edge("collect_checkin_date", END)
+    graph.add_edge("collect_checkout_date", END)
+    graph.add_edge("collect_room_type", END)
+    graph.add_edge("collect_guest_count", END)
+    graph.add_edge("goto_end", END)
 
-    # 设置条件边
+    # 设置条件边，根据信息收集情况决定下一步
     graph.add_conditional_edges(
-        "should_continue",
-        lambda x: x,
+        "extract_info",
+        should_continue,
         {
             "collect_city": "collect_city",
             "collect_checkin_date": "collect_checkin_date",
@@ -220,12 +181,11 @@ def create_hotel_booking_graph() -> StateGraph:
             "collect_room_type": "collect_room_type",
             "collect_guest_count": "collect_guest_count",
             "save_to_database": "save_to_database",
-            "collect_info": "collect_city"
+            "goto_end": "goto_end"
         }
     )
 
-    # 从收集节点回到信息提取节点
-    for node in ["collect_city", "collect_checkin_date", "collect_checkout_date", "collect_room_type", "collect_guest_count"]:
-        graph.add_edge(node, "extract_info")
+    # 设置完成点
+    graph.add_edge("save_to_database", END)
 
     return graph
