@@ -8,19 +8,19 @@ from src.services.graphs.query_hotel_booking_graph import query_hotel_booking_gr
 from src.services.graphs.create_leave_request_graph import create_leave_request_graph
 from src.services.graphs.create_schedule_meeting_graph import create_schedule_meeting_graph
 from src.services.graphs.create_personal_info_graph import create_personal_info_graph
-from src.services.graphs.create_weather_check_graph import create_weather_check_graph
-from src.services.graphs.create_appointment_scheduling_graph import create_appointment_scheduling_graph
 
 
 
 SUPPORTED_TASKS = [
-    "book_flight", "query_book_flight",
-    "book_hotel", "query_book_hotel",
+    "book_flight",
+    "query_book_flight",
+    "book_hotel",
+    "query_book_hotel",
+
     "schedule_meeting",
     "check_calendar",
-    "schedule_appointment",
+
     "request_leave",
-    "check_weather",
     "check_personal_info"
 ]
 
@@ -32,9 +32,8 @@ task_graphs = {
     "query_book_hotel": query_hotel_booking_graph,
 
     "schedule_meeting": create_schedule_meeting_graph,
-    "schedule_appointment": create_appointment_scheduling_graph,
     "request_leave": create_leave_request_graph,
-    "check_weather": create_weather_check_graph,
+
     "check_personal_info": create_personal_info_graph
 }
 

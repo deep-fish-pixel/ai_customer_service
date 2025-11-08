@@ -6,7 +6,7 @@ def create_personal_info_graph() -> StateGraph:
     graph = StateGraph(AgentState)
 
     def collect_info(state: AgentState):
-        return {"message": "请说明您要查询的个人信息类型(如联系方式、地址等),我将为您查找。"}
+        return {"message": "请说明您要查询的个人信息类型(如昵称、联系方式、地址等),我将为您查找。"}
 
     graph.add_node("collect_info", collect_info)
     graph.set_entry_point("collect_info")

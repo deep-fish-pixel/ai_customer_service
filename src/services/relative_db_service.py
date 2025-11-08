@@ -104,6 +104,41 @@ class RelativeDBService:
             """
             self.cursor.execute(create_flight_bookings_table_query)
 
+            # 创建请假申请表
+            create_leave_requests_table_query = """
+            CREATE TABLE IF NOT EXISTS leave_requests (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                leave_type VARCHAR(50) NOT NULL,
+                start_time TIMESTAMP NOT NULL,
+                end_time TIMESTAMP NOT NULL,
+                reason TEXT NOT NULL,
+                attachments TEXT,
+                status VARCHAR(20) NOT NULL DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+            self.cursor.execute(create_leave_requests_table_query)
+
+            # 创建日程会议表 type(会议、专注时间、私人事务) meeting_type(线上会议、线下会议)
+            create_schedule_meetings_table_query = """
+            CREATE TABLE IF NOT EXISTS schedule_meetings (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                type INT NOT NULL, 
+                participants TEXT,
+                meeting_type INT NOT NULL,
+                start_time TIMESTAMP NOT NULL,
+                start_end_time VARCHAR(50) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """
+            self.cursor.execute(create_schedule_meetings_table_query)
+
             # 创建酒店预订表
             create_hotel_bookings_table_query = """
             CREATE TABLE IF NOT EXISTS hotel_bookings (
@@ -521,7 +556,59 @@ class RelativeDBService:
             logger.error(f"查询酒店预订失败: {str(e)}")
             return []
     
-    def cancel_hotel_booking(self, user_id: str, booking_id: int) -> bool:
+    def create_schedule_meeting(self, user_id: int, title: str, type: str, participants: str, meeting_type: str, date: str, start_end_time: str) -> bool:
+        """创建新的日程会议"""
+        try:
+            self._check_connection()
+            query = """
+                INSERT INTO schedule_meetings 
+                (user_id, title, type, participants, meeting_type, date, start_end_time)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+            self.cursor.execute(query, (user_id, title, type, participants, meeting_type, date, start_end_time))
+            self.conn.commit()
+            logger.info(f"User {user_id} created schedule meeting: {title}")
+            return True
+        except Exception as e:
+            self.conn.rollback()
+            logger.error(f"Failed to create schedule meeting: {str(e)}")
+            return False
+
+    def list_schedule_meetings(self, user_id: int) -> list[dict]:
+        """查询用户所有日程会议"""
+        try:
+            self._check_connection()
+            query = "SELECT * FROM schedule_meetings WHERE user_id = %s ORDER BY date DESC"
+            self.cursor.execute(query, (user_id,))
+            columns = [col[0] for col in self.cursor.description]
+            results = [dict(zip(columns, row)) for row in self.cursor.fetchall()]
+            return results
+        except Exception as e:
+            logger.error(f"Failed to list schedule meetings: {str(e)}")
+            return []
+
+    def cancel_schedule_meeting(self, user_id: int, meeting_id: int) -> bool:
+        """取消用户特定日程会议"""
+        try:
+            self._check_connection()
+            # 验证会议是否属于用户
+            query = "SELECT id FROM schedule_meetings WHERE id = %s AND user_id = %s"
+            self.cursor.execute(query, (meeting_id, user_id))
+            if not self.cursor.fetchone():
+                logger.warning(f"User {user_id} tried to cancel non-existent meeting {meeting_id}")
+                return False
+
+            delete_query = "DELETE FROM schedule_meetings WHERE id = %s"
+            self.cursor.execute(delete_query, (meeting_id,))
+            self.conn.commit()
+            logger.info(f"User {user_id} canceled meeting {meeting_id}")
+            return True
+        except Exception as e:
+            self.conn.rollback()
+            logger.error(f"Failed to cancel schedule meeting: {str(e)}")
+            return False
+
+    def cancel_hotel_booking(self, user_id: int, booking_id: int) -> bool:
         """
         取消用户的某个酒店预订
         
@@ -555,7 +642,104 @@ class RelativeDBService:
             if self.connection.is_connected():
                 self.connection.rollback()
             return False
-    
+
+    def create_leave_request(self, user_id: int, leave_type: str, start_time: str, end_time: str, reason: str, attachments: str = None) -> bool:
+        """
+        创建新的请假申请
+        
+        Args:
+            user_id: 用户ID
+            leave_type: 请假类型
+            start_time: 开始时间
+            end_time: 结束时间
+            reason: 请假原因
+            attachments: 附件（可选）
+            
+        Returns:
+            是否创建成功
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return False
+        
+        try:
+            query = """
+            INSERT INTO leave_requests (
+                user_id, leave_type, start_time, end_time, reason, attachments
+            ) VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            self.cursor.execute(query, (
+                user_id, leave_type, start_time, end_time, reason, attachments
+            ))
+            self.connection.commit()
+            logger.info(f"请假申请创建成功: {user_id} - {leave_type}")
+            return True
+        except Error as e:
+            logger.error(f"创建请假申请失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return False
+
+    def list_leave_requests(self, user_id: int) -> List[Dict[str, Any]]:
+        """
+        查询用户的所有请假申请
+        
+        Args:
+            user_id: 用户ID
+            
+        Returns:
+            请假申请列表
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return []
+        
+        try:
+            query = """
+            SELECT id, leave_type, start_time, end_time, reason, attachments,
+                   status, created_at, updated_at
+            FROM leave_requests
+            WHERE user_id = %s
+            ORDER BY created_at DESC
+            """
+            self.cursor.execute(query, (user_id,))
+            return self.cursor.fetchall()
+        except Error as e:
+            logger.error(f"查询请假申请列表失败: {str(e)}")
+            return []
+
+    def cancel_leave_request(self, user_id: int, request_id: int) -> bool:
+        """
+        取消请假申请
+        
+        Args:
+            user_id: 用户ID
+            request_id: 请假申请ID
+            
+        Returns:
+            是否取消成功
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+            
+        if not self.connection or not self.connection.is_connected():
+            return False
+        
+        try:
+            query = "DELETE FROM leave_requests WHERE id = %s AND user_id = %s"
+            self.cursor.execute(query, (request_id, user_id))
+            self.connection.commit()
+            return self.cursor.rowcount > 0
+        except Error as e:
+            logger.error(f"取消请假申请失败: {str(e)}")
+            if self.connection.is_connected():
+                self.connection.rollback()
+            return False
+
     def cancel_flight_booking(self, user_id: str, booking_id: int) -> bool:
         """
         取消用户的某个飞机预定
