@@ -4,9 +4,11 @@ from src.services.graphs.create_flight_booking_graph import create_flight_bookin
 from src.services.graphs.query_flight_booking_graph import query_flight_booking_graph
 from src.services.graphs.create_hotel_booking_graph import create_hotel_booking_graph
 from src.services.graphs.query_hotel_booking_graph import query_hotel_booking_graph
-
-from src.services.graphs.create_leave_request_graph import create_leave_request_graph
 from src.services.graphs.create_schedule_meeting_graph import create_schedule_meeting_graph
+from src.services.graphs.query_schedule_meeting_graph import query_schedule_meeting_graph
+from src.services.graphs.create_leave_request_graph import create_leave_request_graph
+from src.services.graphs.query_leave_request_graph import query_leave_request_graph
+
 from src.services.graphs.create_personal_info_graph import create_personal_info_graph
 
 
@@ -32,7 +34,10 @@ task_graphs = {
     "query_book_hotel": query_hotel_booking_graph,
 
     "schedule_meeting": create_schedule_meeting_graph,
+    "query_schedule_meeting": query_schedule_meeting_graph,
+
     "request_leave": create_leave_request_graph,
+    "query_request_leave": query_leave_request_graph,
 
     "check_personal_info": create_personal_info_graph
 }

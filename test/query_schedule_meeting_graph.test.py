@@ -5,15 +5,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.services.graphs import get_task_graph
 import asyncio
 
-task_type = "schedule_meeting"
+task_type = "query_schedule_meeting"
 
 graph = get_task_graph(task_type)
 
 input_data = {
     "user_id": '1',
-    # "query": '帮我定个日程会议',
-    "query": '帮我定个日程，会议标题是讨论一下人生，日程类型是会议，会议类型是线下会议，开始时间是2020-10-10 10:00，会议时长是1小时，会议室名称是东游，参与者张三和马丽',
-    "history": ['您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？'],
+    "query": '帮我查最近日程',
+    "history": [],
     "context": [],
     "task_collected": {}
 }
