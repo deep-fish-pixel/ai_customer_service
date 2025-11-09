@@ -1,9 +1,8 @@
-from enum import Enum
-from Status import Status
+from src.enums.Status import Status
 
 # 日程类型
 class ScheduleMeetingType(Status):
-  Meeting = (1, "会议")
+  MEETING = (1, "会议")
   FOCUS_TIME = (2, "专注时间")
   PRIVATE_BUSINESS = (3, "私人事务")
 
@@ -15,3 +14,4 @@ class MeetingType(Status):
 print(ScheduleMeetingType.FOCUS_TIME.name)
 print(ScheduleMeetingType.FOCUS_TIME.value)
 print(ScheduleMeetingType.FOCUS_TIME.text)
+print(ScheduleMeetingType.get_value_by_text('私人事务'))

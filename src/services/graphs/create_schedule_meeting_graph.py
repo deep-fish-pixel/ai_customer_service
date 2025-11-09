@@ -16,7 +16,7 @@ class ScheduleMeetingInfo(BaseModel):
     title: Optional[str] = None
     type: Optional[str] = None  # 会议、专注时间、私人事务
     meeting_type: Optional[str] = None  # 线上会议或线下会议
-    meeting_office: Optional[str] = None  # 线上会议链接或线下会议室名称
+    meeting_room: Optional[str] = None  # 线上会议链接或线下会议室名称
     start_time: Optional[str] = None  # 格式: YYYY-MM-DD hh:mm
     duration: Optional[int] = None  # 格式: 60m
     participants: Optional[List[str]] = None
@@ -37,31 +37,37 @@ def create_schedule_meeting_graph() -> StateGraph:
 
     async def collect_type(state: AgentState):
         """收集会议类型"""
-        response = await getHistoryAndNextQuestion("请选择会议类型：会议、专注时间、私人事务", state['history'][-1], state['query'])
+        response = await getHistoryAndNextQuestion("请选择日程类型：会议、专注时间、私人事务", state['history'][-1], state['query'])
 
         return {**state, "query": response.content, "task_response": 1}
 
     async def collect_meeting_type(state: AgentState):
         """收集会议形式信息"""
-        response = await getHistoryAndNextQuestion("请提供会议类型（线上会议请提供链接，线下会议请提供会议室名称）", state['history'][-1], state['query'])
+        response = await getHistoryAndNextQuestion("请提供会议类型（线上会议、线下会议）", state['history'][-1], state['query'])
+
+        return {**state, "query": response.content, "task_response": 1}
+
+    async def collect_meeting_room(state: AgentState):
+        """收集线下意义的会议室名称"""
+        response = await getHistoryAndNextQuestion("请提供会议室名称", state['history'][-1], state['query'])
 
         return {**state, "query": response.content, "task_response": 1}
 
     async def collect_start_time(state: AgentState):
         """收集会议开始时间"""
-        response = await getHistoryAndNextQuestion("请提供会议开始时间（格式：YYYY-MM-DD hh-mm）", state['history'][-1], state['query'])
+        response = await getHistoryAndNextQuestion(f"请提供开始时间（格式：YYYY-MM-DD hh-mm）", state['history'][-1], state['query'])
 
         return {** state, "query": response.content, "task_response": 1}
 
     async def collect_duration(state: AgentState):
         """收集会议起止时间"""
-        response = await getHistoryAndNextQuestion("请提供会议时长（单位分钟）", state['history'][-1], state['query'])
+        response = await getHistoryAndNextQuestion("请提供时长（单位分钟）", state['history'][-1], state['query'])
 
         return {** state, "query": response.content, "task_response": 1}
 
     async def collect_participants(state: AgentState):
         """收集参与者信息"""
-        response = await getHistoryAndNextQuestion("请提供参与者（多个参与者用逗号分隔）", state['history'][-1], state['query'])
+        response = await getHistoryAndNextQuestion("请提供会议参与者（多个参与者用逗号分隔）", state['history'][-1], state['query'])
 
         return {** state, "query": response.content, "task_response": 1}
 
@@ -81,7 +87,7 @@ def create_schedule_meeting_graph() -> StateGraph:
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
-        需要提取的字段包括city(入住城市), checkin_start_time(入住日期,格式YYYY-MM-DD), checkout_start_time(退房日期,格式YYYY-MM-DD), room_type(房间类型), guest_count(入住人数)。
+        需要提取的字段包括title(标题), type(日程类型), meeting_type(会议类型), meeting_room(会议室), start_time(日期,格式YYYY-MM-DD hh:mm), duration(会议时长,要求：数字类型单位分钟), room_type(房间类型), participants(参与者)。
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         请确保start_time字段符合YYYY-MM-DD格式，如果不符合，请返回null。
@@ -122,14 +128,15 @@ def create_schedule_meeting_graph() -> StateGraph:
             return "collect_start_time"
         elif not booking_info.duration:
             return "collect_duration"
-        elif booking_info.type:
+        elif booking_info.type == ScheduleMeetingType.MEETING.text:
             if not booking_info.meeting_type:
                 return "collect_meeting_type"
+            elif not booking_info.meeting_room:
+                return "collect_meeting_room"
             elif not booking_info.participants:
                 return "collect_participants"
-            return "save_to_database"
-        else:
-            return "save_to_database"
+
+        return "save_to_database"
 
 
     # 定义数据库存储节点
@@ -140,24 +147,26 @@ def create_schedule_meeting_graph() -> StateGraph:
         # 调用数据库服务存储宾馆信息
         try:
             # 验证日期格式
-            from datetime import datetime
-            start_time = datetime.strptime(booking_info["start_time"], "%Y-%m-%d")
+            from datetime import datetime, timedelta
+            start_time = datetime.strptime(booking_info["start_time"], "%Y-%m-%d %H:%M")
+            end_time = start_time +  timedelta(minutes=booking_info["duration"])
 
             result = relative_db_service.create_schedule_meeting(
                 user_id=user_id,
                 title=booking_info["title"],
-                type=ScheduleMeetingType.get_by_value(booking_info["type"]),
-                meeting_type=MeetingType.get_by_value(booking_info["meeting_type"]),
-                start_time=booking_info["start_time"],
-                duration=booking_info["duration"],
+                type=ScheduleMeetingType.get_value_by_text(booking_info["type"]),
+                meeting_type=MeetingType.get_value_by_text(booking_info["meeting_type"]),
+                meeting_room=booking_info["meeting_room"],
+                start_time=start_time,
+                end_time=end_time,
                 participants=booking_info["participants"]
             )
             return {
                 ** state,
                 "result": result,
                 "query": f"日程会议成功！您的订单信息："
-                         f"[标题:{booking_info["title"]} 日程类型:{booking_info["type"]} "
-                         f"会议类型:{booking_info["meeting_type"]} 日程时间:{booking_info["start_time"]} "
+                         f"[标题:{booking_info["title"]} 日程类型:{ScheduleMeetingType.get_text_by_value(booking_info["type"])} "
+                         f"会议类型:{MeetingType.get_text_by_value(booking_info["meeting_type"])} 会议室:{booking_info["meeting_room"]} 日期:{booking_info["start_time"]} "
                          f"会议时长:{booking_info["duration"]} 参与者:{booking_info["participants"]}]",
                     "task_response": 2
             }
@@ -171,6 +180,7 @@ def create_schedule_meeting_graph() -> StateGraph:
     graph.add_node("collect_title", collect_title)
     graph.add_node("collect_type", collect_type)
     graph.add_node("collect_meeting_type", collect_meeting_type)
+    graph.add_node("collect_meeting_room", collect_meeting_room)
     graph.add_node("collect_start_time", collect_start_time)
     graph.add_node("collect_duration", collect_duration)
     graph.add_node("collect_participants", collect_participants)
@@ -183,6 +193,7 @@ def create_schedule_meeting_graph() -> StateGraph:
     graph.add_edge("collect_title", END)
     graph.add_edge("collect_type", END)
     graph.add_edge("collect_meeting_type", END)
+    graph.add_edge("collect_meeting_room", END)
     graph.add_edge("collect_start_time", END)
     graph.add_edge("collect_duration", END)
     graph.add_edge("collect_participants", END)
@@ -196,6 +207,7 @@ def create_schedule_meeting_graph() -> StateGraph:
             "collect_title": "collect_title",
             "collect_type": "collect_type",
             "collect_meeting_type": "collect_meeting_type",
+            "collect_meeting_room": "collect_meeting_room",
             "collect_start_time": "collect_start_time",
             "collect_duration": "collect_duration",
             "collect_participants": "collect_participants",

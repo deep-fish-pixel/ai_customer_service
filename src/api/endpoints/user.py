@@ -69,7 +69,7 @@ async def register_user(request: UserRegisterRequest) -> Dict[str, Any]:
         if existing_user:
             return {
                 "status": RESPONSE_STATUS_FAILED,
-                "message": "账号已存在",
+                "message": "账号已被注册，请使用其他名称",
                 "data": None
             }
         

@@ -22,6 +22,14 @@ class Status(Enum):
     return None
 
   @classmethod
+  def get_by_text(cls, text):
+    """通过描述文本获取枚举成员"""
+    for member in cls:
+      if hasattr(member, 'text') and member.text == text:
+        return member
+    return None
+
+  @classmethod
   def get_text_by_name(cls, name):
     """通过名称获取描述文本"""
     member = cls.get_by_name(name)
@@ -32,3 +40,9 @@ class Status(Enum):
     """通过值获取描述文本"""
     member = cls.get_by_value(value)
     return member.text if member else None
+
+  @classmethod
+  def get_value_by_text(cls, text):
+    """通过描述文本获取枚举值"""
+    member = cls.get_by_text(text)
+    return member.value if member else None

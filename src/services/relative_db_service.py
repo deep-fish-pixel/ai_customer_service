@@ -131,8 +131,9 @@ class RelativeDBService:
                 type INT NOT NULL, 
                 participants TEXT,
                 meeting_type INT NOT NULL,
+                meeting_room VARCHAR(255) NOT NULL,
                 start_time TIMESTAMP NOT NULL,
-                start_end_time VARCHAR(50) NOT NULL,
+                end_time TIMESTAMP NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -556,21 +557,21 @@ class RelativeDBService:
             logger.error(f"查询酒店预订失败: {str(e)}")
             return []
     
-    def create_schedule_meeting(self, user_id: int, title: str, type: str, participants: str, meeting_type: str, date: str, start_end_time: str) -> bool:
+    def create_schedule_meeting(self, user_id: int, title: str, type: str, participants: str, meeting_type: str, meeting_room: str, start_time: str, end_time: str) -> bool:
         """创建新的日程会议"""
         try:
             self._check_connection()
             query = """
                 INSERT INTO schedule_meetings 
-                (user_id, title, type, participants, meeting_type, date, start_end_time)
+                (user_id, title, type, participants, meeting_type, meeting_room, start_time, end_time)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
-            self.cursor.execute(query, (user_id, title, type, participants, meeting_type, date, start_end_time))
-            self.conn.commit()
+            self.cursor.execute(query, (user_id, title, type, participants, meeting_type, meeting_room, start_time, end_time))
+            self.connection.commit()
             logger.info(f"User {user_id} created schedule meeting: {title}")
             return True
         except Exception as e:
-            self.conn.rollback()
+            self.connection.rollback()
             logger.error(f"Failed to create schedule meeting: {str(e)}")
             return False
 
@@ -600,11 +601,11 @@ class RelativeDBService:
 
             delete_query = "DELETE FROM schedule_meetings WHERE id = %s"
             self.cursor.execute(delete_query, (meeting_id,))
-            self.conn.commit()
+            self.connection.commit()
             logger.info(f"User {user_id} canceled meeting {meeting_id}")
             return True
         except Exception as e:
-            self.conn.rollback()
+            self.connection.rollback()
             logger.error(f"Failed to cancel schedule meeting: {str(e)}")
             return False
 
