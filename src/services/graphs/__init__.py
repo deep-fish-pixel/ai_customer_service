@@ -22,8 +22,8 @@ SUPPORTED_TASKS = [
     "schedule_meeting",
     "query_schedule_meeting",
 
-    "request_leave",
-    "query_request_leave",
+    "leave_request",
+    "query_leave_request",
 
     "check_personal_info"
 ]
@@ -38,8 +38,8 @@ task_graphs = {
     "schedule_meeting": create_schedule_meeting_graph,
     "query_schedule_meeting": query_schedule_meeting_graph,
 
-    "request_leave": create_leave_request_graph,
-    "query_request_leave": query_leave_request_graph,
+    "leave_request": create_leave_request_graph,
+    "query_leave_request": query_leave_request_graph,
 
     "check_personal_info": create_personal_info_graph
 }

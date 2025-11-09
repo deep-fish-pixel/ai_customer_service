@@ -11,14 +11,14 @@ def query_leave_request_graph() -> StateGraph:
 
     # 定义信息提取和验证函数
     async def query(state: AgentState) -> AgentState:
-        result = relative_db_service.list_hotel_bookings(state['user_id'])
+        result = relative_db_service.list_leave_requests(state['user_id'])
 
         query = '已查询到您的请假申请如下：'
 
         for info in result:
-            query += (f"[标题:{info["title"]} 日程类型:{ScheduleMeetingType.get_text_by_value(info["type"])} "
-                      f"会议类型:{MeetingType.get_text_by_value(info["meeting_type"])} 会议室:{info["meeting_room"]} 日期:{info["start_time"]} "
-                      f"会议时长:{(info["start_time"] - info["end_time"]) / 60 }分钟 参与者:{info["participants"]}]")
+            query += (f"[类型:{info["leave_type"]} 开始时间:{info["start_time"]} "
+                      f"结束时间:{info["end_time"]} 原因:{info["reason"]} "
+                      f"{"附件:" + info["attachments"] if info["attachments"] else ''}]")
 
         return {** state, "task_response": 2, "query": query}
 

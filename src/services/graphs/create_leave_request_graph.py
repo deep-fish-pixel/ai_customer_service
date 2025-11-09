@@ -17,7 +17,7 @@ class LeaveRequestInfo(BaseModel):
     start_time: Optional[str] = None  # 开始时间 YYYY-MM-DD
     end_time: Optional[str] = None    # 结束时间 YYYY-MM-DD
     reason: Optional[str] = None      # 请假事由
-    attachments: Optional[int] = None # 附加材料
+    attachments: Optional[str] = None # 附加材料
     exit: Optional[int] = 0           # 错误信息
     result: Optional[str] = None      # 申请结果
 
@@ -85,10 +85,10 @@ def create_leave_request_graph() -> StateGraph:
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
-        需要提取的字段包括leave_type(入住城市), start_time(入住日期,格式YYYY-MM-DD), end_time(退房日期,格式YYYY-MM-DD), reason(房间类型), attachments(入住人数)。
+        需要提取的字段包括leave_type(入住城市), start_time(入住日期,格式YYYY-MM-DD hh:mm), end_time(退房日期,格式YYYY-MM-DD hh:mm), reason(请假事由)。
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
-        请确保start_time和end_time字段符合YYYY-MM-DD格式，如果不符合，请返回null。
+        请确保start_time和end_time字段符合YYYY-MM-DD hh:mm格式，如果不符合，请返回null。
         如果用户输入[退出/不想继续/取消/后悔/反悔]等意思，则增加字段exit为1，否则为0。
         只返回JSON，不要添加额外解释。
         """)
@@ -127,9 +127,9 @@ def create_leave_request_graph() -> StateGraph:
         elif not booking_info.reason:
             return "collect_reason"
         elif (booking_info.leave_type == LeaveRequestType.SICK_LEAVE.text
-              | booking_info.leave_type == LeaveRequestType.MARRIAGE_LEAVE.text
-              | booking_info.leave_type == LeaveRequestType.MATERNITY_LEAVE.text
-              | booking_info.leave_type == LeaveRequestType.PATERNITY_LEAVE.text):
+              or booking_info.leave_type == LeaveRequestType.MARRIAGE_LEAVE.text
+              or booking_info.leave_type == LeaveRequestType.MATERNITY_LEAVE.text
+              or booking_info.leave_type == LeaveRequestType.PATERNITY_LEAVE.text):
             if not booking_info.attachments:
                 return "collect_attachments"
         else:
@@ -145,10 +145,10 @@ def create_leave_request_graph() -> StateGraph:
         try:
             # 验证日期格式
             from datetime import datetime
-            start_time = datetime.strptime(booking_info["start_time"], "%Y-%m-%d")
-            end_time = datetime.strptime(booking_info["end_time"], "%Y-%m-%d")
-            if start_time <= end_time:
-                return {** state, "query": "开始时间必须晚于结束时间。", "error": "start_date_less_end_date", "task_response": 0}
+            start_time = datetime.strptime(booking_info["start_time"], "%Y-%m-%d %H:%M")
+            end_time = datetime.strptime(booking_info["end_time"], "%Y-%m-%d %H:%M")
+            if start_time >= end_time:
+                return {** state, "query": "开始时间必须晚于结束时间。", "error": "start_date less end_date", "task_response": 0}
 
             result = relative_db_service.create_leave_request(
                 user_id=user_id,
@@ -164,7 +164,7 @@ def create_leave_request_graph() -> StateGraph:
                                      f"结束时间:{booking_info["end_time"]} 原因:{booking_info["reason"]} "
                                      f"附件:{booking_info["attachments"]}]", "task_response": 2}
         except ValueError:
-            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_response": 1}
+            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_response": 1}
         except Exception as e:
             return {** state, "query": f"请假申请失败：{str(e)}", "error": str(e), "task_response": 1}
 
