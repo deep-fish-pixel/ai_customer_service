@@ -17,8 +17,10 @@ def query_schedule_meeting_graph() -> StateGraph:
 
         for info in result:
             query += (f"[标题:{info["title"]} 日程类型:{ScheduleMeetingType.get_text_by_value(info["type"])} "
-                      f"会议类型:{MeetingType.get_text_by_value(info["meeting_type"])} 会议室:{info["meeting_room"]} 日期:{info["start_time"]} "
-                      f"会议时长:{(info["start_time"] - info["end_time"]) / 60 }分钟 参与者:{info["participants"]}]")
+                      f"{"会议类型: " + MeetingType.get_text_by_value(info["meeting_type"]) if info["meeting_type"] else '' } "
+                      f"{"会议室: " + info["meeting_room"] if info["meeting_room"] else '' } "
+                      f"日期:{info["start_time"]} 会议时长:{(info["end_time"] - info["start_time"]).total_seconds() // 60 }分钟 "
+                      f"{"参与者: " + info["participants"] if info["participants"] else '' }]")
 
         return {** state, "task_response": 2, "query": query}
 

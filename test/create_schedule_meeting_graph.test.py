@@ -13,6 +13,8 @@ input_data = {
     "user_id": '1',
     # "query": '帮我定个日程会议',
     "query": '帮我定个日程，会议标题是讨论一下人生，日程类型是会议，会议类型是线下会议，开始时间是2020-10-10 10:00，会议时长是1小时，会议室名称是东游，参与者张三和马丽',
+    # "query": '帮我定个日程，会议标题是我需要思考。日程的具体类型是专注时间，专注时间2020-10-10 10:00，专注时长2小时',
+    # "query": '帮我定个日程，会议标题是我需要思考。日程的具体类型是私人事务，专注时间2020-10-10 10:00，专注时长2小时',
     "history": ['您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？'],
     "context": [],
     "task_collected": {}
@@ -30,7 +32,7 @@ async def invoke():
     result = await app.ainvoke(input_data)
     print(result)
 
-    user_answer = input(result['query'])
+    user_answer = 'Test response'  # Automated response for testing
 
     input_data['history'].append(input_data['query'])
     input_data['query'] = user_answer

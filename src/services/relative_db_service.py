@@ -130,8 +130,8 @@ class RelativeDBService:
                 title VARCHAR(255) NOT NULL,
                 type INT NOT NULL, 
                 participants TEXT,
-                meeting_type INT NOT NULL,
-                meeting_room VARCHAR(255) NOT NULL,
+                meeting_type INT DEFAULT NULL,
+                meeting_room VARCHAR(255) DEFAULT NULL,
                 start_time TIMESTAMP NOT NULL,
                 end_time TIMESTAMP NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -557,7 +557,7 @@ class RelativeDBService:
             logger.error(f"查询酒店预订失败: {str(e)}")
             return []
     
-    def create_schedule_meeting(self, user_id: int, title: str, type: str, participants: str, meeting_type: str, meeting_room: str, start_time: str, end_time: str) -> bool:
+    def create_schedule_meeting(self, user_id: int, title: str, type: str, participants: List[str], meeting_type: str, meeting_room: str, start_time: str, end_time: str) -> bool:
         """创建新的日程会议"""
         try:
             if not self.connection or not self.connection.is_connected():
@@ -569,9 +569,9 @@ class RelativeDBService:
             query = """
                 INSERT INTO schedule_meetings 
                 (user_id, title, type, participants, meeting_type, meeting_room, start_time, end_time)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
-            self.cursor.execute(query, (user_id, title, type, participants, meeting_type, meeting_room, start_time, end_time))
+            self.cursor.execute(query, (user_id, title, type, participants if participants == None else ', '.join(participants), meeting_type, meeting_room, start_time, end_time))
             self.connection.commit()
             logger.info(f"User {user_id} created schedule meeting: {title}")
             return True
@@ -591,9 +591,7 @@ class RelativeDBService:
 
             query = "SELECT * FROM schedule_meetings WHERE user_id = %s ORDER BY start_time DESC"
             self.cursor.execute(query, (user_id,))
-            columns = [col[0] for col in self.cursor.description]
-            results = [dict(zip(columns, row)) for row in self.cursor.fetchall()]
-            return results
+            return self.cursor.fetchall()
         except Exception as e:
             logger.error(f"Failed to list schedule meetings: {str(e)}")
             return []

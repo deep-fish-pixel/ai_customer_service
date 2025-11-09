@@ -20,9 +20,11 @@ SUPPORTED_TASKS = [
     "query_book_hotel",
 
     "schedule_meeting",
-    "check_calendar",
+    "query_schedule_meeting",
 
     "request_leave",
+    "query_request_leave",
+
     "check_personal_info"
 ]
 

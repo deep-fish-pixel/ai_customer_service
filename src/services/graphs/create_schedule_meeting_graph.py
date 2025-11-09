@@ -166,8 +166,10 @@ def create_schedule_meeting_graph() -> StateGraph:
                 "result": result,
                 "query": f"日程会议成功！您的订单信息："
                          f"[标题:{booking_info["title"]} 日程类型:{ScheduleMeetingType.get_text_by_value(booking_info["type"])} "
-                         f"会议类型:{MeetingType.get_text_by_value(booking_info["meeting_type"])} 会议室:{booking_info["meeting_room"]} 日期:{booking_info["start_time"]} "
-                         f"会议时长:{booking_info["duration"]} 参与者:{booking_info["participants"]}]",
+                         f"{"会议类型: " + MeetingType.get_text_by_value(booking_info["meeting_type"]) if booking_info["meeting_type"] else '' } "
+                         f"{"会议室: " + booking_info["meeting_room"] if booking_info["meeting_room"] else '' } "
+                         f"日期:{booking_info["start_time"]} 会议时长:{(booking_info["end_time"] - booking_info["start_time"]).total_seconds() // 60} "
+                         f"{"参与者: " + booking_info["participants"] if booking_info["participants"] else '' }]",
                     "task_response": 2
             }
         except ValueError:
