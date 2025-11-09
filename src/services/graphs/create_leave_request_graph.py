@@ -1,5 +1,7 @@
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
+
+from src.enums.LeaveRequest import LeaveRequestType
 from src.services.graphs.agent_state import AgentState
 from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
@@ -52,11 +54,11 @@ def create_leave_request_graph() -> StateGraph:
     async def collect_attachments(state: AgentState):
         """收集附加材料"""
         prompt = "请提供相关证明材料"
-        if state.leave_request.leave_type == '病假':
+        if state.leave_type == '病假':
             prompt = "请提供医院诊断证明或病假单"
-        elif state.leave_request.leave_type == '婚假':
+        elif state.leave_type == '婚假':
             prompt = "请提供结婚证复印件"
-        elif state.leave_request.leave_type == '产假':
+        elif state.leave_type == '产假':
             prompt = "请提供出生证明复印件"
 
         response = await getHistoryAndNextQuestion(
@@ -124,8 +126,12 @@ def create_leave_request_graph() -> StateGraph:
             return "collect_end_time"
         elif not booking_info.reason:
             return "collect_reason"
-        elif not booking_info.attachments:
-            return "collect_attachments"
+        elif (booking_info.leave_type == LeaveRequestType.SICK_LEAVE.text
+              | booking_info.leave_type == LeaveRequestType.MARRIAGE_LEAVE.text
+              | booking_info.leave_type == LeaveRequestType.MATERNITY_LEAVE.text
+              | booking_info.leave_type == LeaveRequestType.PATERNITY_LEAVE.text):
+            if not booking_info.attachments:
+                return "collect_attachments"
         else:
             return "save_to_database"
 

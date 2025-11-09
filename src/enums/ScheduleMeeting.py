@@ -11,7 +11,7 @@ class MeetingType(Status):
   ONLINE = (1, "线上会议")
   OFFLINE = (2, "线下会议")
 
-print(ScheduleMeetingType.FOCUS_TIME.name)
-print(ScheduleMeetingType.FOCUS_TIME.value)
-print(ScheduleMeetingType.FOCUS_TIME.text)
-print(ScheduleMeetingType.get_value_by_text('私人事务'))
+# print(ScheduleMeetingType.FOCUS_TIME.name)
+# print(ScheduleMeetingType.FOCUS_TIME.value)
+# print(ScheduleMeetingType.FOCUS_TIME.text)
+# print(ScheduleMeetingType.get_value_by_text('私人事务'))
