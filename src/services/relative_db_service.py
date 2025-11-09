@@ -579,7 +579,7 @@ class RelativeDBService:
         """查询用户所有日程会议"""
         try:
             self._check_connection()
-            query = "SELECT * FROM schedule_meetings WHERE user_id = %s ORDER BY date DESC"
+            query = "SELECT * FROM schedule_meetings WHERE user_id = %s ORDER BY start_time DESC"
             self.cursor.execute(query, (user_id,))
             columns = [col[0] for col in self.cursor.description]
             results = [dict(zip(columns, row)) for row in self.cursor.fetchall()]
