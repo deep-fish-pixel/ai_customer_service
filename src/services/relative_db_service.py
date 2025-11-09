@@ -560,7 +560,12 @@ class RelativeDBService:
     def create_schedule_meeting(self, user_id: int, title: str, type: str, participants: str, meeting_type: str, meeting_room: str, start_time: str, end_time: str) -> bool:
         """创建新的日程会议"""
         try:
-            self._check_connection()
+            if not self.connection or not self.connection.is_connected():
+                self._connect_db()
+
+            if not self.connection or not self.connection.is_connected():
+                return []
+
             query = """
                 INSERT INTO schedule_meetings 
                 (user_id, title, type, participants, meeting_type, meeting_room, start_time, end_time)
@@ -578,7 +583,12 @@ class RelativeDBService:
     def list_schedule_meetings(self, user_id: int) -> list[dict]:
         """查询用户所有日程会议"""
         try:
-            self._check_connection()
+            if not self.connection or not self.connection.is_connected():
+                self._connect_db()
+
+            if not self.connection or not self.connection.is_connected():
+                return []
+
             query = "SELECT * FROM schedule_meetings WHERE user_id = %s ORDER BY start_time DESC"
             self.cursor.execute(query, (user_id,))
             columns = [col[0] for col in self.cursor.description]
@@ -591,7 +601,12 @@ class RelativeDBService:
     def cancel_schedule_meeting(self, user_id: int, meeting_id: int) -> bool:
         """取消用户特定日程会议"""
         try:
-            self._check_connection()
+            if not self.connection or not self.connection.is_connected():
+                self._connect_db()
+
+            if not self.connection or not self.connection.is_connected():
+                return []
+
             # 验证会议是否属于用户
             query = "SELECT id FROM schedule_meetings WHERE id = %s AND user_id = %s"
             self.cursor.execute(query, (meeting_id, user_id))
