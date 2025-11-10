@@ -3,6 +3,7 @@ from langgraph.graph import StateGraph, END
 from src.enums.ScheduleMeeting import ScheduleMeetingType, MeetingType
 from src.services.graphs.agent_state import AgentState
 from src.services.relative_db_service import relative_db_service
+from src.utils.json import json_stringfy
 
 
 def query_schedule_meeting_graph() -> StateGraph:
@@ -13,15 +14,25 @@ def query_schedule_meeting_graph() -> StateGraph:
     async def query(state: AgentState) -> AgentState:
         result = relative_db_service.list_schedule_meetings(state['user_id'])
 
-        query = '已查询到您的日程会议如下：'
+        query = '已查询到您的日程会议记录：Type[List]'
+        dataList = [["id", "标题", "日程类型", "会议类型", "会议室", "日期", "会议时长", "参与者",], ]
+        list = []
+        dataList.append(list)
 
         for info in result:
-            query += (f"[标题:{info["title"]} 日程类型:{ScheduleMeetingType.get_text_by_value(info["type"])} "
-                      f"{"会议类型: " + MeetingType.get_text_by_value(info["meeting_type"]) if info["meeting_type"] else '' } "
-                      f"{"会议室: " + info["meeting_room"] if info["meeting_room"] else '' } "
-                      f"日期:{info["start_time"]} 会议时长:{(info["end_time"] - info["start_time"]).total_seconds() // 60 }分钟 "
-                      f"{"参与者: " + info["participants"] if info["participants"] else '' }]")
+          data = [
+            info["id"],
+            info["title"],
+            ScheduleMeetingType.get_text_by_value(info["type"]),
+            MeetingType.get_text_by_value(info["meeting_type"]) if info["meeting_type"] else '',
+            info["meeting_room"],
+            info["start_time"].strftime("%Y-%m-%d %H:%M"),
+            str(int((info["end_time"] - info["start_time"]).total_seconds() // 60)) + "分钟",
+            info["participants"],
+          ]
+          list.append(data)
 
+        query += json_stringfy(dataList)
         return {** state, "task_response": 2, "query": query}
 
     # 添加节点到图中

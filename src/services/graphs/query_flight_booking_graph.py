@@ -7,6 +7,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from typing import Optional
 from src.utils.getOpenAI import getChatOpenAI
+from src.utils.json import json_stringfy
+from typing import List, Dict, Any, Optional
 
 
 class FlightBookingInfo(BaseModel):
@@ -17,6 +19,23 @@ class FlightBookingInfo(BaseModel):
     seat_preference: Optional[str] = None
     exit: Optional[int] = 0
 
+def get_list_json_str(result: List[Dict[str, Any]]):
+    """获取查询信息的展示数据"""
+    dataList = [["id", "始发地", "目的地", "时间", "座位等级", "座位偏好",], []]
+    list = dataList[1]
+
+    for info in result:
+        data = [
+            info["id"],
+            info["origin"],
+            info["destination"],
+            info["date"].strftime("%Y-%m-%d %H:%M"),
+            info["seat_class"],
+            info["seat_preference"],
+        ]
+        list.append(data)
+
+    return 'Type[List]' + json_stringfy(dataList)
 
 def query_flight_booking_graph() -> StateGraph:
     """查询航班预订的信息工作流，收集所有必要信息并完成数据库存储"""
@@ -26,13 +45,7 @@ def query_flight_booking_graph() -> StateGraph:
     async def query(state: AgentState) -> AgentState:
         result = relative_db_service.list_flight_bookings(state['user_id'])
 
-        query = '已查询到您的机票预定如下：'
-
-        for booking_info in result:
-            query += f"""\n
-            [id:{booking_info["id"]}  始发地:{booking_info["origin"]} 目的地:{booking_info["destination"]}时间:{booking_info["date"]} 座位等级:{booking_info["seat_class"]} 座位偏好:{booking_info["seat_preference"]}]"""
-
-        return {** state, "task_response": 2, "query": query}
+        return {** state, "task_response": 2, "query": '已查询到您的机票预定记录：' + get_list_json_str(result)}
 
     # 添加节点到图中
     graph.add_node("query", query)

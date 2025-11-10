@@ -107,7 +107,6 @@
     scrollToBottom();
 
     try {
-      debugger
       // 使用流式请求
       abortStream = sendChatMessageStream(
         userMessage.content,
@@ -116,14 +115,12 @@
         (chunk) => {
           // 更新机器人消息内容
           // 任务类型
-          debugger
           if (chunk && chunk.match(/\{'extract_info':/)) {
             return;
           }
 
           if (chunk && chunk.match(/\{'(task_response|collect_info|collect_origin)':/)) {
             chunk = chunk.replace(/: None/g, ': null');
-            debugger
             const response = new Function('return ' + chunk)();
 
             if (!response || response.task_response === 0) {

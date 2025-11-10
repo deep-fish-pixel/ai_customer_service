@@ -137,7 +137,6 @@ export function sendChatMessageStream(
       readChunk();
     })
     .catch(error => {
-        debugger
       onError(error);
     });
 

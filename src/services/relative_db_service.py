@@ -93,7 +93,7 @@ class RelativeDBService:
                 user_id INT NOT NULL,
                 origin VARCHAR(100) NOT NULL,
                 destination VARCHAR(100) NOT NULL,
-                date DATE NOT NULL,
+                date TIMESTAMP NOT NULL,
                 seat_class VARCHAR(50) NOT NULL,
                 seat_preference VARCHAR(50),
                 booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -474,8 +474,8 @@ class RelativeDBService:
             """
             
             values = (user_id, origin, destination, date, seat_class, seat_preference, datetime.datetime.now())
-            self.cursor.execute(query, values)
-            self.connection.commit()
+            ret = self.cursor.execute(query, values)
+            res = self.connection.commit()
             logger.info(f"航班预订创建成功: {user_id} - {origin} to {destination}")
             return True
             

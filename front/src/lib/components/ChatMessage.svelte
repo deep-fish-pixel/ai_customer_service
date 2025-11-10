@@ -1,8 +1,30 @@
 <script lang="ts">
   import type { Message, } from "../types/chat";
-  
+  import ViewTable from "./view/ViewTable.svelte"
+
+  function isSimpleType(data: any){
+    return !data || typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean';
+  }
+  function hasArray(content: string){
+    return content && content.indexOf('Type[List]') >= 0;
+  }
+
+  function getData(content: string){
+    const list = content && content.split(/Type\[List]/) || [];
+
+    return list.map(str => {
+      return str.match(/^\[\[/) ? JSON.parse(str) : str;
+    });
+  }
+
+
   // 从父组件接收的属性
-  export let message: Message;
+  let { message, }: { message: Message } = $props();
+
+  let contents = $derived.by(() => {
+    debugger
+    return getData(message.content)
+  });
 
   // 格式化时间
   const formatTime = (date: Date): string => {
@@ -14,9 +36,15 @@
 </script>
 
 <div class={`chat-message ${message.sender}`}>
-  <span>
+  <div>
     {#if message.content}
-      {message.content}
+      {#each contents as content}
+          {#if isSimpleType(content)}
+            {content}
+          {:else}
+            <ViewTable headers={content[0]} list={content[1]}></ViewTable>
+          {/if}
+      {/each}
     {:else}
       <!--等待标识-->
       <span class="loader">
@@ -25,7 +53,7 @@
         <span>.</span>
       </span>
     {/if}
-  </span>
+  </div>
 </div>
 
 <style lang="scss">
