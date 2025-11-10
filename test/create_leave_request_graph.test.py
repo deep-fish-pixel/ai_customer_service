@@ -12,7 +12,7 @@ graph = get_task_graph(task_type)
 input_data = {
     "user_id": '1',
     # "query": '帮我请假，请假类型年假，开始具体时间2020-10-10 10:00到2020-10-10 20:00，具体原因是家里有事情',
-    "query": '帮我请假，请假类型病假，开始具体时间2020-10-10 10:00到2020-10-10 20:00，具体原因是生病住院。附件：111.txt',
+    "query": '帮我请假，请假类型病假，开始具体时间2020-10-10 10:00到2020-10-10 20:00，具体原因是生病住院。附件：诊断证明.png', # 附件：111.txt
     "history": ['您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？'],
     "context": [],
     "task_collected": {}
@@ -30,12 +30,12 @@ async def invoke():
     result = await app.ainvoke(input_data)
     print(result)
 
-    user_answer = 'Test response'  # Automated response for testing
-
-    input_data['history'].append(input_data['query'])
-    input_data['query'] = user_answer
-    result2 = await app.ainvoke(input_data)
-    print(result2)
+    # user_answer = '诊断证明.png,病假单.png,'  # Automated response for testing
+    #
+    # input_data['history'].append(input_data['query'])
+    # input_data['query'] = user_answer
+    # result2 = await app.ainvoke(input_data)
+    # print(result2)
 
 
 asyncio.run(invoke())

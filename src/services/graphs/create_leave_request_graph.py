@@ -7,19 +7,19 @@ from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
-from typing import Optional
+from typing import Optional, List
 from src.utils.getOpenAI import getChatOpenAI
 
 
 class LeaveRequestInfo(BaseModel):
     """请假申请信息模型"""
-    leave_type: Optional[str] = None  # 请假类型
-    start_time: Optional[str] = None  # 开始时间 YYYY-MM-DD
-    end_time: Optional[str] = None    # 结束时间 YYYY-MM-DD
-    reason: Optional[str] = None      # 请假事由
-    attachments: Optional[str] = None # 附加材料
-    exit: Optional[int] = 0           # 错误信息
-    result: Optional[str] = None      # 申请结果
+    leave_type: Optional[str] = None            # 请假类型
+    start_time: Optional[str] = None            # 开始时间 YYYY-MM-DD hh:ss
+    end_time: Optional[str] = None              # 结束时间 YYYY-MM-DD hh:ss
+    reason: Optional[str] = None                # 请假事由
+    attachments: Optional[List[str]] = None     # 附加材料
+    exit: Optional[int] = 0                     # 错误信息
+    result: Optional[str] = None                # 申请结果
 
 
 def create_leave_request_graph() -> StateGraph:
@@ -54,17 +54,19 @@ def create_leave_request_graph() -> StateGraph:
     async def collect_attachments(state: AgentState):
         """收集附加材料"""
         prompt = "请提供相关证明材料"
-        if state.leave_type == '病假':
+        leave_type = state['task_collected']['leave_type']
+
+        if leave_type == LeaveRequestType.SICK_LEAVE.text:
             prompt = "请提供医院诊断证明或病假单"
-        elif state.leave_type == '婚假':
+        elif leave_type == LeaveRequestType.MARRIAGE_LEAVE.text:
             prompt = "请提供结婚证复印件"
-        elif state.leave_type == '产假':
+        elif leave_type == LeaveRequestType.MATERNITY_LEAVE.text or leave_type == LeaveRequestType.PATERNITY_LEAVE.text:
             prompt = "请提供出生证明复印件"
 
         response = await getHistoryAndNextQuestion(
             prompt,
-            state.history[-1] if state.history else "",
-            state.query
+            state['history'][-1],
+            state['query']
         )
 
         return {** state, "query": response.content, "task_response": 1}
@@ -85,7 +87,7 @@ def create_leave_request_graph() -> StateGraph:
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
-        需要提取的字段包括leave_type(入住城市), start_time(入住日期,格式YYYY-MM-DD hh:mm), end_time(退房日期,格式YYYY-MM-DD hh:mm), reason(请假事由)。
+        需要提取的字段包括leave_type(请假类型), start_time(开始日期,格式YYYY-MM-DD hh:mm), end_time(结束日期,格式YYYY-MM-DD hh:mm), reason(请假事由), attachments(多个附件材料的名称)。
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         请确保start_time和end_time字段符合YYYY-MM-DD hh:mm格式，如果不符合，请返回null。
@@ -127,13 +129,14 @@ def create_leave_request_graph() -> StateGraph:
         elif not booking_info.reason:
             return "collect_reason"
         elif (booking_info.leave_type == LeaveRequestType.SICK_LEAVE.text
-              or booking_info.leave_type == LeaveRequestType.MARRIAGE_LEAVE.text
-              or booking_info.leave_type == LeaveRequestType.MATERNITY_LEAVE.text
-              or booking_info.leave_type == LeaveRequestType.PATERNITY_LEAVE.text):
+            or booking_info.leave_type == LeaveRequestType.MARRIAGE_LEAVE.text
+            or booking_info.leave_type == LeaveRequestType.MATERNITY_LEAVE.text
+            or booking_info.leave_type == LeaveRequestType.PATERNITY_LEAVE.text):
             if not booking_info.attachments:
                 return "collect_attachments"
-        else:
-            return "save_to_database"
+
+        return "save_to_database"
+
 
 
     # 定义数据库存储节点

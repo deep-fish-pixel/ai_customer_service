@@ -571,7 +571,7 @@ class RelativeDBService:
                 (user_id, title, type, participants, meeting_type, meeting_room, start_time, end_time)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
-            self.cursor.execute(query, (user_id, title, type, participants if participants == None else ', '.join(participants), meeting_type, meeting_room, start_time, end_time))
+            self.cursor.execute(query, (user_id, title, type, ', '.join(participants) if participants else None, meeting_type, meeting_room, start_time, end_time))
             self.connection.commit()
             logger.info(f"User {user_id} created schedule meeting: {title}")
             return True
@@ -657,7 +657,7 @@ class RelativeDBService:
                 self.connection.rollback()
             return False
 
-    def create_leave_request(self, user_id: int, leave_type: str, start_time: str, end_time: str, reason: str, attachments: str = None) -> bool:
+    def create_leave_request(self, user_id: int, leave_type: str, start_time: str, end_time: str, reason: str, attachments: List[str] = None) -> bool:
         """
         创建新的请假申请
         
@@ -685,7 +685,7 @@ class RelativeDBService:
             ) VALUES (%s, %s, %s, %s, %s, %s)
             """
             self.cursor.execute(query, (
-                user_id, leave_type, start_time, end_time, reason, attachments
+                user_id, leave_type, start_time, end_time, reason, ', '.join(attachments) if attachments else None
             ))
             self.connection.commit()
             logger.info(f"请假申请创建成功: {user_id} - {leave_type}")
