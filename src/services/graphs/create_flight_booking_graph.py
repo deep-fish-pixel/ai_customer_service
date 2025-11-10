@@ -36,7 +36,7 @@ def create_flight_booking_graph() -> StateGraph:
         return {**state, "query": response.content, "task_response": 1}
 
     async def collect_date(state: AgentState):
-        response = await getHistoryAndNextQuestion("请问您的出行日期是什么时候？(格式：YYYY-MM-DD hh:ss)", state['history'][-1], state['query'])
+        response = await getHistoryAndNextQuestion("请问您的出行日期是什么时候？(格式：YYYY-MM-DD hh:mm)", state['history'][-1], state['query'])
 
         return {** state, "query": response.content, "task_response": 1}
 
@@ -66,7 +66,7 @@ def create_flight_booking_graph() -> StateGraph:
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
-        需要提取的字段包括origin(起点), destination(终点), date(时间,格式YYYY-MM-DD hh:ss), seat_class(座位等级), seat_preference(座位偏好)。
+        需要提取的字段包括origin(起点), destination(终点), date(时间,格式YYYY-MM-DD hh:mm), seat_class(座位等级), seat_preference(座位偏好)。
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         请确保date字段符合YYYY-MM-DD格式，如果不符合，请返回null。
@@ -135,7 +135,7 @@ def create_flight_booking_graph() -> StateGraph:
             return {** state, "booking_result": result, "query": f"机票预订成功！您的订单已确认。预定机票信息如下："
                                                                  f"{get_list_json_str([booking_info])}", "task_response": 2}
         except ValueError:
-            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:ss格式重试。", "error": "invalid_date_format", "task_response": 0}
+            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_response": 0}
         except Exception as e:
             return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_response": 0}
 

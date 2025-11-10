@@ -474,10 +474,11 @@ class RelativeDBService:
             """
             
             values = (user_id, origin, destination, date, seat_class, seat_preference, datetime.datetime.now())
-            ret = self.cursor.execute(query, values)
-            res = self.connection.commit()
-            logger.info(f"航班预订创建成功: {user_id} - {origin} to {destination}")
-            return True
+            self.cursor.execute(query, values)
+            self.connection.commit()
+            booking_id = self.cursor.lastrowid
+            logger.info(f"航班预订创建成功: {booking_id} - {user_id} - {origin} to {destination}")
+            return booking_id
             
         except Error as e:
             logger.error(f"创建航班预订失败: {str(e)}")
