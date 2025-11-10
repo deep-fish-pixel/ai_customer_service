@@ -58,7 +58,7 @@ class ChatService:
         你是任务分类器。分析用户查询并将其分类为以下任务类型之一: {supported_tasks}。
         
         要求：
-            严格匹配，没有完整的信息匹配则算不匹配，并返回空消息。
+            严格匹配，没有完整的信息匹配则算不匹配，如果不匹配，返回empty。
                 实例1：
                     我想出去玩
                     没有跟定机票或定酒店直接相关，故不需要匹配。
@@ -147,7 +147,7 @@ class ChatService:
 
                 question = task['question']
 
-                if question != '':
+                if question != '' and question != 'empty':
                    return question
 
             if task_type in SUPPORTED_TASKS:
