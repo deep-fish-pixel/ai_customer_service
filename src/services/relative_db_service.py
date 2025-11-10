@@ -146,8 +146,8 @@ class RelativeDBService:
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 user_id INT NOT NULL,
                 city VARCHAR(100) NOT NULL,
-                checkin_date DATE NOT NULL,
-                checkout_date DATE NOT NULL,
+                checkin_date TIMESTAMP NOT NULL,
+                checkout_date TIMESTAMP NOT NULL,
                 room_type VARCHAR(50) NOT NULL,
                 guest_count INT NOT NULL,
                 booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -445,7 +445,7 @@ class RelativeDBService:
             logger.error(f"查询航班预订失败: {str(e)}")
             return []
     
-    def create_flight_booking(self, user_id: int, origin: str, destination: str, date: str, seat_class: str, seat_preference: Optional[str] = None) -> bool:
+    def create_flight_booking(self, user_id: int, origin: str, destination: str, date: str, seat_class: str, seat_preference: Optional[str] = None) -> Dict[str, Any]:
         """
         创建新的航班预订
         
@@ -458,7 +458,7 @@ class RelativeDBService:
             seat_preference: 座位偏好（可选）
             
         Returns:
-            是否创建成功
+            创建成功的记录
         """
         if not self.connection or not self.connection.is_connected():
             self._connect_db()
@@ -477,8 +477,11 @@ class RelativeDBService:
             self.cursor.execute(query, values)
             self.connection.commit()
             booking_id = self.cursor.lastrowid
+            # 获取完整的预订记录
+            self.cursor.execute("SELECT * FROM flight_bookings WHERE id = %s", (booking_id,))
+            booking_record = self.cursor.fetchone()
             logger.info(f"航班预订创建成功: {booking_id} - {user_id} - {origin} to {destination}")
-            return booking_id
+            return booking_record
             
         except Error as e:
             logger.error(f"创建航班预订失败: {str(e)}")
@@ -486,7 +489,7 @@ class RelativeDBService:
                 self.connection.rollback()
             return False
     
-    def create_hotel_booking(self, user_id: int, city: str, checkin_date: str, checkout_date: str, room_type: str, guest_count: int) -> bool:
+    def create_hotel_booking(self, user_id: int, city: str, checkin_date: str, checkout_date: str, room_type: str, guest_count: int) -> Dict[str, Any]:
         """
         创建新的酒店预订
         
@@ -499,7 +502,7 @@ class RelativeDBService:
             guest_count: 人数
             
         Returns:
-            是否创建成功
+            创建成功的记录
         """
         if not self.connection or not self.connection.is_connected():
             self._connect_db()
@@ -517,8 +520,12 @@ class RelativeDBService:
             values = (user_id, city, checkin_date, checkout_date, room_type, guest_count)
             self.cursor.execute(query, values)
             self.connection.commit()
-            logger.info(f"酒店预订创建成功: {user_id} - {city}")
-            return True
+            booking_id = self.cursor.lastrowid
+            # 获取完整的预订记录
+            self.cursor.execute("SELECT * FROM hotel_bookings WHERE id = %s", (booking_id,))
+            booking_record = self.cursor.fetchone()
+            logger.info(f"酒店预订创建成功: {booking_id} - {user_id}")
+            return booking_record
             
         except Error as e:
             logger.error(f"创建酒店预订失败: {str(e)}")
@@ -558,7 +565,7 @@ class RelativeDBService:
             logger.error(f"查询酒店预订失败: {str(e)}")
             return []
     
-    def create_schedule_meeting(self, user_id: int, title: str, type: str, participants: List[str], meeting_type: str, meeting_room: str, start_time: str, end_time: str) -> bool:
+    def create_schedule_meeting(self, user_id: int, title: str, type: str, participants: List[str], meeting_type: str, meeting_room: str, start_time: str, end_time: str) -> Dict[str, Any]:
         """创建新的日程会议"""
         try:
             if not self.connection or not self.connection.is_connected():
@@ -574,8 +581,12 @@ class RelativeDBService:
             """
             self.cursor.execute(query, (user_id, title, type, ', '.join(participants) if participants else None, meeting_type, meeting_room, start_time, end_time))
             self.connection.commit()
-            logger.info(f"User {user_id} created schedule meeting: {title}")
-            return True
+            booking_id = self.cursor.lastrowid
+            # 获取完整的预订记录
+            self.cursor.execute("SELECT * FROM schedule_meetings WHERE id = %s", (booking_id,))
+            booking_record = self.cursor.fetchone()
+            logger.info(f"日程会议创建成功: {booking_id} - {user_id}")
+            return booking_record
         except Exception as e:
             self.connection.rollback()
             logger.error(f"Failed to create schedule meeting: {str(e)}")
@@ -658,7 +669,7 @@ class RelativeDBService:
                 self.connection.rollback()
             return False
 
-    def create_leave_request(self, user_id: int, leave_type: str, start_time: str, end_time: str, reason: str, attachments: List[str] = None) -> bool:
+    def create_leave_request(self, user_id: int, leave_type: str, start_time: str, end_time: str, reason: str, attachments: List[str] = None) -> Dict[str, Any]:
         """
         创建新的请假申请
         
@@ -671,7 +682,7 @@ class RelativeDBService:
             attachments: 附件（可选）
             
         Returns:
-            是否创建成功
+            创建成功的记录
         """
         if not self.connection or not self.connection.is_connected():
             self._connect_db()
@@ -689,8 +700,12 @@ class RelativeDBService:
                 user_id, leave_type, start_time, end_time, reason, ', '.join(attachments) if attachments else None
             ))
             self.connection.commit()
-            logger.info(f"请假申请创建成功: {user_id} - {leave_type}")
-            return True
+            booking_id = self.cursor.lastrowid
+            # 获取完整的预订记录
+            self.cursor.execute("SELECT * FROM leave_requests WHERE id = %s", (booking_id,))
+            booking_record = self.cursor.fetchone()
+            logger.info(f"请假申请创建成功: {booking_id} - {user_id}")
+            return booking_record
         except Error as e:
             logger.error(f"创建请假申请失败: {str(e)}")
             if self.connection.is_connected():

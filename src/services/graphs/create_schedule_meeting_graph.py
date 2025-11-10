@@ -9,6 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from typing import Optional, List
 from src.utils.getOpenAI import getChatOpenAI
+from src.services.graphs.query_schedule_meeting_graph import get_list_json_str
 
 
 class ScheduleMeetingInfo(BaseModel):
@@ -144,7 +145,7 @@ def create_schedule_meeting_graph() -> StateGraph:
         booking_info = state["task_collected"]
         user_id = state["user_id"]
 
-        # 调用数据库服务存储宾馆信息
+        # 调用数据库服务存储酒店信息
         try:
             # 验证日期格式
             from datetime import datetime, timedelta
@@ -164,12 +165,7 @@ def create_schedule_meeting_graph() -> StateGraph:
             return {
                 ** state,
                 "result": result,
-                "query": f"日程会议成功！您的订单信息："
-                         f"[标题:{booking_info["title"]} 日程类型:{ScheduleMeetingType.get_text_by_value(booking_info["type"])} "
-                         f"{"会议类型: " + MeetingType.get_text_by_value(booking_info["meeting_type"]) if booking_info["meeting_type"] else '' } "
-                         f"{"会议室: " + booking_info["meeting_room"] if booking_info["meeting_room"] else '' } "
-                         f"日期:{booking_info["start_time"]} 会议时长:{(booking_info["end_time"] - booking_info["start_time"]).total_seconds() // 60} "
-                         f"{"参与者: " + booking_info["participants"] if booking_info["participants"] else '' }]",
+                "query": f"日程会议成功！日程会议信息：{get_list_json_str([result])}",
                     "task_response": 2
             }
         except ValueError:

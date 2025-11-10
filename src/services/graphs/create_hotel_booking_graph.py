@@ -7,10 +7,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from typing import Optional
 from src.utils.getOpenAI import getChatOpenAI
+from src.services.graphs.query_hotel_booking_graph import get_list_json_str
 
 
 class HotelBookingInfo(BaseModel):
-    """宾馆预订信息模型"""
+    """酒店预订信息模型"""
     city: Optional[str] = None
     checkin_date: Optional[str] = None
     checkout_date: Optional[str] = None
@@ -22,7 +23,7 @@ class HotelBookingInfo(BaseModel):
 
 
 def create_hotel_booking_graph() -> StateGraph:
-    """创建宾馆预订工作流，收集所有必要信息并完成数据库存储"""
+    """创建酒店预订工作流，收集所有必要信息并完成数据库存储"""
     graph = StateGraph(AgentState)
 
     # 定义信息收集节点
@@ -68,7 +69,7 @@ def create_hotel_booking_graph() -> StateGraph:
 
         # 创建LLM提示模板，用于解析和验证用户输入
         prompt = ChatPromptTemplate.from_template("""
-        你是一个信息提取助手，需要从用户的回答中提取宾馆预订所需的信息。
+        你是一个信息提取助手，需要从用户的回答中提取酒店预订所需的信息。
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
@@ -124,27 +125,24 @@ def create_hotel_booking_graph() -> StateGraph:
         booking_info = state["task_collected"]
         user_id = state["user_id"]
 
-        # 调用数据库服务存储宾馆信息
+        # 调用数据库服务存储酒店信息
         try:
             # 验证日期格式
             from datetime import datetime
-            checkin = datetime.strptime(booking_info["checkin_date"], "%Y-%m-%d")
-            checkout = datetime.strptime(booking_info["checkout_date"], "%Y-%m-%d")
+            checkin = datetime.strptime(booking_info["checkin_date"], "%Y-%m-%d").replace(hour=12, minute=0, second=0)
+            checkout = datetime.strptime(booking_info["checkout_date"], "%Y-%m-%d").replace(hour=12, minute=0, second=0)
             if checkout <= checkin:
                 return {** state, "query": "退房日期必须晚于入住日期。", "error": "start_date_less_end_date", "task_response": 0}
 
             result = relative_db_service.create_hotel_booking(
                 user_id=user_id,
                 city=booking_info["city"],
-                checkin_date=booking_info["checkin_date"],
-                checkout_date=booking_info["checkout_date"],
+                checkin_date=checkin,
+                checkout_date=checkout,
                 room_type=booking_info["room_type"],
                 guest_count=booking_info["guest_count"]
             )
-            return {** state, "booking_result": result, "query": f"宾馆预订成功！您的订单信息："
-                                                                 f"[城市:{booking_info["city"]} 入住日期:{booking_info["checkin_date"]} "
-                                                                 f"退房日期:{booking_info["checkout_date"]} 房型:{booking_info["room_type"]} "
-                                                                 f"人数:{booking_info["guest_count"]}]", "task_response": 2}
+            return {** state, "booking_result": result, "query": f"酒店预订成功！您的订单信息：{get_list_json_str([result])}", "task_response": 2}
         except ValueError:
             return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_response": 1}
         except Exception as e:

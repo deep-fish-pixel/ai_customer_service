@@ -132,8 +132,8 @@ def create_flight_booking_graph() -> StateGraph:
                 seat_class=booking_info["seat_class"],
                 seat_preference=booking_info["seat_preference"]
             )
-            return {** state, "booking_result": result, "query": f"机票预订成功！您的订单已确认。预定机票信息如下："
-                                                                 f"{get_list_json_str([booking_info])}", "task_response": 2}
+            return {** state, "query": f"机票预订成功！您的订单已确认。预定机票信息如下："
+                                                                 f"{get_list_json_str([result])}", "task_response": 2}
         except ValueError:
             return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_response": 0}
         except Exception as e:

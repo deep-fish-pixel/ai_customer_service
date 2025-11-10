@@ -9,6 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from typing import Optional, List
 from src.utils.getOpenAI import getChatOpenAI
+from src.services.graphs.query_leave_request_graph import get_list_json_str
 
 
 class LeaveRequestInfo(BaseModel):
@@ -144,7 +145,7 @@ def create_leave_request_graph() -> StateGraph:
         booking_info = state["task_collected"]
         user_id = state["user_id"]
 
-        # 调用数据库服务存储宾馆信息
+        # 调用数据库服务存储酒店信息
         try:
             # 验证日期格式
             from datetime import datetime
@@ -162,10 +163,7 @@ def create_leave_request_graph() -> StateGraph:
                 attachments=booking_info["attachments"]
             )
 
-            return {** state, "query": f"请假申请成功！您的订单信息："
-                                     f"[类型:{booking_info["leave_type"]} 开始时间:{booking_info["start_time"]} "
-                                     f"结束时间:{booking_info["end_time"]} 原因:{booking_info["reason"]} "
-                                     f"附件:{booking_info["attachments"]}]", "task_response": 2}
+            return {** state, "query": f"请假申请成功！请假申请信息：{get_list_json_str([result])}", "task_response": 2}
         except ValueError:
             return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_response": 1}
         except Exception as e:

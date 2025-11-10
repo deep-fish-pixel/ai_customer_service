@@ -4,6 +4,27 @@ from src.enums.ScheduleMeeting import ScheduleMeetingType, MeetingType
 from src.services.graphs.agent_state import AgentState
 from src.services.relative_db_service import relative_db_service
 from src.utils.json import json_stringfy
+from typing import List, Dict, Any, Optional
+
+def get_list_json_str(result: List[Dict[str, Any]]):
+    """获取查询信息的展示数据"""
+    dataList = [["id", "类型", "开始时间", "结束时间", "原因", "附件",], []]
+    list = dataList[1]
+
+    for info in result:
+        data = [
+            info["id"],
+            info["leave_type"],
+            info["start_time"].strftime("%Y-%m-%d %H:%M"),
+            info["end_time"].strftime("%Y-%m-%d %H:%M"),
+            info["reason"],
+            info["attachments"],
+        ]
+        list.append(data)
+
+    return 'Type[List]' + json_stringfy(dataList)
+
+
 
 
 def query_leave_request_graph() -> StateGraph:
@@ -13,24 +34,8 @@ def query_leave_request_graph() -> StateGraph:
     # 定义信息提取和验证函数
     async def query(state: AgentState) -> AgentState:
         result = relative_db_service.list_leave_requests(state['user_id'])
-        query = '已查询到您的请假申请记录：Type[List]'
-        dataList = [["id", "类型", "开始时间", "结束时间", "原因", "附件",], ]
-        list = []
-        dataList.append(list)
-
-        for info in result:
-            data = [
-                info["id"],
-                info["leave_type"],
-                info["start_time"].strftime("%Y-%m-%d %H:%M"),
-                info["end_time"].strftime("%Y-%m-%d %H:%M"),
-                info["reason"],
-                info["attachments"],
-            ]
-            list.append(data)
-
-        query += json_stringfy(dataList)
-        return {** state, "task_response": 2, "query": query}
+        query = '已查询到您的请假申请记录：'
+        return {** state, "task_response": 2, "query": query + get_list_json_str(result)}
 
     # 添加节点到图中
     graph.add_node("query", query)

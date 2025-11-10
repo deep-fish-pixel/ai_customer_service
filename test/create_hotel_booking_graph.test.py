@@ -11,7 +11,7 @@ graph = get_task_graph(task_type)
 
 input_data = {
     "user_id": '1',
-    "query": '帮我定宾馆',
+    "query": '帮我定宾馆,城市南京，入住日期2025-12-12 退房日期2025-12-14，大床房，入住人数10',
     "history": ['您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？'],
     "context": [],
     "task_collected": {}
