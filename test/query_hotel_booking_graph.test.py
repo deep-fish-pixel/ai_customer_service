@@ -11,7 +11,7 @@ graph = get_task_graph(task_type)
 
 input_data = {
     "user_id": '1',
-    "query": '帮我查询预定宾馆信息',
+    "query": '帮我查询预定酒店信息',
     "history": [],
     "context": [],
     "task_collected": {}
