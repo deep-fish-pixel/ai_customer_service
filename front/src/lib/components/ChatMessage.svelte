@@ -22,7 +22,6 @@
   let { message, }: { message: Message } = $props();
 
   let contents = $derived.by(() => {
-    debugger
     return getData(message.content)
   });
 

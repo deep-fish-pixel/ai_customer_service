@@ -1,14 +1,15 @@
 <script lang="ts">
-  import Card, { Content } from '@smui/card';
-  import Switch from '@smui/switch';
-  import Paper, { Title } from '@smui/paper';
+  import List, {
+    Item,
+    Meta,
+    Text,
+    PrimaryText,
+    SecondaryText,
+  } from '@smui/list';
   import type {ToolConfig} from "../../types";
-  
-
 
   // 从父组件接收的属性
   export let tools: ToolConfig[] = [];
-  export let onToolToggle: (toolId: string, enabled: boolean) => void;
 
   // 工具
   const demoTools: ToolConfig[] = [
@@ -46,74 +47,71 @@
 
 <div class="tools-tab">
   <div class="tools-list">
-    {#each displayTools as tool}
-      <div class="tool-item">
-        <div class="tool-info">
-          <div class="tool-name">{tool.name}</div>
-          <div class="tool-disc">{tool.description}</div>
-        </div>
-        <div class="tool-opts">
-          <div>开始</div>
-          <div>查询</div>
-        </div>
-      </div>
-    {/each}
+    <List class="file-list">
+      {#each displayTools as tool}
+        <Item class="file-item" nonInteractive>
+          <Text>
+            <PrimaryText>{tool.name}</PrimaryText>
+            <SecondaryText>{tool.description}</SecondaryText>
+          </Text>
+          <div class="tool-opts">
+            <Meta class="material-icons" onclick={() => deleteConfirmDialog(document)}>提问</Meta>
+            <Meta class="material-icons" onclick={() => deleteConfirmDialog(document)}>查询</Meta>
+          </div>
+        </Item>
+      {/each}
+    </List>
   </div>
 </div>
 
 <style lang="scss">
-  .tools-tab {
+  :global(.MuiListItem-root) {
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  .tools-tab{
     height: 100%;
     padding: 16px;
-  }
 
-  .tools-container {
-    height: 100%;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-  }
+    .tool-opts{
+      width: 84px;
+      text-align: right;
+    }
 
-  .section-title {
-    margin-bottom: 16px;
-    color: rgba(0, 0, 0, 0.87);
-  }
-
-  .tools-list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow-y: auto;
-    padding-bottom: 16px;
-  }
-
-  .tool-item {
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .tool-info {
-    flex: 1;
-    margin-right: 16px;
-  }
-
-  .tool-name {
-    font-weight: 500;
-    margin-bottom: 4px;
-  }
-
-  .tool-disc{
-    font-size: 12px;
-    color: #0000008a
-  }
-
-  .coming-soon {
-    margin-top: auto;
-    text-align: center;
-    background-color: #f5f5f5;
-    border-radius: 8px;
+    :global(.file-list) {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+    }
+    :global(.file-item){
+      height: 66px;
+      padding: 0;
+      margin-bottom: 10px;
+    }
+    :global(.material-icons){
+      color: var(--mdc-text-button-label-text-color, var(--mdc-theme-primary, #6200ee));
+      cursor: pointer;
+      font-size: 14px;
+    }
+    :global(.mdc-deprecated-list-item__text){
+      white-space: normal;
+      text-overflow: ellipsis;
+      overflow: initial;
+      word-wrap: break-word;
+      flex: 1;
+    }
+    :global(.mdc-deprecated-list-item__secondary-text){
+      font-size: 12px;
+      white-space: normal;
+    }
+    :global(.mdc-deprecated-list-item__primary-text){
+      font-size: 18px;
+    }
   }
 </style>

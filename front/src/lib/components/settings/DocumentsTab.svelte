@@ -154,20 +154,9 @@
     gap: 16px;
   }
 
-  .file-list-container {
-    :global(.mdc-deprecated-list-item__secondary-text){
-      font-size: 12px;
-    }
-  }
-
   .section-title {
     margin-bottom: 16px;
     color: rgba(0, 0, 0, 0.87);
-  }
-
-  .file-list {
-    flex: 1;
-    overflow-y: auto;
   }
 
   .empty-state {
@@ -213,10 +202,22 @@
   }
 
   .document-tab{
-    :global(.material-icons){
-      color: #ff3e00;
-      cursor: pointer;
+    :global(.mdc-deprecated-list-item__secondary-text){
       font-size: 12px;
+    }
+    :global(.file-list) {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+    }
+    :global(.file-item){
+      padding: 0;
+      margin-bottom: 10px;
+    }
+    :global(.material-icons){
+      color: var(--mdc-text-button-label-text-color, var(--mdc-theme-primary, #6200ee));
+      cursor: pointer;
+      font-size: 14px;
     }
   }
 </style>

@@ -6,23 +6,14 @@
   import type {FileItem, ToolConfig} from "../../types";
 
   // 标签页类型
-  type TabValue = '个人知识库' | '工具';
+  type TabValue = '个人知识库' | '高效工具';
 
   // 状态管理
   let activeTab: TabValue = '个人知识库';
 
   // 从父组件接收的属性
-  export let files: FileItem[] = [];
   export let tools: ToolConfig[] = [];
-  export let onFileUpload: (file: File) => void;
-  export let onFileDelete: (fileId: string) => void;
-  export let onFileView: (fileId: string) => void;
   export let onToolToggle: (toolId: string, enabled: boolean) => void;
-
-  // 标签页切换处理
-  const handleTabChange = (_e: Event, newValue: TabValue) => {
-    activeTab = newValue;
-  };
 </script>
 
 <div class="settings-panel">
