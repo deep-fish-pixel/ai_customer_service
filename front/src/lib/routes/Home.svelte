@@ -234,13 +234,6 @@
   };
 
   // 工具切换处理
-  const handleToolToggle = (toolId: string, enabled: boolean) => {
-    tools = tools.map(tool =>
-      tool.id === toolId ? {...tool, enabled} : tool
-    );
-  };
-
-  // 工具切换处理
   const handleFocus = (focused: boolean) => {
     focus = focused;
     tick().then(() => resize());
@@ -265,13 +258,22 @@
       loginVisible = true;
     }
   }
+
+  const handleToolOperation = (message?: string) => {
+    if (message) {
+      inputMessage = message;
+      sendMessage();
+    }
+  }
 </script>
 
 <div class="app-container">
   <Toast></Toast>
   <header class="header">
     <p>AI超级智能客服</p>
-    <img class="user-icon" src={userIcon} width="30" height="30" alt="user" onclick={handleUserClick}/>
+    <div class="user-icon" onclick={handleUserClick}>
+      <img src={userIcon} width="30" height="30" alt="user"/>
+    </div>
     <span class="user-nickname">{userinfo.nickname}</span>
   </header>
   <div class="content">
@@ -295,7 +297,7 @@
                 textarea={true}
                 variant="outlined"
                 value={inputMessage}
-                oninput={(e: any) => inputMessage = e.target?.value}
+                oninput={(e) => inputMessage = (e.target as HTMLInputElement)?.value}
                 onkeydown={handleKeyPress}
                 onfocus={() => handleFocus(true)}
                 onfocusout={() => handleFocus(false)}
@@ -317,12 +319,7 @@
     <!-- 右侧设置区域 -->
     <div class="settings-container">
       <SettingsPanel
-          {files}
-          {tools}
-          onFileUpload={handleFileUpload}
-          onFileDelete={handleFileDelete}
-          onFileView={handleFileView}
-          onToolToggle={handleToolToggle}
+          onToolOperate={handleToolOperation}
       />
     </div>
   </div>

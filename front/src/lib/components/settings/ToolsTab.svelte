@@ -10,6 +10,8 @@
 
   // 从父组件接收的属性
   export let tools: ToolConfig[] = [];
+  export let onToolOperate: (message?: string) => void;
+
 
   // 工具
   const demoTools: ToolConfig[] = [
@@ -17,26 +19,45 @@
       id: 'schedule_meeting',
       name: '日程会议',
       description: '便捷创建、查询和管理您的日程会议，高效规划团队协作时间',
+      questions: {
+        question: '帮我创建日程会议',
+        query: '查询我的日程会议记录',
+      }
     },
     {
       id: 'leave_request',
       name: '请假申请',
       description: '轻松提交请假申请并查询审批状态，简化人事管理流程',
+      questions: {
+        question: '帮我创建请假申请',
+        query: '查询我的请假申请记录',
+      }
     },
     {
       id: 'flight_booking',
       name: '预定机票',
       description: '智能搜索并预订国内外航班，支持行程管理和退改签操作',
+      questions: {
+        question: '帮我预定机票',
+        query: '查询我的预定机票记录',
+      }
     },
     {
       id: 'hotel_booking',
       name: '预定酒店',
       description: '一键预订全球酒店，享受会员优惠价，灵活管理入住信息',
+      questions: {
+        question: '帮我预定酒店',
+        query: '查询我的预定酒店记录',
+      }
     },
     {
       id: 'change_nickname',
       name: '修改昵称',
-      description: '个性化您的账户昵称，展现独特身份标识'
+      description: '个性化您的账户昵称，展现独特身份标识',
+      questions: {
+        question: '修改我的昵称',
+      }
     },
 
   ];
@@ -55,8 +76,12 @@
             <SecondaryText>{tool.description}</SecondaryText>
           </Text>
           <div class="tool-opts">
-            <Meta class="material-icons" onclick={() => deleteConfirmDialog(document)}>提问</Meta>
-            <Meta class="material-icons" onclick={() => deleteConfirmDialog(document)}>查询</Meta>
+            {#if tool.questions?.question}
+              <Meta class="material-icons" onclick={() => onToolOperate(tool.questions?.question)}>提问</Meta>
+            {/if}
+            {#if tool.questions?.query}
+              <Meta class="material-icons" onclick={() => onToolOperate(tool.questions?.query)}>查询</Meta>
+            {/if}
           </div>
         </Item>
       {/each}
