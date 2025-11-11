@@ -15,27 +15,27 @@
     {
       id: 'schedule_meeting',
       name: '日程会议',
-      description: '提供日程会议的新建和查询',
+      description: '便捷创建、查询和管理您的日程会议，高效规划团队协作时间',
     },
     {
       id: 'leave_request',
       name: '请假申请',
-      description: '提供请假申请的新建和查询',
+      description: '轻松提交请假申请并查询审批状态，简化人事管理流程',
     },
     {
       id: 'flight_booking',
       name: '预定机票',
-      description: '提供预定机票的新建和查询',
+      description: '智能搜索并预订国内外航班，支持行程管理和退改签操作',
     },
     {
       id: 'hotel_booking',
       name: '预定酒店',
-      description: '提供预定酒店的新建和查询',
+      description: '一键预订全球酒店，享受会员优惠价，灵活管理入住信息',
     },
     {
       id: 'change_nickname',
       name: '修改昵称',
-      description: '修改我的昵称',
+      description: '个性化您的账户昵称，展现独特身份标识'
     },
 
   ];
@@ -48,15 +48,13 @@
   <div class="tools-list">
     {#each displayTools as tool}
       <div class="tool-item">
-        <div class="tool-header">
-          <div class="tool-info">
-            <div class="tool-name">{tool.name}</div>
-            <div class="textSecondary">{tool.description}</div>
-          </div>
-          <div>
-            <div>开始</div>
-            <div>查询</div>
-          </div>
+        <div class="tool-info">
+          <div class="tool-name">{tool.name}</div>
+          <div class="tool-disc">{tool.description}</div>
+        </div>
+        <div class="tool-opts">
+          <div>开始</div>
+          <div>查询</div>
         </div>
       </div>
     {/each}
@@ -93,14 +91,10 @@
   .tool-item {
     border-radius: 8px;
     overflow: hidden;
-  }
-
-  .tool-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-
   .tool-info {
     flex: 1;
     margin-right: 16px;
@@ -109,6 +103,11 @@
   .tool-name {
     font-weight: 500;
     margin-bottom: 4px;
+  }
+
+  .tool-disc{
+    font-size: 12px;
+    color: #0000008a
   }
 
   .coming-soon {

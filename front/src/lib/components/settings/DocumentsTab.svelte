@@ -94,7 +94,7 @@
     <div class="file-list-container">
       <List class="file-list">
         {#each documentList as document, i}
-          <Item nonInteractive>
+          <Item class="file-item" nonInteractive>
             <Text>
               <PrimaryText>{document.file_name}</PrimaryText>
               <SecondaryText>{formatDate(new Date(document.upload_time), 'YYYY-MM-DD HH:mm')}</SecondaryText>
