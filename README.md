@@ -3,10 +3,15 @@
 基于LangChain和LangGraph、MCP的智能客服系统，支持RAG功能和Agent功能等。
 
 ## 功能展示
+
+#### 登录注册
 ![项目](resources/project01.png)
+#### RAG功能（知识库）
 ![项目](resources/project02.png)
-![项目](resources/project03.png)
+#### RAG的动态显示
 ![聊天](resources/project-chat.gif)
+#### 日程会议的记录和查询
+![项目](resources/project03.png)
 
 
 ### RAG功能
