@@ -61,7 +61,6 @@
     }
 
     function showLogin() {
-      debugger
       loginVisible = true;
       resetUser();
       userinfo = getUser();
@@ -72,10 +71,8 @@
   // 获取用户信息并更新本地数据
   const getUserinfoLocal = async () => {
     const response = await getUserinfo();
-    debugger
 
     if (response && response.data) {
-      debugger
       setUser(response.data);
       userinfo = getUser();
     }
