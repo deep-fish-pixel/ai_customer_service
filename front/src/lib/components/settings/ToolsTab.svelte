@@ -10,26 +10,29 @@
   export let tools: ToolConfig[] = [];
   export let onToolToggle: (toolId: string, enabled: boolean) => void;
 
-  // 模拟工具数据
+  // 工具
   const demoTools: ToolConfig[] = [
     {
-      id: 'qa',
-      name: '基础问答',
-      description: '提供简单问题的快速回答',
-      enabled: true
+      id: 'schedule_meeting',
+      name: '日程会议',
+      description: '提供日程会议的新建和查询',
     },
     {
-      id: 'knowledge',
-      name: '知识库检索',
-      description: '从上传的文件中检索信息',
-      enabled: true
+      id: 'leave_request',
+      name: '请假申请',
+      description: '提供请假申请的新建和查询',
     },
     {
-      id: 'context',
-      name: '上下文理解',
-      description: '理解对话上下文进行连续对话',
-      enabled: true
-    }
+      id: 'flight_booking',
+      name: '预定机票',
+      description: '提供预定机票的新建和查询',
+    },
+    {
+      id: 'hotel_booking',
+      name: '预定酒店',
+      description: '提供预定酒店的新建和查询',
+    },
+
   ];
 
   // 如果没有传入工具数据，使用演示数据
@@ -37,34 +40,22 @@
 </script>
 
 <div class="tools-tab">
-  <Paper elevation={1} class="tools-container">
-    <Title variant="h6" class="section-title">工具功能</Title>
-    
-    <div class="tools-list">
-      {#each displayTools as tool}
-        <Card class="tool-item">
-          <Content>
-            <div class="tool-header">
-              <div class="tool-info">
-                <Title variant="subtitle1" class="tool-name">{tool.name}</Title>
-                <Title variant="body2" color="textSecondary">{tool.description}</Title>
-              </div>
-              <Switch
-                checked={tool.enabled}
-                color="primary"
-              />
-            </div>
-          </Content>
-        </Card>
-      {/each}
-    </div>
-
-    <Paper elevation={0} class="coming-soon">
-      <Title variant="body2" color="textSecondary">
-        更多工具功能即将推出
-      </Title>
-    </Paper>
-  </Paper>
+  <div class="tools-list">
+    {#each displayTools as tool}
+      <div class="tool-item">
+        <div class="tool-header">
+          <div class="tool-info">
+            <div class="tool-name">{tool.name}</div>
+            <div class="textSecondary">{tool.description}</div>
+          </div>
+          <div>
+            <div>开始提问</div>
+            <div>查询</div>
+          </div>
+        </div>
+      </div>
+    {/each}
+  </div>
 </div>
 
 <style lang="scss">
@@ -117,7 +108,6 @@
 
   .coming-soon {
     margin-top: auto;
-    padding: 12px;
     text-align: center;
     background-color: #f5f5f5;
     border-radius: 8px;

@@ -11,6 +11,5 @@ export interface ToolConfig {
   id: string;
   name: string;
   description: string;
-  enabled: boolean;
 }
 
