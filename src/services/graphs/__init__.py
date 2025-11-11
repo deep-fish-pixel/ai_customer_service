@@ -8,9 +8,7 @@ from src.services.graphs.create_schedule_meeting_graph import create_schedule_me
 from src.services.graphs.query_schedule_meeting_graph import query_schedule_meeting_graph
 from src.services.graphs.create_leave_request_graph import create_leave_request_graph
 from src.services.graphs.query_leave_request_graph import query_leave_request_graph
-
-from src.services.graphs.create_personal_info_graph import create_personal_info_graph
-
+from src.services.graphs.change_my_nickname_graph import change_my_nickname_graph
 
 
 SUPPORTED_TASKS = [
@@ -25,7 +23,7 @@ SUPPORTED_TASKS = [
     "leave_request",
     "query_leave_request",
 
-    "check_personal_info"
+    "change_my_nickname",
 ]
 
 task_graphs = {
@@ -41,7 +39,7 @@ task_graphs = {
     "leave_request": create_leave_request_graph,
     "query_leave_request": query_leave_request_graph,
 
-    "check_personal_info": create_personal_info_graph
+    "change_my_nickname": change_my_nickname_graph
 }
 
 def get_task_graph(task_type: str) -> StateGraph:

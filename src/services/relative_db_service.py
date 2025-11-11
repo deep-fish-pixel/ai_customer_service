@@ -289,7 +289,42 @@ class RelativeDBService:
             if self.connection.is_connected():
                 self.connection.rollback()
             return None
-    
+
+    def change_nickname(self, user_id: str, new_nickname: str) -> Optional[Dict[str, Any]]:
+        """
+        根据用户ID修改昵称
+
+        Args:
+            user_id: 用户ID
+            new_nickname: 新昵称
+
+        Returns:
+            更新后的用户信息字典，不存在则返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+
+        if not self.connection or not self.connection.is_connected():
+            return None
+
+        try:
+            # 根据ID更新昵称
+            update_sql = "UPDATE users SET nickname = %s WHERE id = %s"
+            self.cursor.execute(update_sql, (new_nickname, user_id))
+            self.connection.commit()
+            
+            # 获取更新后的用户信息
+            select_sql = "SELECT * FROM users WHERE id = %s"
+            self.cursor.execute(select_sql, (user_id,))
+            user = self.cursor.fetchone()
+            
+            if user:
+                return user
+            return None
+        except Error as e:
+            logger.error(f"修改用户昵称失败: {str(e)}")
+            return None
+
     def get_user_by_username(self, username: str) -> Optional[Dict[str, Any]]:
         """
         通过账号获取用户信息
