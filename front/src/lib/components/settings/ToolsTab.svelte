@@ -32,6 +32,11 @@
       name: '预定酒店',
       description: '提供预定酒店的新建和查询',
     },
+    {
+      id: 'change_nickname',
+      name: '修改昵称',
+      description: '修改我的昵称',
+    },
 
   ];
 
@@ -49,7 +54,7 @@
             <div class="textSecondary">{tool.description}</div>
           </div>
           <div>
-            <div>开始提问</div>
+            <div>开始</div>
             <div>查询</div>
           </div>
         </div>
