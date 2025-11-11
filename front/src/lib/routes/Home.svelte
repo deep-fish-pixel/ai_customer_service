@@ -14,8 +14,14 @@
   import UserConfirm from "../components/user/UserConfirm.svelte";
   import {getUserId, setUser, getUser, resetUser,} from "../utils/getUser";
   import {getUserinfo} from "../services/userService";
-  import {JsonSeperatorRegex, RESPONSE_STATUS_FAILED, RESPONSE_STATUS_FAILED_TOKEN_INVALID} from "../../constants";
+  import {
+    JsonSeperatorRegex,
+    RESPONSE_STATUS_FAILED,
+    RESPONSE_STATUS_FAILED_TOKEN_INVALID,
+    RobotPrologue
+  } from "../../constants";
   import {getTokenAuthorization} from "../utils/authorization";
+  import getRecentMessages from "../utils/getRecentMessages";
 
   // 状态管理
   let inputContainer: HTMLElement;
@@ -36,7 +42,7 @@
     messages = [
       {
         id: '1',
-        content: '您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？',
+        content: RobotPrologue,
         sender: 'bot',
         timestamp: new Date()
       }
@@ -95,9 +101,11 @@
     };
 
     // 最近4条消息
-    const history = messages.slice(Math.max(0, messages.length - 20), messages.length);
+    const history = getRecentMessages(messages, 20);
 
     messages = [...messages, userMessage];
+
+    console.log('send========', messages);
 
     // 创建临时机器人消息
     const botMessageId = (Date.now() + 1).toString();
@@ -129,11 +137,11 @@
             return;
           }
 
-          if (chunk && chunk.match(/\{'(task_response|collect_info|collect_origin)':/)) {
+          if (chunk && chunk.match(/\{'(task_status|collect_info|collect_origin)':/)) {
             chunk = chunk.replace(/: None/g, ': null');
             const response = new Function('return ' + chunk)();
 
-            if (!response || response.task_response === 0) {
+            if (!response || response.task_status === 0) {
               return;
             }
 
@@ -143,29 +151,41 @@
               return '';
             })
 
-
+            const task_status = response.task_status;
             // 任务完成后结束任务类型
-            if (response.task_response === 2) {
+            if (task_status === 2) {
               task_type = '';
             } else {
               task_type = response.task_type;
             }
 
-            messages = messages.map(msg => {
+            messages = messages.map((msg, index) => {
               if (msg.id === botMessageId) {
+                if(task_status >= 0) {
+                  const lastMessage = messages[index -1];
+
+                  if (lastMessage) {
+                    lastMessage.task_status = task_status;
+                  }
+                }
                 return {
                   ...msg,
                   content: msg.content + response.query,
+                  task_status: task_status,
                 }
               }
 
               return msg;
             });
+
+            console.log('receive===========1', messages);
           } else {
               messages = messages.map(msg =>
                   msg.id === botMessageId ? {...msg, content: msg.content + chunk} : msg
               );
+            console.log('receive===========2', messages);
           }
+
 
           scrollToBottom();
         },

@@ -1,16 +1,14 @@
 <script lang="ts">
   import type { Message, } from "../types/chat";
   import ViewTable from "./view/ViewTable.svelte"
+  import {JsonSeperatorRegex} from "../../constants";
 
   function isSimpleType(data: any){
     return !data || typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean';
   }
-  function hasArray(content: string){
-    return content && content.indexOf('Type[List]') >= 0;
-  }
 
   function getData(content: string){
-    const list = content && content.split(/Type\[List]/) || [];
+    const list = content && content.split(JsonSeperatorRegex.TYPE_LIST) || [];
 
     return list.map(str => {
       return str.match(/^\[\[/) ? JSON.parse(str) : str;

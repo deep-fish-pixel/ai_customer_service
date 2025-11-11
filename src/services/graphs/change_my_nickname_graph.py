@@ -25,12 +25,12 @@ def change_my_nickname_graph() -> StateGraph:
     async def collect_nickname(state: AgentState):
         response = await getHistoryAndNextQuestion("请问您的新昵称是？", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def goto_end(state: AgentState):
         response = await getHistoryAndNextQuestion("已退出", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 2}
+        return {** state, "query": response.content, "task_status": 2}
 
 
     # 定义信息提取和验证函数
@@ -68,7 +68,7 @@ def change_my_nickname_graph() -> StateGraph:
             if value is not None:
                 updated_info[key] = value
 
-        return {** state, "task_collected": updated_info, "task_response": 0}
+        return {** state, "task_collected": updated_info, "task_status": 0}
 
     # 定义决策节点，判断是否需要继续收集信息
     def should_continue(state: AgentState) -> str:
@@ -93,9 +93,9 @@ def change_my_nickname_graph() -> StateGraph:
                 user_id=user_id,
                 new_nickname=account_info["new_nickname"],
             )
-            return {** state, "query": f"昵称修改成功！您的新昵称是：{result["nickname"]}{JsonSeperator.CALL_GET_USER_INFO}", "task_response": 2}
+            return {** state, "query": f"昵称修改成功！您的新昵称是：{result["nickname"]}{JsonSeperator.CALL_GET_USER_INFO}", "task_status": 2}
         except Exception as e:
-            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_response": 0}
+            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_status": 0}
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)

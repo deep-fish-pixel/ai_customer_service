@@ -31,36 +31,36 @@ def create_hotel_booking_graph() -> StateGraph:
         """收集城市信息"""
         response = await getHistoryAndNextQuestion("请问您计划入住的城市是哪里？", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def collect_checkin_date(state: AgentState):
         """收集入住日期"""
         response = await getHistoryAndNextQuestion("请问您的入住日期是什么时候？(格式：YYYY-MM-DD)", state['history'][-1], state['query'])
 
-        return {**state, "query": response.content, "task_response": 1}
+        return {**state, "query": response.content, "task_status": 1}
 
     async def collect_checkout_date(state: AgentState):
         """收集退房日期"""
         response = await getHistoryAndNextQuestion("请问您的退房日期是什么时候？(格式：YYYY-MM-DD)", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def collect_room_type(state: AgentState):
         """收集房型信息"""
         response = await getHistoryAndNextQuestion("请问您需要什么类型的房间？(例如：标准间、大床房、套房)", state['history'][-1], state['query'])
 
-        return {**state, "query": response.content, "task_response": 1}
+        return {**state, "query": response.content, "task_status": 1}
 
     async def collect_guest_count(state: AgentState):
         """收集入住人数"""
         response = await getHistoryAndNextQuestion("请问入住人数是多少？", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def goto_end(state: AgentState):
         response = await getHistoryAndNextQuestion("已退出", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 2}
+        return {** state, "query": response.content, "task_status": 2}
 
     # 定义信息提取和验证函数
     async def extract_info(state: AgentState) -> AgentState:
@@ -98,7 +98,7 @@ def create_hotel_booking_graph() -> StateGraph:
             if value is not None:
                 updated_info[key] = value
 
-        return {** state, "task_collected": updated_info, "task_response": 0}
+        return {** state, "task_collected": updated_info, "task_status": 0}
 
     def should_continue(state: AgentState) -> str:
         """判断是否需要继续收集信息"""
@@ -132,7 +132,7 @@ def create_hotel_booking_graph() -> StateGraph:
             checkin = datetime.strptime(booking_info["checkin_date"], "%Y-%m-%d").replace(hour=12, minute=0, second=0)
             checkout = datetime.strptime(booking_info["checkout_date"], "%Y-%m-%d").replace(hour=12, minute=0, second=0)
             if checkout <= checkin:
-                return {** state, "query": "退房日期必须晚于入住日期。", "error": "start_date_less_end_date", "task_response": 0}
+                return {** state, "query": "退房日期必须晚于入住日期。", "error": "start_date_less_end_date", "task_status": 0}
 
             result = relative_db_service.create_hotel_booking(
                 user_id=user_id,
@@ -142,11 +142,11 @@ def create_hotel_booking_graph() -> StateGraph:
                 room_type=booking_info["room_type"],
                 guest_count=booking_info["guest_count"]
             )
-            return {** state, "booking_result": result, "query": f"酒店预订成功！您的订单信息：{get_list_json_str([result])}", "task_response": 2}
+            return {** state, "booking_result": result, "query": f"酒店预订成功！您的订单信息：{get_list_json_str([result])}", "task_status": 2}
         except ValueError:
-            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_response": 1}
+            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_status": 1}
         except Exception as e:
-            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_response": 1}
+            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_status": 1}
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)

@@ -34,48 +34,48 @@ def create_schedule_meeting_graph() -> StateGraph:
         """收集会议标题"""
         response = await getHistoryAndNextQuestion("请提供会议标题？", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def collect_type(state: AgentState):
         """收集会议类型"""
         response = await getHistoryAndNextQuestion("请选择日程类型：会议、专注时间、私人事务", state['history'][-1], state['query'])
 
-        return {**state, "query": response.content, "task_response": 1}
+        return {**state, "query": response.content, "task_status": 1}
 
     async def collect_meeting_type(state: AgentState):
         """收集会议形式信息"""
         response = await getHistoryAndNextQuestion("请提供会议类型（线上会议、线下会议）", state['history'][-1], state['query'])
 
-        return {**state, "query": response.content, "task_response": 1}
+        return {**state, "query": response.content, "task_status": 1}
 
     async def collect_meeting_room(state: AgentState):
         """收集线下意义的会议室名称"""
         response = await getHistoryAndNextQuestion("请提供会议室名称", state['history'][-1], state['query'])
 
-        return {**state, "query": response.content, "task_response": 1}
+        return {**state, "query": response.content, "task_status": 1}
 
     async def collect_start_time(state: AgentState):
         """收集会议开始时间"""
         response = await getHistoryAndNextQuestion(f"请提供开始时间（格式：YYYY-MM-DD hh-mm）", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def collect_duration(state: AgentState):
         """收集会议起止时间"""
         response = await getHistoryAndNextQuestion("请提供时长（单位分钟）", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def collect_participants(state: AgentState):
         """收集参与者信息"""
         response = await getHistoryAndNextQuestion("请提供会议参与者（多个参与者用逗号分隔）", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def goto_end(state: AgentState):
         response = await getHistoryAndNextQuestion("已退出", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 2}
+        return {** state, "query": response.content, "task_status": 2}
 
     # 定义信息提取和验证函数
     async def extract_info(state: AgentState) -> AgentState:
@@ -113,7 +113,7 @@ def create_schedule_meeting_graph() -> StateGraph:
             if value is not None:
                 updated_info[key] = value
 
-        return {** state, "task_collected": updated_info, "task_response": 0}
+        return {** state, "task_collected": updated_info, "task_status": 0}
 
     def should_continue(state: AgentState) -> str:
         """判断是否需要继续收集信息"""
@@ -166,12 +166,12 @@ def create_schedule_meeting_graph() -> StateGraph:
                 ** state,
                 "result": result,
                 "query": f"日程会议成功！日程会议信息：{get_list_json_str([result])}",
-                    "task_response": 2
+                    "task_status": 2
             }
         except ValueError:
-            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_response": 1}
+            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_status": 1}
         except Exception as e:
-            return {** state, "query": f"创建日程会议失败：{str(e)}", "error": str(e), "task_response": 1}
+            return {** state, "query": f"创建日程会议失败：{str(e)}", "error": str(e), "task_status": 1}
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)

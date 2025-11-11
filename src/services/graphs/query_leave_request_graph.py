@@ -34,7 +34,7 @@ def query_leave_request_graph() -> StateGraph:
     async def query(state: AgentState) -> AgentState:
         result = relative_db_service.list_leave_requests(state['user_id'])
         query = '已查询到您的请假申请记录：'
-        return {** state, "task_response": 2, "query": query + get_list_json_str(result)}
+        return {** state, "task_status": 2, "query": query + get_list_json_str(result)}
 
     # 添加节点到图中
     graph.add_node("query", query)

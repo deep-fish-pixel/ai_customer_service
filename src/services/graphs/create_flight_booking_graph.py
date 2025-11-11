@@ -28,32 +28,32 @@ def create_flight_booking_graph() -> StateGraph:
     async def collect_origin(state: AgentState):
         response = await getHistoryAndNextQuestion("请问您的出发城市是哪里？", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def collect_destination(state: AgentState):
         response = await getHistoryAndNextQuestion("请问您的目的地城市是哪里？", state['history'][-1], state['query'])
 
-        return {**state, "query": response.content, "task_response": 1}
+        return {**state, "query": response.content, "task_status": 1}
 
     async def collect_date(state: AgentState):
         response = await getHistoryAndNextQuestion("请问您的出行日期是什么时候？(格式：YYYY-MM-DD hh:mm)", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def collect_seat_class(state: AgentState):
         response = await getHistoryAndNextQuestion("请问您需要什么座位等级？(经济舱/商务舱/头等舱)", state['history'][-1], state['query'])
 
-        return {**state, "query": response.content, "task_response": 1}
+        return {**state, "query": response.content, "task_status": 1}
 
     async def collect_seat_preference(state: AgentState):
         response = await getHistoryAndNextQuestion("请问您有什么座位偏好？(靠窗/靠过道/中间/无偏好)", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 1}
+        return {** state, "query": response.content, "task_status": 1}
 
     async def goto_end(state: AgentState):
         response = await getHistoryAndNextQuestion("已退出", state['history'][-1], state['query'])
 
-        return {** state, "query": response.content, "task_response": 2}
+        return {** state, "query": response.content, "task_status": 2}
 
     # 定义信息提取和验证函数
     async def extract_info(state: AgentState) -> AgentState:
@@ -91,7 +91,7 @@ def create_flight_booking_graph() -> StateGraph:
             if value is not None:
                 updated_info[key] = value
 
-        return {** state, "task_collected": updated_info, "task_response": 0}
+        return {** state, "task_collected": updated_info, "task_status": 0}
 
     # 定义决策节点，判断是否需要继续收集信息
     def should_continue(state: AgentState) -> str:
@@ -133,11 +133,11 @@ def create_flight_booking_graph() -> StateGraph:
                 seat_preference=booking_info["seat_preference"]
             )
             return {** state, "query": f"机票预订成功！您的订单已确认。预定机票信息如下："
-                                                                 f"{get_list_json_str([result])}", "task_response": 2}
+                                                                 f"{get_list_json_str([result])}", "task_status": 2}
         except ValueError:
-            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_response": 0}
+            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_status": 0}
         except Exception as e:
-            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_response": 0}
+            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_status": 0}
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)

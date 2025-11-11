@@ -35,7 +35,7 @@ def query_schedule_meeting_graph() -> StateGraph:
         result = relative_db_service.list_schedule_meetings(state['user_id'])
 
         query = '已查询到您的日程会议记录：'
-        return {** state, "task_response": 2, "query": query + get_list_json_str(result)}
+        return {** state, "task_status": 2, "query": query + get_list_json_str(result)}
 
     # 添加节点到图中
     graph.add_node("query", query)

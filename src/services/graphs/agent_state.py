@@ -5,7 +5,7 @@ class AgentState(TypedDict):
     # intent: Optional[str]        # 识别出的意图
     # params: dict                 # 当前任务所需参数（如出发地、日期等）
     # response: Optional[str]      # 最终回复
-    task_response: int
+    task_status: int
     user_id: str
     query: str
     task_type: str
