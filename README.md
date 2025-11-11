@@ -4,14 +4,14 @@
 
 ## 功能展示
 
-#### 登录注册
-![项目](resources/project01.png)
-#### RAG功能（知识库）
-![项目](resources/project02.png)
-#### RAG的动态显示
-![聊天](resources/project-chat.gif)
-#### 日程会议的记录和查询
-![项目](resources/project03.png)
+#### 带有记忆的聊天
+![项目](resources/project01.gif)
+#### 知识库有内容的RAG展示
+![聊天](resources/project03.gif)
+#### 日程会议的创建和查询
+![项目](resources/project02.gif)
+#### 我的昵称的修改
+![项目](resources/project04.gif)
 
 
 ### RAG功能
@@ -25,7 +25,7 @@
 - 智能请假申请：轻松提交请假申请并查询审批状态，简化人事管理流程
 - 预定机票：智能搜索并预订国内外航班，支持行程管理和退改签操作
 - 预定酒店：一键预订全球酒店，享受会员优惠价，灵活管理入住信息
-- 修改昵称：个性化您的账户昵称，展现独特身份标识(todo)
+- 修改昵称：个性化您的账户昵称，展现独特身份标识
 
 ## 技术栈
 
@@ -86,12 +86,6 @@
 - `DELETE /api/documents/{file_name}` - 删除文档
 - `GET /api/documents/` - 列出所有文档
 
-### Agent功能接口
-- `POST /api/agent/leave` - 申请请假
-- `POST /api/agent/meeting` - 预约会议
-- `GET /api/agent/leave/records` - 获取请假记录
-- `GET /api/agent/meeting/records` - 获取会议记录
-
 ## 项目结构
 
 ```
@@ -101,6 +95,7 @@
 ├── src/                    # 源代码目录
 │   ├── api/                # API接口
 │   │   └── endpoints/      # 具体的端点实现
+│   ├── enums/              # action内容状态
 │   ├── services/           # 业务逻辑层
 │   ├── utils/              # 工具类
 │   └── models/             # 数据模型
