@@ -14,7 +14,7 @@
   import UserConfirm from "../components/user/UserConfirm.svelte";
   import {getUserId, setUser, getUser, resetUser,} from "../utils/getUser";
   import {getUserinfo} from "../services/userService";
-  import {RESPONSE_STATUS_FAILED, RESPONSE_STATUS_FAILED_TOKEN_INVALID} from "../../constants";
+  import {JsonSeperatorRegex, RESPONSE_STATUS_FAILED, RESPONSE_STATUS_FAILED_TOKEN_INVALID} from "../../constants";
   import {getTokenAuthorization} from "../utils/authorization";
 
   // 状态管理
@@ -47,28 +47,41 @@
     try {
       // 检测token是否有效
       if (getTokenAuthorization().Authorization) {
-        const response = await getUserinfo();
+        const response = await getUserinfoLocal();
 
         if (response.status === RESPONSE_STATUS_FAILED || response.status === RESPONSE_STATUS_FAILED_TOKEN_INVALID) {
-          if (response.data) {
-            setUser(response.data)
-          }
-          loginVisible = true;
-          resetUser();
-
-          userinfo = getUser();
+          showLogin();
         }
       } else {
-        loginVisible = true;
-        resetUser();
-        userinfo = getUser();
+        showLogin();
       }
 
     } catch (e) {
       console.error(e)
     }
 
+    function showLogin() {
+      debugger
+      loginVisible = true;
+      resetUser();
+      userinfo = getUser();
+    }
+
   });
+
+  // 获取用户信息并更新本地数据
+  const getUserinfoLocal = async () => {
+    const response = await getUserinfo();
+    debugger
+
+    if (response && response.data) {
+      debugger
+      setUser(response.data);
+      userinfo = getUser();
+    }
+
+    return response;
+  }
 
   // 发送消息
   const sendMessage = async () => {
@@ -127,13 +140,19 @@
               return;
             }
 
+            response.query = response.query.replace(JsonSeperatorRegex.CALL_GET_USER_INFO, () => {
+              // 触发调用接口
+              getUserinfoLocal();
+              return '';
+            })
+
+
             // 任务完成后结束任务类型
             if (response.task_response === 2) {
               task_type = '';
             } else {
               task_type = response.task_type;
             }
-
 
             messages = messages.map(msg => {
               if (msg.id === botMessageId) {

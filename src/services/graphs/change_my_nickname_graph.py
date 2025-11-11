@@ -8,6 +8,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from typing import Optional
 from src.utils.getOpenAI import getChatOpenAI
+from src.enums.JsonSeperator import JsonSeperator
 
 
 class AccountInfo(BaseModel):
@@ -92,7 +93,7 @@ def change_my_nickname_graph() -> StateGraph:
                 user_id=user_id,
                 new_nickname=account_info["new_nickname"],
             )
-            return {** state, "query": f"昵称修改成功！您的新昵称是：{result["nickname"]}", "task_response": 2}
+            return {** state, "query": f"昵称修改成功！您的新昵称是：{result["nickname"]}{JsonSeperator.CALL_GET_USER_INFO}", "task_response": 2}
         except Exception as e:
             return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_response": 0}
 

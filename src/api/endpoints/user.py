@@ -5,6 +5,7 @@ from typing import Dict, Any
 import logging
 
 from src import RESPONSE_STATUS_SUCCESS, RESPONSE_STATUS_FAILED
+from src.models.User import CurrentUser
 from src.services.relative_db_service import RelativeDBService
 from src.services.auth_service import AuthService
 
@@ -42,7 +43,7 @@ async def get_current_user_id(token: str = Depends(oauth2_scheme)) ->  int | Non
     return user_id
 
 # 依赖项：获取当前用户
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> CurrentUser:
     user_id = auth_service.extract_user_id_from_token(token)
     if not user_id:
         raise HTTPException(
@@ -58,7 +59,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any
             detail="用户不存在",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return user
+    return CurrentUser(user, user_id)
 
 @router.post("/register", response_model=Dict[str, Any])
 async def register_user(request: UserRegisterRequest) -> Dict[str, Any]:
@@ -105,6 +106,15 @@ async def register_user(request: UserRegisterRequest) -> Dict[str, Any]:
             "data": None
         }
 
+
+def getToken(user_id: int):
+    """创建访问令牌"""
+    access_token_expires = timedelta(minutes=30)
+    return auth_service.create_access_token(
+        data={"sub": str(user_id)},
+        expires_delta=access_token_expires
+    )
+
 @router.post("/login", response_model=Dict[str, Any])
 async def login_user(user_data: UserLoginRequest) -> Dict[str, Any]:
     """用户登录接口，返回JWT令牌"""
@@ -127,11 +137,7 @@ async def login_user(user_data: UserLoginRequest) -> Dict[str, Any]:
             }
         
         # 创建访问令牌
-        access_token_expires = timedelta(minutes=30)
-        access_token = auth_service.create_access_token(
-            data={"sub": str(user["id"])},
-            expires_delta=access_token_expires
-        )
+        access_token = getToken(user["id"])
         
         return {
             "status": RESPONSE_STATUS_SUCCESS,
@@ -154,13 +160,20 @@ async def login_user(user_data: UserLoginRequest) -> Dict[str, Any]:
         }
 
 @router.get("/info", response_model=Dict[str, Any])
-async def get_user_info(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
+async def get_user_info(current_user: CurrentUser = Depends(get_current_user)) -> Dict[str, Any]:
     """获取当前用户信息接口"""
     try:
+        # 创建访问令牌
+        access_token = getToken(current_user.user_id)
+
         return {
             "status": RESPONSE_STATUS_SUCCESS,
             "message": "获取用户信息成功",
-            "data": current_user
+            "data": {
+                "token": access_token,
+                "token_type": "bearer",
+                **current_user.user,
+            }
         }
     except Exception as e:
         logger.error(f"获取用户信息失败: {str(e)}")
