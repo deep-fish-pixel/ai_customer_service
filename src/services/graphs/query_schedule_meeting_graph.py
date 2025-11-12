@@ -9,14 +9,14 @@ from typing import List, Dict, Any
 def get_list_json_str(result: List[Dict[str, Any]]):
   """获取查询信息的展示数据"""
   dataList = [[
-    ScheduleMeetingTable.ID.name,
-    ScheduleMeetingTable.TITLE.name,
-    ScheduleMeetingTable.TYPE.name,
-    ScheduleMeetingTable.MEETING_TYPE.name,
-    ScheduleMeetingTable.MEETING_ROOM.name,
-    ScheduleMeetingTable.START_TIME.name,
-    ScheduleMeetingTable.END_TIME.name,
-    ScheduleMeetingTable.PARTICIPANTS.name,
+    ScheduleMeetingTable.ID.text,
+    ScheduleMeetingTable.TITLE.text,
+    ScheduleMeetingTable.TYPE.text,
+    ScheduleMeetingTable.MEETING_TYPE.text,
+    ScheduleMeetingTable.MEETING_ROOM.text,
+    ScheduleMeetingTable.START_TIME.text,
+    ScheduleMeetingTable.END_TIME.text,
+    ScheduleMeetingTable.PARTICIPANTS.text,
   ], []]
   list = dataList[1]
 

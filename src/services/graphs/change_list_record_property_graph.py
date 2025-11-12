@@ -122,11 +122,16 @@ def change_list_record_property_graph() -> StateGraph:
 
         # 调用数据库服务存储机票信息
         try:
-            result = relative_db_service.change_nickname(
+            result = relative_db_service.update_table_column(
                 user_id=user_id,
-                new_nickname=update_info["new_nickname"],
+                table_desc=update_info["record_type"],
+                id=update_info["id"],
+                column_desc=update_info["property_name"],
+                new_value=update_info["new_value"],
             )
-            return {** state, "query": f"昵称修改成功！您的新昵称是：{result["nickname"]}{JsonSeperator.CALL_GET_USER_INFO}", "task_status": 2}
+            if (result):
+                return {** state, "query": f"{update_info["property_name"]}修改成功！", "task_status": 2}
+            return {** state, "query": f"{update_info["property_name"]}修改失败！", "task_status": 2}
         except Exception as e:
             return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_status": 0}
 

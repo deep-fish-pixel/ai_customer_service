@@ -7,6 +7,8 @@ from typing import List, Dict, Any, Optional
 import logging
 import datetime
 
+from src.enums import getUpdateTableColumn
+
 # 加载环境变量
 load_dotenv()
 
@@ -842,7 +844,38 @@ class RelativeDBService:
             if self.connection.is_connected():
                 self.connection.rollback()
             return False
-    
+
+    def update_table_column(self, user_id: str, table_desc: str, id: int, column_desc: str, new_value: Any) -> Optional[bool]:
+        """
+        根据表名、id修改column的值
+
+        Args:
+            user_id: 用户ID
+            table_desc: 实体名称
+            id: id
+            column_desc: 字段名
+            new_value: 新值
+
+        Returns:
+            更新成功返回True，不存在则返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+
+        if not self.connection or not self.connection.is_connected():
+            return None
+
+        try:
+            # 根据ID更新昵称
+            update_sql = getUpdateTableColumn(table_desc, column_desc)
+            self.cursor.execute(update_sql, (new_value, id))
+            self.connection.commit()
+
+            return True
+        except Error as e:
+            logger.error(f"修改用户昵称失败: {str(e)}")
+            return None
+
     def close(self):
         """关闭数据库连接"""
         if self.cursor:

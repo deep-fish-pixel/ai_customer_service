@@ -11,7 +11,7 @@ graph = get_task_graph(task_type)
 
 input_data = {
     "user_id": '1',
-    "query": '帮我把上面记录的第二条，标题改为探索宇宙的奥秘',
+    "query": '帮我把上面记录的第二条，参与者修改为李四,王五',
     "history": ['已查询到您的日程会议记录：[{"id":5},{"id":19}]]'],
     "context": [],
     "task_collected": {}
