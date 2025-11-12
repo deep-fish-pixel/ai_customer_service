@@ -11,14 +11,17 @@ from src.utils.getOpenAI import getChatOpenAI
 from src.enums.JsonSeperator import JsonSeperator
 
 
-class AccountInfo(BaseModel):
+class UpdateInfo(BaseModel):
     id: Optional[str] = None
-    new_nickname: Optional[str] = None
+    record_type: Optional[str] = None
+    index: Optional[int] = None
+    property_name: Optional[str] = None
+    new_value: Optional[str] = None
     exit: Optional[int] = 0
 
 
-def change_my_nickname_graph() -> StateGraph:
-    """创建修改昵称工作流，收集所有必要信息并完成数据库存储"""
+def change_list_record_property_graph() -> StateGraph:
+    """创建修改列表记录的属性值工作流，收集所有必要信息并完成数据库存储"""
     graph = StateGraph(AgentState)
 
     # 定义信息收集节点
@@ -35,16 +38,16 @@ def change_my_nickname_graph() -> StateGraph:
 
     # 定义信息提取和验证函数
     async def extract_info(state: AgentState) -> AgentState:
-        account_info = AccountInfo(**state.get("task_collected", {}))
+        account_info = UpdateInfo(**state.get("task_collected", {}))
         user_response = [*state["history"], state["query"]]
 
         # 创建LLM提示模板，用于解析和验证用户输入
         prompt = ChatPromptTemplate.from_template("""
-        你是一个信息提取助手，需要从用户的回答中提取修改昵称所需的信息。
+        你是一个信息提取助手，需要从用户的回答中提取修改列表第n个记录的某个字段名称所需的信息。
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
-        需要提取的字段包括new_nickname(新昵称)。
+        需要提取的字段包括id(id)，record_type(记录名称，不需要包含记录2个字)，index(序号)，property_name(属性名称)，new_value(新值)。
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         如果用户输入[退出/不想继续/取消/后悔/反悔]等意思，则增加字段exit为1，否则为0。
@@ -53,7 +56,7 @@ def change_my_nickname_graph() -> StateGraph:
 
         # 初始化LLM和解析器
         llm = getChatOpenAI()
-        parser = JsonOutputParser(pydantic_object=AccountInfo)
+        parser = JsonOutputParser(pydantic_object=UpdateInfo)
 
         # 调用LLM提取信息
         chain = prompt | llm | parser
@@ -72,7 +75,7 @@ def change_my_nickname_graph() -> StateGraph:
 
     # 定义决策节点，判断是否需要继续收集信息
     def should_continue(state: AgentState) -> str:
-        account_info = AccountInfo(**state.get("task_collected", {}))
+        account_info = UpdateInfo(**state.get("task_collected", {}))
 
         if account_info.exit == 1:
             return "goto_end"

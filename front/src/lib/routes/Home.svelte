@@ -21,7 +21,7 @@
     RobotPrologue
   } from "../../constants";
   import {getTokenAuthorization} from "../utils/authorization";
-  import getRecentMessages from "../utils/getRecentMessages";
+  import { getRecentMessages, } from "../utils/handleMessages";
 
   // 状态管理
   let inputContainer: HTMLElement;

@@ -1,26 +1,17 @@
 <script lang="ts">
   import type { Message, } from "../types/chat";
   import ViewTable from "./view/ViewTable.svelte"
-  import {JsonSeperatorRegex} from "../../constants";
+  import {getReceiveMessageData} from "../utils/handleMessages";
 
   function isSimpleType(data: any){
     return !data || typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean';
   }
 
-  function getData(content: string){
-    const list = content && content.split(JsonSeperatorRegex.TYPE_LIST) || [];
-
-    return list.map(str => {
-      return str.match(/^\[\[/) ? JSON.parse(str) : str;
-    });
-  }
-
-
   // 从父组件接收的属性
   let { message, }: { message: Message } = $props();
 
   let contents = $derived.by(() => {
-    return getData(message.content)
+    return getReceiveMessageData(message.content)
   });
 
   // 格式化时间

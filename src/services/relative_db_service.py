@@ -32,7 +32,7 @@ class RelativeDBService:
                 'host': os.getenv('DB_HOST', 'localhost'),
                 'user': os.getenv('DB_USER', 'root'),
                 'password': os.getenv('DB_PASSWORD', ''),
-                'database': os.getenv('DB_NAME', 'ai_customer_service')
+                'database': os.getenv('DB_NAME', '')
             }
             
             # 建立数据库连接

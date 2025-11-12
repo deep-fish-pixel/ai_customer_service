@@ -62,6 +62,11 @@
    - 复制 `.env` 文件中的示例配置
    - 设置本机环境变量 `DASHSCOPE_API_KEY` 为您的实际API密钥
    - 设置本机环境变量 `API_BASE_URL` 为您的Model服务地址
+   - 设置本机环境变量 `LANGCHAIN_API_KEY` 为您的LangChain密钥
+   - 设置本机环境变量 `DB_HOST` 为您的Mysql ip
+   - 设置本机环境变量 `DB_USER` 为您的Mysql user
+   - 设置本机环境变量 `DB_PASSWORD` 为您的Mysql password
+   - 设置本机环境变量 `DB_NAME` 为您的Mysql dbname
 
 4. 运行应用
    ```bash

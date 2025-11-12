@@ -24,3 +24,7 @@ export const JsonSeperatorRegex = {
   // 方法调用
   CALL_GET_USER_INFO: new RegExp(escapeRegex(JsonSeperator.CALL_GET_USER_INFO) + '$')
 }
+
+// 对JsonSeperator下所有正则的拼接
+export const JsonSeperatorRegexJoinings = new RegExp(`(${escapeRegex(JsonSeperator.TYPE_LIST)}|${escapeRegex(JsonSeperator.CALL_GET_USER_INFO)})`);
+

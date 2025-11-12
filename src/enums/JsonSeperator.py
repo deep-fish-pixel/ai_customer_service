@@ -7,7 +7,3 @@ class JsonSeperator():
   # 方法调用
   CALL_GET_USER_INFO = "__Call__[getUserinfo]"
 
-
-print(JsonSeperator.TYPE_LIST)
-print(JsonSeperator.CALL_GET_USER_INFO)
-
