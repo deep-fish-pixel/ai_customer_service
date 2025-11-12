@@ -1,5 +1,16 @@
 from src.enums.Status import Status
 
+#日程会议表
+class ScheduleMeetingTable(Status):
+  ID = ('id', "id")
+  TITLE = ('title', "标题")
+  TYPE = ('type', "日程类型")
+  MEETING_TYPE = ('meeting_type', "会议类型")
+  MEETING_ROOM = ('meeting_room', "会议室")
+  START_TIME = ('start_time', "日期")
+  END_TIME = ('end_time', "会议时长")
+  PARTICIPANTS = ('participants', "参与者")
+
 # 日程类型
 class ScheduleMeetingType(Status):
   MEETING = (1, "会议")

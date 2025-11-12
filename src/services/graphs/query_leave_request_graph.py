@@ -1,4 +1,6 @@
 from langgraph.graph import StateGraph, END
+
+from src.enums.LeaveRequest import LeaveRequestTable
 from src.services.graphs.agent_state import AgentState
 from src.services.relative_db_service import relative_db_service
 from src.utils.json import json_stringfy
@@ -7,17 +9,24 @@ from src.enums.JsonSeperator import JsonSeperator
 
 def get_list_json_str(result: List[Dict[str, Any]]):
     """获取查询信息的展示数据"""
-    dataList = [["id", "类型", "开始时间", "结束时间", "原因", "附件",], []]
+    dataList = [[
+        LeaveRequestTable.ID.text,
+        LeaveRequestTable.LEAVE_TYPE.text,
+        LeaveRequestTable.START_TIME.text,
+        LeaveRequestTable.END_TIME.text,
+        LeaveRequestTable.REASON.text,
+        LeaveRequestTable.ATTACHMENTS.text,
+    ], []]
     list = dataList[1]
 
     for info in result:
         data = [
-            info["id"],
-            info["leave_type"],
-            info["start_time"].strftime("%Y-%m-%d %H:%M"),
-            info["end_time"].strftime("%Y-%m-%d %H:%M"),
-            info["reason"],
-            info["attachments"],
+            info[LeaveRequestTable.ID.value],
+            info[LeaveRequestTable.LEAVE_TYPE.value],
+            info[LeaveRequestTable.START_TIME.value].strftime("%Y-%m-%d %H:%M"),
+            info[LeaveRequestTable.END_TIME.value].strftime("%Y-%m-%d %H:%M"),
+            info[LeaveRequestTable.REASON.value],
+            info[LeaveRequestTable.ATTACHMENTS.value],
         ]
         list.append(data)
 

@@ -14,7 +14,7 @@ class FlightBookingInfo(BaseModel):
     id: Optional[str] = None
     origin: Optional[str] = None
     destination: Optional[str] = None
-    date: Optional[str] = None
+    start_time: Optional[str] = None
     seat_class: Optional[str] = None
     seat_preference: Optional[str] = None
     exit: Optional[int] = 0
@@ -35,7 +35,7 @@ def create_flight_booking_graph() -> StateGraph:
 
         return {**state, "query": response.content, "task_status": 1}
 
-    async def collect_date(state: AgentState):
+    async def collect_start_time(state: AgentState):
         response = await getHistoryAndNextQuestion("请问您的出行日期是什么时候？(格式：YYYY-MM-DD hh:mm)", state['history'][-1], state['query'])
 
         return {** state, "query": response.content, "task_status": 1}
@@ -66,7 +66,7 @@ def create_flight_booking_graph() -> StateGraph:
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
-        需要提取的字段包括origin(起点), destination(终点), date(时间,格式YYYY-MM-DD hh:mm), seat_class(座位等级), seat_preference(座位偏好)。
+        需要提取的字段包括origin(起点), destination(终点), start_time(时间,格式YYYY-MM-DD hh:mm), seat_class(座位等级), seat_preference(座位偏好)。
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         请确保date字段符合YYYY-MM-DD格式，如果不符合，请返回null。
@@ -103,8 +103,8 @@ def create_flight_booking_graph() -> StateGraph:
             return "collect_origin"
         elif not booking_info.destination:
             return "collect_destination"
-        elif not booking_info.date:
-            return "collect_date"
+        elif not booking_info.start_time:
+            return "collect_start_time"
         elif not booking_info.seat_class:
             return "collect_seat_class"
         elif not booking_info.seat_preference:
@@ -122,13 +122,13 @@ def create_flight_booking_graph() -> StateGraph:
         try:
             # 验证日期格式
             from datetime import datetime
-            start_time = datetime.strptime(booking_info["date"], "%Y-%m-%d %H:%M")
+            start_time = datetime.strptime(booking_info["start_time"], "%Y-%m-%d %H:%M")
 
             result = relative_db_service.create_flight_booking(
                 user_id=user_id,
                 origin=booking_info["origin"],
                 destination=booking_info["destination"],
-                date=booking_info["date"],
+                start_time=booking_info["start_time"],
                 seat_class=booking_info["seat_class"],
                 seat_preference=booking_info["seat_preference"]
             )
@@ -143,7 +143,7 @@ def create_flight_booking_graph() -> StateGraph:
     graph.add_node("extract_info", extract_info)
     graph.add_node("collect_origin", collect_origin)
     graph.add_node("collect_destination", collect_destination)
-    graph.add_node("collect_date", collect_date)
+    graph.add_node("collect_start_time", collect_start_time)
     graph.add_node("collect_seat_class", collect_seat_class)
     graph.add_node("collect_seat_preference", collect_seat_preference)
     graph.add_node("save_to_database", save_to_database)
@@ -154,7 +154,7 @@ def create_flight_booking_graph() -> StateGraph:
     # 添加节点之间的边
     graph.add_edge("collect_origin", END)
     graph.add_edge("collect_destination", END)
-    graph.add_edge("collect_date", END)
+    graph.add_edge("collect_start_time", END)
     graph.add_edge("collect_seat_class", END)
     graph.add_edge("collect_seat_preference", END)
     graph.add_edge("goto_end", END)
@@ -166,7 +166,7 @@ def create_flight_booking_graph() -> StateGraph:
         {
             "collect_origin": "collect_origin",
             "collect_destination": "collect_destination",
-            "collect_date": "collect_date",
+            "collect_start_time": "collect_start_time",
             "collect_seat_class": "collect_seat_class",
             "collect_seat_preference": "collect_seat_preference",
             "save_to_database": "save_to_database",

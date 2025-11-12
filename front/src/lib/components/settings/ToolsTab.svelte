@@ -22,7 +22,7 @@
       questions: {
         question: '帮我创建日程会议',
         query: '查询我的日程会议记录',
-      }
+      },
     },
     {
       id: 'leave_request',

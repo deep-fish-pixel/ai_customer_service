@@ -1,5 +1,7 @@
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
+
+from src.enums.HotelBooking import HotelBookingTable
 from src.services.graphs.agent_state import AgentState
 from src.services.relative_db_service import relative_db_service
 from src.utils.json import json_stringfy
@@ -17,17 +19,24 @@ class HotelBookingInfo(BaseModel):
 
 def get_list_json_str(result: List[Dict[str, Any]]):
     """获取查询信息的展示数据"""
-    dataList = [["id", "城市", "入住日期", "退房日期", "房型", "人数",], []]
+    dataList = [[
+        HotelBookingTable.ID.text,
+        HotelBookingTable.CITY.text,
+        HotelBookingTable.CHECKIN_DATE.text,
+        HotelBookingTable.CHECKOUT_DATE.text,
+        HotelBookingTable.ROOM_TYPE.text,
+        HotelBookingTable.GUEST_COUNT.text,
+    ], []]
     list = dataList[1]
 
     for info in result:
         data = [
-            info["id"],
-            info["city"],
-            info["checkin_date"].strftime("%Y-%m-%d %H:%M"),
-            info["checkout_date"].strftime("%Y-%m-%d %H:%M"),
-            info["room_type"],
-            info["guest_count"],
+            info[HotelBookingTable.ID.value],
+            info[HotelBookingTable.CITY.value],
+            info[HotelBookingTable.CHECKIN_DATE.value].strftime("%Y-%m-%d %H:%M"),
+            info[HotelBookingTable.CHECKOUT_DATE.value].strftime("%Y-%m-%d %H:%M"),
+            info[HotelBookingTable.ROOM_TYPE.value],
+            info[HotelBookingTable.GUEST_COUNT.value],
         ]
         list.append(data)
 

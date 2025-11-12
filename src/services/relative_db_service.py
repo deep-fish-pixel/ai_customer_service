@@ -93,7 +93,7 @@ class RelativeDBService:
                 user_id INT NOT NULL,
                 origin VARCHAR(100) NOT NULL,
                 destination VARCHAR(100) NOT NULL,
-                date TIMESTAMP NOT NULL,
+                start_time TIMESTAMP NOT NULL,
                 seat_class VARCHAR(50) NOT NULL,
                 seat_preference VARCHAR(50),
                 booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -469,7 +469,7 @@ class RelativeDBService:
         
         try:
             query = """
-            SELECT id, origin, destination, date, seat_class, seat_preference, 
+            SELECT id, origin, destination, start_time, seat_class, seat_preference, 
                    booking_time, is_canceled, canceled_time
             FROM flight_bookings 
             WHERE user_id = %s
@@ -483,7 +483,7 @@ class RelativeDBService:
             logger.error(f"查询航班预订失败: {str(e)}")
             return []
     
-    def create_flight_booking(self, user_id: int, origin: str, destination: str, date: str, seat_class: str, seat_preference: Optional[str] = None) -> Dict[str, Any]:
+    def create_flight_booking(self, user_id: int, origin: str, destination: str, start_time: str, seat_class: str, seat_preference: Optional[str] = None) -> Dict[str, Any]:
         """
         创建新的航班预订
         
@@ -491,7 +491,7 @@ class RelativeDBService:
             user_id: 用户ID
             origin: 出发地
             destination: 目的地
-            date: 出发日期
+            start_time: 出发日期
             seat_class: 座位等级
             seat_preference: 座位偏好（可选）
             
@@ -507,11 +507,11 @@ class RelativeDBService:
         try:
             query = """
             INSERT INTO flight_bookings 
-            (user_id, origin, destination, date, seat_class, seat_preference, booking_time)
+            (user_id, origin, destination, start_time, seat_class, seat_preference, booking_time)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
             
-            values = (user_id, origin, destination, date, seat_class, seat_preference, datetime.datetime.now())
+            values = (user_id, origin, destination, start_time, seat_class, seat_preference, datetime.datetime.now())
             self.cursor.execute(query, values)
             self.connection.commit()
             booking_id = self.cursor.lastrowid

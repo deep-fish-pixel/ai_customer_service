@@ -12,7 +12,7 @@ from src.enums.JsonSeperator import JsonSeperator
 
 
 class UpdateInfo(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     record_type: Optional[str] = None
     index: Optional[int] = None
     property_name: Optional[str] = None
@@ -58,7 +58,10 @@ def change_list_record_property_graph() -> StateGraph:
 
     # 定义信息提取和验证函数
     async def extract_info(state: AgentState) -> AgentState:
-        account_info = UpdateInfo(**state.get("task_collected", {}))
+        task_collected = state.get("task_collected", {})
+        if 'id' in task_collected and isinstance(task_collected['id'], int):
+            task_collected['id'] = str(task_collected['id'])
+        update_info = UpdateInfo(**task_collected)
         user_response = [*state["history"], state["query"]]
 
         # 创建LLM提示模板，用于解析和验证用户输入
@@ -81,12 +84,12 @@ def change_list_record_property_graph() -> StateGraph:
         # 调用LLM提取信息
         chain = prompt | llm | parser
         extracted_info = await chain.ainvoke({
-            "existing_info": account_info.dict(),
+            "existing_info": update_info.dict(),
             "user_response": user_response
         })
 
         # 更新预订信息
-        updated_info = account_info.dict()
+        updated_info = update_info.dict()
         for key, value in extracted_info.items():
             if value is not None:
                 updated_info[key] = value
@@ -95,34 +98,33 @@ def change_list_record_property_graph() -> StateGraph:
 
     # 定义决策节点，判断是否需要继续收集信息
     def should_continue(state: AgentState) -> str:
-        account_info = UpdateInfo(**state.get("task_collected", {}))
+        update_info = UpdateInfo(**state.get("task_collected", {}))
 
-        if account_info.exit == 1:
+        if update_info.exit == 1:
             return "goto_end"
-        if not account_info.record_type:
+        if not update_info.record_type:
             return "collect_record_type"
-        if not account_info.index:
+        if not update_info.index:
             return "collect_index"
-        if not account_info.property_name:
+        if not update_info.property_name:
             return "collect_property_name"
-        if not account_info.new_value:
+        if not update_info.new_value:
             return "collect_new_value"
-        if not account_info.id:
+        if not update_info.id:
             return "collect_id"
         else:
             return "save_to_database"
 
-
     # 定义数据库存储节点
     async def save_to_database(state: AgentState):
-        account_info = state["task_collected"]
+        update_info = state["task_collected"]
         user_id = state["user_id"]
 
         # 调用数据库服务存储机票信息
         try:
             result = relative_db_service.change_nickname(
                 user_id=user_id,
-                new_nickname=account_info["new_nickname"],
+                new_nickname=update_info["new_nickname"],
             )
             return {** state, "query": f"昵称修改成功！您的新昵称是：{result["nickname"]}{JsonSeperator.CALL_GET_USER_INFO}", "task_status": 2}
         except Exception as e:
