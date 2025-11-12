@@ -25,8 +25,28 @@ def change_list_record_property_graph() -> StateGraph:
     graph = StateGraph(AgentState)
 
     # 定义信息收集节点
-    async def collect_nickname(state: AgentState):
-        response = await getHistoryAndNextQuestion("请问您的新昵称是？", state['history'][-1], state['query'])
+    async def collect_record_type(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您要修改的类型名称是？", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_status": 1}
+
+    async def collect_index(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您要修改的是第几条？", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_status": 1}
+
+    async def collect_property_name(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您要修改的属性名称是？", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_status": 1}
+
+    async def collect_new_value(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您要修改的新值是？", state['history'][-1], state['query'])
+
+        return {** state, "query": response.content, "task_status": 1}
+
+    async def collect_id(state: AgentState):
+        response = await getHistoryAndNextQuestion("请问您要修改的id是？", state['history'][-1], state['query'])
 
         return {** state, "query": response.content, "task_status": 1}
 
@@ -79,8 +99,16 @@ def change_list_record_property_graph() -> StateGraph:
 
         if account_info.exit == 1:
             return "goto_end"
-        if not account_info.new_nickname:
-            return "collect_nickname"
+        if not account_info.record_type:
+            return "collect_record_type"
+        if not account_info.index:
+            return "collect_index"
+        if not account_info.property_name:
+            return "collect_property_name"
+        if not account_info.new_value:
+            return "collect_new_value"
+        if not account_info.id:
+            return "collect_id"
         else:
             return "save_to_database"
 
@@ -102,14 +130,22 @@ def change_list_record_property_graph() -> StateGraph:
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)
-    graph.add_node("collect_nickname", collect_nickname)
+    graph.add_node("collect_record_type", collect_record_type)
+    graph.add_node("collect_index", collect_index)
+    graph.add_node("collect_property_name", collect_property_name)
+    graph.add_node("collect_new_value", collect_new_value)
+    graph.add_node("collect_id", collect_id)
     graph.add_node("save_to_database", save_to_database)
     graph.add_node("goto_end", goto_end)
     # 设置图的入口点
     graph.set_entry_point("extract_info")
 
     # 添加节点之间的边
-    graph.add_edge("collect_nickname", END)
+    graph.add_edge("collect_record_type", END)
+    graph.add_edge("collect_index", END)
+    graph.add_edge("collect_property_name", END)
+    graph.add_edge("collect_new_value", END)
+    graph.add_edge("collect_id", END)
     graph.add_edge("goto_end", END)
 
     # 设置条件边，根据信息收集情况决定下一步
@@ -117,7 +153,11 @@ def change_list_record_property_graph() -> StateGraph:
         "extract_info",
         should_continue,
         {
-            "collect_nickname": "collect_nickname",
+            "collect_record_type": "collect_record_type",
+            "collect_index": "collect_index",
+            "collect_property_name": "collect_property_name",
+            "collect_new_value": "collect_new_value",
+            "collect_id": "collect_id",
             "save_to_database": "save_to_database",
             "goto_end": "goto_end"
         }

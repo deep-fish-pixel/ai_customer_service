@@ -18,12 +18,11 @@ export function getRecentMessages(messages: Message[], size: number) {
     // 已完成的跳出
     if (recent.task_status === 2) {
       const content = getSendMessageData(recent.content);
-      debugger
+
       recents.push({
         ...recent,
         content,
       })
-      console.log(JsonSeperatorRegexJoinings)
       break;
     }
 
