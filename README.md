@@ -8,8 +8,12 @@
 ![项目](resources/project01.gif)
 #### 知识库有内容的RAG展示
 ![聊天](resources/project02.gif)
-#### 日程会议的创建和查询
+#### 日程会议的创建和查询（Agent其他所有功能均支持此项操作）
 ![项目](resources/project03.gif)
+#### 日程会议列表修改指定记录属性（Agent其他所有功能均支持此项操作）
+![项目](resources/project05.gif)
+#### 日程会议列表删除指定记录（Agent其他所有功能均支持此项操作）
+![项目](resources/project06.gif)
 #### 我的昵称的修改
 ![项目](resources/project04.gif)
 
