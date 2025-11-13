@@ -7,7 +7,7 @@ from typing import List, Dict, Any, Optional
 import logging
 import datetime
 
-from src.enums import getUpdateTableColumn
+from src.enums import get_update_table_column, get_table_name
 
 # 加载环境变量
 load_dotenv()
@@ -845,15 +845,69 @@ class RelativeDBService:
                 self.connection.rollback()
             return False
 
-    def update_table_column(self, user_id: str, table_desc: str, id: int, column_desc: str, new_value: Any) -> Optional[bool]:
+    def query_table_record(self, table_name: str, id: int) -> Optional[bool]:
+        """
+        根据表名、id修改column的值
+
+        Args:
+            table_name: 实体名称
+            id: id
+
+        Returns:
+            更新成功返回True，不存在则返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+
+        if not self.connection or not self.connection.is_connected():
+            return None
+
+        try:
+            # 根据ID更新昵称
+            self.cursor.execute(f"SELECT * FROM {table_name} WHERE id = %s ORDER BY created_at DESC", (id,))
+            booking_record = self.cursor.fetchone()
+
+            return booking_record
+        except Error as e:
+            logger.error(f"获取记录失败: {str(e)}")
+            return None
+
+    def query_table_records(self, user_id: str, table_name: str) -> Optional[bool]:
         """
         根据表名、id修改column的值
 
         Args:
             user_id: 用户ID
-            table_desc: 实体名称
+            table_name: 实体名称
             id: id
-            column_desc: 字段名
+
+        Returns:
+            更新成功返回True，不存在则返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+
+        if not self.connection or not self.connection.is_connected():
+            return None
+
+        try:
+            # 根据ID更新昵称
+            self.cursor.execute(f"SELECT * FROM {table_name} WHERE user_id = %s", (user_id,))
+            booking_record = self.cursor.fetchall()
+
+            return booking_record
+        except Error as e:
+            logger.error(f"获取记录失败: {str(e)}")
+            return None
+
+    def update_table_column(self, table_name: str, id: int, column_name: str, new_value: Any) -> Optional[bool]:
+        """
+        根据表名、id修改column的值
+
+        Args:
+            table_name: 实体名称
+            id: id
+            column_name: 字段名
             new_value: 新值
 
         Returns:
@@ -867,7 +921,7 @@ class RelativeDBService:
 
         try:
             # 根据ID更新昵称
-            update_sql = getUpdateTableColumn(table_desc, column_desc)
+            update_sql = get_update_table_column(table_name, column_name)
             self.cursor.execute(update_sql, (new_value, id))
             self.connection.commit()
 

@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
+from src.enums import get_table_info, get_table_name, get_column_name
 from src.services.graphs.agent_state import AgentState
-from src.services.graphs.query_flight_booking_graph import get_list_json_str
 from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
 from langchain_core.prompts import ChatPromptTemplate
@@ -17,6 +17,7 @@ class UpdateInfo(BaseModel):
     index: Optional[int] = None
     property_name: Optional[str] = None
     new_value: Optional[str] = None
+    size: Optional[int] = None
     exit: Optional[int] = 0
 
 
@@ -70,7 +71,7 @@ def change_list_record_property_graph() -> StateGraph:
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
-        需要提取的字段包括id(id)，record_type(记录类型(日程会议/请假申请/预定机票/预定酒店)，不需要包含记录2个字)，index(序号)，property_name(属性名称)，new_value(新值)。
+        需要提取的字段包括id(id)，record_type(记录类型(日程会议/请假申请/预定机票/预定酒店)，不需要包含(记录/信息)2个字)，index(序号)，property_name(属性名称)，new_value(新值)，size(列表的总数)。
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         如果用户输入[退出/不想继续/取消/后悔/反悔]等意思，则增加字段exit为1，否则为0。
@@ -118,22 +119,45 @@ def change_list_record_property_graph() -> StateGraph:
     # 定义数据库存储节点
     async def save_to_database(state: AgentState):
         update_info = state["task_collected"]
-        user_id = state["user_id"]
 
         # 调用数据库服务存储机票信息
         try:
-            result = relative_db_service.update_table_column(
-                user_id=user_id,
-                table_desc=update_info["record_type"],
+            table_info = get_table_info(update_info["record_type"])
+            table_name = get_table_name(update_info["record_type"])
+            column_name = get_column_name(table_info, update_info["property_name"])
+
+            record = relative_db_service.query_table_record(
+                table_name=table_name,
                 id=update_info["id"],
-                column_desc=update_info["property_name"],
-                new_value=update_info["new_value"],
+            )
+
+            valid_message = table_info.valide_value(column=column_name, new_value=update_info["new_value"], record=record)
+
+            if (valid_message):
+                return {** state, "query": f"预订失败：{valid_message}", "task_status": 1}
+
+            result = relative_db_service.update_table_column(
+                table_name=table_name,
+                id=update_info["id"],
+                column_name=column_name,
+                new_value=table_info.handle_value(column_name, update_info["new_value"], record),
             )
             if (result):
-                return {** state, "query": f"{update_info["property_name"]}修改成功！", "task_status": 2}
+                records = []
+                if (update_info["size"] == 1):
+                    records = [relative_db_service.query_table_record(
+                        table_name=table_name,
+                        id=update_info["id"],
+                    )]
+                else:
+                    records = relative_db_service.query_table_records(
+                        user_id=state["user_id"],
+                        table_name=table_name,
+                    )
+                return {** state, "query": f"{update_info["record_type"]}的{update_info["property_name"]}修改成功！{table_info.get_list_json_str(records)}", "task_status": 2}
             return {** state, "query": f"{update_info["property_name"]}修改失败！", "task_status": 2}
         except Exception as e:
-            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_status": 0}
+            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_status": 1}
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)

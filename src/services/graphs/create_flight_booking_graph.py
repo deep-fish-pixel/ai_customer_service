@@ -1,7 +1,8 @@
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
+
+from src.enums.FlightBooking import FlightBookingTable
 from src.services.graphs.agent_state import AgentState
-from src.services.graphs.query_flight_booking_graph import get_list_json_str
 from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
 from langchain_core.prompts import ChatPromptTemplate
@@ -133,7 +134,7 @@ def create_flight_booking_graph() -> StateGraph:
                 seat_preference=booking_info["seat_preference"]
             )
             return {** state, "query": f"机票预订成功！您的订单已确认。预定机票信息如下："
-                                                                 f"{get_list_json_str([result])}", "task_status": 2}
+                                                                 f"{FlightBookingTable.get_list_json_str([result])}", "task_status": 2}
         except ValueError:
             return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_status": 0}
         except Exception as e:

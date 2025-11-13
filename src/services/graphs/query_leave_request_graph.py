@@ -3,37 +3,6 @@ from langgraph.graph import StateGraph, END
 from src.enums.LeaveRequest import LeaveRequestTable
 from src.services.graphs.agent_state import AgentState
 from src.services.relative_db_service import relative_db_service
-from src.utils.json import json_stringfy
-from typing import List, Dict, Any, Optional
-from src.enums.JsonSeperator import JsonSeperator
-
-def get_list_json_str(result: List[Dict[str, Any]]):
-    """获取查询信息的展示数据"""
-    dataList = [[
-        LeaveRequestTable.ID.text,
-        LeaveRequestTable.LEAVE_TYPE.text,
-        LeaveRequestTable.START_TIME.text,
-        LeaveRequestTable.END_TIME.text,
-        LeaveRequestTable.REASON.text,
-        LeaveRequestTable.ATTACHMENTS.text,
-    ], []]
-    list = dataList[1]
-
-    for info in result:
-        data = [
-            info[LeaveRequestTable.ID.value],
-            info[LeaveRequestTable.LEAVE_TYPE.value],
-            info[LeaveRequestTable.START_TIME.value].strftime("%Y-%m-%d %H:%M"),
-            info[LeaveRequestTable.END_TIME.value].strftime("%Y-%m-%d %H:%M"),
-            info[LeaveRequestTable.REASON.value],
-            info[LeaveRequestTable.ATTACHMENTS.value],
-        ]
-        list.append(data)
-
-    return JsonSeperator.TYPE_LIST + json_stringfy(dataList)
-
-
-
 
 def query_leave_request_graph() -> StateGraph:
     """查询请假申请的信息工作流，收集所有必要信息并完成数据库存储"""
@@ -43,7 +12,7 @@ def query_leave_request_graph() -> StateGraph:
     async def query(state: AgentState) -> AgentState:
         result = relative_db_service.list_leave_requests(state['user_id'])
         query = '已查询到您的请假申请记录：'
-        return {** state, "task_status": 2, "query": query + get_list_json_str(result)}
+        return {** state, "task_status": 2, "query": query + LeaveRequestTable.get_list_json_str(result)}
 
     # 添加节点到图中
     graph.add_node("query", query)

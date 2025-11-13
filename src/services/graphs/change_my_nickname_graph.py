@@ -1,7 +1,6 @@
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
 from src.services.graphs.agent_state import AgentState
-from src.services.graphs.query_flight_booking_graph import get_list_json_str
 from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
 from langchain_core.prompts import ChatPromptTemplate

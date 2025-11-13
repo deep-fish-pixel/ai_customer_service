@@ -1,7 +1,6 @@
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
-
-from src.enums.ScheduleMeeting import ScheduleMeetingType, MeetingType
+from src.enums.ScheduleMeeting import ScheduleMeetingType, MeetingType, ScheduleMeetingTable
 from src.services.graphs.agent_state import AgentState
 from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
@@ -9,7 +8,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from typing import Optional, List
 from src.utils.getOpenAI import getChatOpenAI
-from src.services.graphs.query_schedule_meeting_graph import get_list_json_str
 
 
 class ScheduleMeetingInfo(BaseModel):
@@ -165,7 +163,7 @@ def create_schedule_meeting_graph() -> StateGraph:
             return {
                 ** state,
                 "result": result,
-                "query": f"日程会议成功！日程会议信息：{get_list_json_str([result])}",
+                "query": f"日程会议成功！日程会议信息：{ScheduleMeetingTable.get_list_json_str([result])}",
                     "task_status": 2
             }
         except ValueError:

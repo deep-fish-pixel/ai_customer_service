@@ -1,5 +1,7 @@
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
+
+from src.enums.HotelBooking import HotelBookingTable
 from src.services.graphs.agent_state import AgentState
 from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
@@ -7,7 +9,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from typing import Optional
 from src.utils.getOpenAI import getChatOpenAI
-from src.services.graphs.query_hotel_booking_graph import get_list_json_str
 
 
 class HotelBookingInfo(BaseModel):
@@ -142,7 +143,7 @@ def create_hotel_booking_graph() -> StateGraph:
                 room_type=booking_info["room_type"],
                 guest_count=booking_info["guest_count"]
             )
-            return {** state, "booking_result": result, "query": f"酒店预订成功！您的订单信息：{get_list_json_str([result])}", "task_status": 2}
+            return {** state, "booking_result": result, "query": f"酒店预订成功！您的订单信息：{HotelBookingTable.get_list_json_str([result])}", "task_status": 2}
         except ValueError:
             return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_status": 1}
         except Exception as e:

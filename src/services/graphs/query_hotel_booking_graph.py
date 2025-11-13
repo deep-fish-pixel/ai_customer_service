@@ -17,33 +17,6 @@ class HotelBookingInfo(BaseModel):
     seat_preference: Optional[str] = None
     exit: Optional[int] = 0
 
-def get_list_json_str(result: List[Dict[str, Any]]):
-    """获取查询信息的展示数据"""
-    dataList = [[
-        HotelBookingTable.ID.text,
-        HotelBookingTable.CITY.text,
-        HotelBookingTable.CHECKIN_DATE.text,
-        HotelBookingTable.CHECKOUT_DATE.text,
-        HotelBookingTable.ROOM_TYPE.text,
-        HotelBookingTable.GUEST_COUNT.text,
-    ], []]
-    list = dataList[1]
-
-    for info in result:
-        data = [
-            info[HotelBookingTable.ID.value],
-            info[HotelBookingTable.CITY.value],
-            info[HotelBookingTable.CHECKIN_DATE.value].strftime("%Y-%m-%d %H:%M"),
-            info[HotelBookingTable.CHECKOUT_DATE.value].strftime("%Y-%m-%d %H:%M"),
-            info[HotelBookingTable.ROOM_TYPE.value],
-            info[HotelBookingTable.GUEST_COUNT.value],
-        ]
-        list.append(data)
-
-    return JsonSeperator.TYPE_LIST + json_stringfy(dataList)
-
-
-
 def query_hotel_booking_graph() -> StateGraph:
     """查询酒店预订的信息工作流，收集所有必要信息并完成数据库存储"""
     graph = StateGraph(AgentState)
@@ -53,7 +26,7 @@ def query_hotel_booking_graph() -> StateGraph:
         result = relative_db_service.list_hotel_bookings(state['user_id'])
 
         query = '已查询到您的酒店预定记录：'
-        return {** state, "task_status": 2, "query": query + get_list_json_str(result)}
+        return {** state, "task_status": 2, "query": query + HotelBookingTable.get_list_json_str(result)}
 
     # 添加节点到图中
     graph.add_node("query", query)
