@@ -97,7 +97,8 @@
       id: Date.now().toString(),
       content: inputMessage.trim(),
       sender: 'user',
-      timestamp: new Date()
+      task_status: -1,
+      timestamp: new Date(),
     };
 
     // 最近4条消息
@@ -113,7 +114,8 @@
       id: botMessageId,
       content: '',
       sender: 'bot',
-      timestamp: new Date()
+      task_status: -1,
+      timestamp: new Date(),
     };
     messages = [...messages, botMessage];
 
@@ -164,8 +166,8 @@
                 if(task_status >= 0) {
                   const lastMessage = messages[index -1];
 
-                  if (lastMessage) {
-                    lastMessage.task_status = task_status;
+                  if (lastMessage && !Number.isInteger(lastMessage.task_status)) {
+                    lastMessage.task_status = 0;
                   }
                 }
                 return {

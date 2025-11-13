@@ -26,7 +26,7 @@ def change_list_record_property_graph() -> StateGraph:
 
     # 定义信息收集节点
     async def collect_record_type(state: AgentState):
-        response = await getHistoryAndNextQuestion("请问您要修改的类型名称是？", state['history'][-1], state['query'])
+        response = await getHistoryAndNextQuestion("请问您要修改的类型是？（日程会议/请假申请/预定机票/预定酒店）", state['history'][-1], state['query'])
 
         return {** state, "query": response.content, "task_status": 1}
 
@@ -70,7 +70,7 @@ def change_list_record_property_graph() -> StateGraph:
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
-        需要提取的字段包括id(id)，record_type(记录名称，不需要包含记录2个字)，index(序号)，property_name(属性名称)，new_value(新值)。
+        需要提取的字段包括id(id)，record_type(记录类型(日程会议/请假申请/预定机票/预定酒店)，不需要包含记录2个字)，index(序号)，property_name(属性名称)，new_value(新值)。
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         如果用户输入[退出/不想继续/取消/后悔/反悔]等意思，则增加字段exit为1，否则为0。

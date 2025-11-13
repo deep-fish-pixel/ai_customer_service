@@ -8,7 +8,9 @@ import {JsonSeperatorRegex, JsonSeperatorRegexJoinings, RobotPrologue} from "../
  */
 export function getRecentMessages(messages: Message[], size: number) {
   const recents: Message[] = [];
+  const lastMessage = messages[messages.length - 1];
   let index = Math.max(messages.length, 0);
+  let isInRecentTask = lastMessage.task_status === 1;
 
   while(index && size) {
     index--;
@@ -16,17 +18,22 @@ export function getRecentMessages(messages: Message[], size: number) {
     const recent = messages[index];
 
     // 已完成的跳出
-    if (recent.task_status === 2) {
-      const content = getSendMessageData(recent.content);
+    if (Number.isInteger(recent.task_status)) {
+      if (isInRecentTask && recent.task_status !== 2) {
+        recents.push(recent);
+      }
+      else if (recent.task_status === 2) {
+        const content = getSendMessageData(recent.content);
 
-      recents.push({
-        ...recent,
-        content,
-      })
-      break;
+        recents.push({
+          ...recent,
+          content,
+        });
+        isInRecentTask = false;
+      }
+    } else {
+      recents.push(recent);
     }
-
-    recents.push(recent);
   }
 
   if (recents.length === 0) {
