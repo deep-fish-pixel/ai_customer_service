@@ -849,7 +849,7 @@ class RelativeDBService:
                 self.connection.rollback()
             return False
 
-    def query_table_record(self, table_name: str, id: int) -> Optional[bool]:
+    def query_table_record(self, table_name: str, id: int) -> Optional[Dict[str, any]]:
         """
         根据表名、id修改column的值
 
@@ -858,7 +858,7 @@ class RelativeDBService:
             id: id
 
         Returns:
-            更新成功返回True，不存在则返回None
+            更新成功返回记录，不存在则返回None
         """
         if not self.connection or not self.connection.is_connected():
             self._connect_db()
@@ -876,7 +876,7 @@ class RelativeDBService:
             logger.error(f"获取记录失败: {str(e)}")
             return None
 
-    def query_table_records(self, user_id: str, table_name: str) -> Optional[bool]:
+    def query_table_records(self, user_id: str, table_name: str) -> Optional[list[Dict[str, any]]]:
         """
         根据表名、id修改column的值
 
@@ -886,7 +886,7 @@ class RelativeDBService:
             id: id
 
         Returns:
-            更新成功返回True，不存在则返回None
+            查询成功返回记录列表，不存在则返回None
         """
         if not self.connection or not self.connection.is_connected():
             self._connect_db()
@@ -932,6 +932,32 @@ class RelativeDBService:
             return True
         except Error as e:
             logger.error(f"修改用户昵称失败: {str(e)}")
+            return None
+
+    def delete_table_record(self, table_name: str, id: int) -> Optional[bool]:
+        """
+        根据表名、id删除记录
+
+        Args:
+            table_name: 实体名称
+            id: id
+
+        Returns:
+            删除成功返回True，不存在则返回None
+        """
+        if not self.connection or not self.connection.is_connected():
+            self._connect_db()
+
+        if not self.connection or not self.connection.is_connected():
+            return None
+
+        try:
+            # 根据ID更新昵称
+            self.cursor.execute(f"DELETE FROM {table_name} WHERE id = %s", (id,))
+
+            return True
+        except Error as e:
+            logger.error(f"获取记录失败: {str(e)}")
             return None
 
     def close(self):

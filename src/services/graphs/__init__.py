@@ -10,6 +10,7 @@ from src.services.graphs.create_leave_request_graph import create_leave_request_
 from src.services.graphs.query_leave_request_graph import query_leave_request_graph
 from src.services.graphs.change_my_nickname_graph import change_my_nickname_graph
 from src.services.graphs.change_list_record_property_graph import change_list_record_property_graph
+from src.services.graphs.delete_list_record_graph import delete_list_record_graph
 
 
 SUPPORTED_TASKS = [
@@ -25,6 +26,7 @@ SUPPORTED_TASKS = [
     "query_leave_request",
 
     "change_list_record_property",
+    "delete_list_record",
 
     "change_my_nickname",
 ]
@@ -43,6 +45,8 @@ task_graphs = {
     "query_leave_request": query_leave_request_graph,
 
     "change_list_record_property": change_list_record_property_graph,
+    "delete_list_record": delete_list_record_graph,
+
     "change_my_nickname": change_my_nickname_graph,
 }
 
