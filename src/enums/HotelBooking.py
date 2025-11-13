@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from src.utils.json import json_stringfy
 from src.enums.JsonSeperator import JsonSeperator
+import re
 
 #预定酒店表
 class HotelBookingTable(Status):
@@ -28,8 +29,16 @@ class HotelBookingTable(Status):
   def handle_value(column: str, new_value: any, record: Dict[str, Any]):
     if(column == HotelBookingTable.CHECKOUT_DATE.value):
       checkout = datetime.strptime(new_value, "%Y-%m-%d").replace(hour=12, minute=0, second=0)
-
       return checkout
+    elif(column == HotelBookingTable.GUEST_COUNT.value):
+      if(isinstance(new_value, str)):
+        match = re.search(r'\d+', new_value)
+        # 如果找到匹配项，将其转换为整数
+        if match:
+          number = int(match.group())
+          return number
+        else:
+          return 0
     return new_value
 
   @staticmethod

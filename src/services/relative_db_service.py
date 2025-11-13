@@ -101,6 +101,8 @@ class RelativeDBService:
                 booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 is_canceled BOOLEAN DEFAULT FALSE,
                 canceled_time TIMESTAMP NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
             """
@@ -155,6 +157,8 @@ class RelativeDBService:
                 booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 is_canceled BOOLEAN DEFAULT FALSE,
                 canceled_time TIMESTAMP NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
             """
@@ -431,7 +435,7 @@ class RelativeDBService:
                    chunks_count, upload_time, created_at
             FROM documents 
             WHERE user_id = %s
-            ORDER BY upload_time DESC
+            ORDER BY created_at DESC
             """
             
             self.cursor.execute(query, (user_id,))
@@ -475,7 +479,7 @@ class RelativeDBService:
                    booking_time, is_canceled, canceled_time
             FROM flight_bookings 
             WHERE user_id = %s
-            ORDER BY booking_time DESC
+            ORDER BY created_at DESC
             """
             
             self.cursor.execute(query, (user_id,))
@@ -595,7 +599,7 @@ class RelativeDBService:
                    booking_time, is_canceled, canceled_time
             FROM hotel_bookings 
             WHERE user_id = %s
-            ORDER BY booking_time DESC
+            ORDER BY created_at DESC
             """
             
             self.cursor.execute(query, (user_id,))
@@ -641,7 +645,7 @@ class RelativeDBService:
             if not self.connection or not self.connection.is_connected():
                 return []
 
-            query = "SELECT * FROM schedule_meetings WHERE user_id = %s ORDER BY start_time DESC"
+            query = "SELECT * FROM schedule_meetings WHERE user_id = %s ORDER BY created_at DESC"
             self.cursor.execute(query, (user_id,))
             return self.cursor.fetchall()
         except Exception as e:

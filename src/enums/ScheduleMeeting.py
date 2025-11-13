@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from src.utils.json import json_stringfy
 from src.enums.JsonSeperator import JsonSeperator
+import re
 
 #日程会议表
 class ScheduleMeetingTable(Status):
@@ -25,8 +26,17 @@ class ScheduleMeetingTable(Status):
   def handle_value(column: str, new_value: any, record: Dict[str, Any]):
     if(column == ScheduleMeetingTable.MEETING_TYPE.value):
       return MeetingType.get_value_by_text(new_value)
-    elif(column == ScheduleMeetingTable.START_TIME.value):
+    elif(column == ScheduleMeetingTable.END_TIME.value):
       start_time = record[ScheduleMeetingTable.START_TIME.value]
+
+      if(isinstance(new_value, str)):
+        match = re.search(r'\d+', new_value)
+        # 如果找到匹配项，将其转换为整数
+        if match:
+          number = int(match.group())
+          new_value =  number
+        else:
+          new_value = 0
       end_time = start_time+  timedelta(minutes=new_value)
       return end_time
     return new_value
