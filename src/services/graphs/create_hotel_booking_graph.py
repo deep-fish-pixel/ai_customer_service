@@ -133,7 +133,7 @@ def create_hotel_booking_graph() -> StateGraph:
             checkin = datetime.strptime(booking_info["checkin_date"], "%Y-%m-%d").replace(hour=12, minute=0, second=0)
             checkout = datetime.strptime(booking_info["checkout_date"], "%Y-%m-%d").replace(hour=12, minute=0, second=0)
             if checkout <= checkin:
-                return {** state, "query": "退房日期必须晚于入住日期。", "error": "start_date_less_end_date", "task_status": 0}
+                return {** state, "query": "退房日期必须晚于入住日期。", "error": "start_time_less_end_time", "task_status": 0}
 
             result = relative_db_service.create_hotel_booking(
                 user_id=user_id,

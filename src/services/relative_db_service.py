@@ -864,7 +864,7 @@ class RelativeDBService:
 
         try:
             # 根据ID更新昵称
-            self.cursor.execute(f"SELECT * FROM {table_name} WHERE id = %s ORDER BY created_at DESC", (id,))
+            self.cursor.execute(f"SELECT * FROM {table_name} WHERE id = %s", (id,))
             booking_record = self.cursor.fetchone()
 
             return booking_record
@@ -892,7 +892,7 @@ class RelativeDBService:
 
         try:
             # 根据ID更新昵称
-            self.cursor.execute(f"SELECT * FROM {table_name} WHERE user_id = %s", (user_id,))
+            self.cursor.execute(f"SELECT * FROM {table_name} WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
             booking_record = self.cursor.fetchall()
 
             return booking_record

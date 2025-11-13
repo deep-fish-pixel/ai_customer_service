@@ -17,8 +17,8 @@ class LeaveRequestTable(Status):
   @staticmethod
   def valide_value(column: str, new_value: any, record: Dict[str, Any]):
     if(column == LeaveRequestTable.END_TIME.value):
-      start_time = datetime.strptime(record["start_time"], "%Y-%m-%d").replace(hour=12, minute=0, second=0)
-      end_time = datetime.strptime(new_value, "%Y-%m-%d").replace(hour=12, minute=0, second=0)
+      start_time = record["start_time"]
+      end_time = datetime.strptime(new_value, "%Y-%m-%d %H:%M")
       if end_time <= start_time:
         return '请假申请的开始时间必须晚于结束时间'
     return None
@@ -29,7 +29,7 @@ class LeaveRequestTable(Status):
     return new_value
 
   @staticmethod
-  def get_list_json_str(self, result: List[Dict[str, Any]]):
+  def get_list_json_str(result: List[Dict[str, Any]]):
     """获取查询信息的展示数据"""
     dataList = [[
       LeaveRequestTable.ID.text,

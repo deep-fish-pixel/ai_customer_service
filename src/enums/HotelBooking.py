@@ -15,7 +15,7 @@ class HotelBookingTable(Status):
 
   # 验证值是否合法
   @staticmethod
-  def valide_value(self, column: str, new_value: any, record: Dict[str, Any]):
+  def valide_value(column: str, new_value: any, record: Dict[str, Any]):
     if(column == HotelBookingTable.CHECKOUT_DATE.value):
       checkin = datetime.strptime(record["checkin_date"], "%Y-%m-%d").replace(hour=12, minute=0, second=0)
       checkout = datetime.strptime(new_value, "%Y-%m-%d").replace(hour=12, minute=0, second=0)
@@ -25,7 +25,7 @@ class HotelBookingTable(Status):
 
   # 获取处理后的新值
   @staticmethod
-  def handle_value(self, column: str, new_value: any, record: Dict[str, Any]):
+  def handle_value(column: str, new_value: any, record: Dict[str, Any]):
     if(column == HotelBookingTable.CHECKOUT_DATE.value):
       checkout = datetime.strptime(new_value, "%Y-%m-%d").replace(hour=12, minute=0, second=0)
 
@@ -33,7 +33,7 @@ class HotelBookingTable(Status):
     return new_value
 
   @staticmethod
-  def get_list_json_str(self, result: List[Dict[str, Any]]):
+  def get_list_json_str(result: List[Dict[str, Any]]):
     """获取查询信息的展示数据"""
     dataList = [[
       HotelBookingTable.ID.text,

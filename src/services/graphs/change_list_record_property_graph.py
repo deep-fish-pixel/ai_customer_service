@@ -71,7 +71,7 @@ def change_list_record_property_graph() -> StateGraph:
         请根据用户当前的回答，提取相关信息并以JSON格式返回。
         当前已收集的信息: {existing_info}
         用户的回答: {user_response}
-        需要提取的字段包括id(id)，record_type(记录类型(日程会议/请假申请/预定机票/预定酒店)，不需要包含(记录/信息)2个字)，index(序号)，property_name(属性名称)，new_value(新值)，size(列表的总数)。
+        需要提取的字段包括id(id，需要根据列表的index获取到)，record_type(记录类型(日程会议/请假申请/预定机票/预定酒店)，不需要包含(记录/信息)2个字)，index(序号，如果记录只有一条，默认1)，property_name(属性名称)，new_value(新值)，size(列表的总数)。
         如果用户的回答中包含多个字段信息，请全部提取。
         如果无法提取某个字段，保持该字段为null。
         如果用户输入[退出/不想继续/取消/后悔/反悔]等意思，则增加字段exit为1，否则为0。

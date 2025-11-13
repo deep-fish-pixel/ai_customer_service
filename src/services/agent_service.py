@@ -16,8 +16,8 @@ load_dotenv()
 class LeaveRequest(BaseModel):
     employee_name: str = Field(description="员工姓名")
     leave_type: str = Field(description="请假类型")
-    start_date: str = Field(description="开始日期，格式：YYYY-MM-DD")
-    end_date: str = Field(description="结束日期，格式：YYYY-MM-DD")
+    start_time: str = Field(description="开始日期，格式：YYYY-MM-DD")
+    end_time: str = Field(description="结束日期，格式：YYYY-MM-DD")
     reason: str = Field(description="请假原因")
     duration_days: float = Field(description="请假天数")
 
@@ -89,17 +89,17 @@ class AgentService:
             leave_info = json.loads(leave_info_str)
             
             # 验证日期
-            start_date = datetime.strptime(leave_info["start_date"], "%Y-%m-%d")
-            end_date = datetime.strptime(leave_info["end_date"], "%Y-%m-%d")
+            start_time = datetime.strptime(leave_info["start_time"], "%Y-%m-%d")
+            end_time = datetime.strptime(leave_info["end_time"], "%Y-%m-%d")
             
-            if start_date > end_date:
+            if start_time > end_time:
                 return {
                     "status": RESPONSE_STATUS_FAILED,
                     "message": "开始日期不能晚于结束日期"
                 }
             
             # 计算请假天数
-            leave_info["duration_days"] = (end_date - start_date).days + 1
+            leave_info["duration_days"] = (end_time - start_time).days + 1
             
             # 保存请假记录
             if user_id not in self.leave_records:
@@ -117,8 +117,8 @@ class AgentService:
             请假信息：
             员工姓名：{employee_name}
             请假类型：{leave_type}
-            开始日期：{start_date}
-            结束日期：{end_date}
+            开始日期：{start_time}
+            结束日期：{end_time}
             请假天数：{duration_days}天
             请假原因：{reason}
             

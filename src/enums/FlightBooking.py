@@ -8,22 +8,22 @@ class FlightBookingTable(Status):
   ID = ('id', "id")
   ORIGIN = ('origin', "始发地")
   DESTINATION = ('destination', "目的地")
-  START_TIME = ('start_date', "开始时间")
+  START_TIME = ('start_time', "开始时间")
   SEAT_CLASS = ('seat_class', "座位等级")
   SEAT_PREFERENCE = ('seat_preference', "座位偏好")
 
   # 验证值是否合法
   @staticmethod
-  def valide_value(self, column: str, new_value: any, record: Dict[str, Any]):
+  def valide_value(column: str, new_value: any, record: Dict[str, Any]):
     return None
 
   # 获取处理后的新值
   @staticmethod
-  def handle_value(self, column: str, new_value: any, record: Dict[str, Any]):
+  def handle_value(column: str, new_value: any, record: Dict[str, Any]):
     return new_value
 
   @staticmethod
-  def get_list_json_str(self, result: List[Dict[str, Any]]):
+  def get_list_json_str(result: List[Dict[str, Any]]):
     """获取查询信息的展示数据"""
     dataList = [[
       FlightBookingTable.ID.text,

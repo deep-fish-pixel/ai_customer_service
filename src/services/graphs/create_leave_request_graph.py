@@ -150,7 +150,7 @@ def create_leave_request_graph() -> StateGraph:
             start_time = datetime.strptime(booking_info["start_time"], "%Y-%m-%d %H:%M")
             end_time = datetime.strptime(booking_info["end_time"], "%Y-%m-%d %H:%M")
             if start_time >= end_time:
-                return {** state, "query": "请假申请的开始时间必须晚于结束时间。", "error": "start_date less end_date", "task_status": 0}
+                return {** state, "query": "请假申请的开始时间必须晚于结束时间。", "error": "start_time less end_time", "task_status": 0}
 
             result = relative_db_service.create_leave_request(
                 user_id=user_id,
