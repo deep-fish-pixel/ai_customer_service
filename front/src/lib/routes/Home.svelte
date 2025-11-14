@@ -22,6 +22,7 @@
   } from "../../constants";
   import {getTokenAuthorization} from "../utils/authorization";
   import { getRecentMessages, } from "../utils/handleMessages";
+  import StopIcon from "../icons/StopIcon.svelte";
 
   // 状态管理
   let inputContainer: HTMLElement;
@@ -36,6 +37,9 @@
   let loginVisible = $state(false);
   let disabled = $derived(!inputMessage || !getUserId());
   let userinfo = $state(getUser());
+  let receiving = $state(false);
+  // 停止接收消息流句柄
+  let abortStream: () => void;
 
   // 初始化示例消息
   onMount(async () => {
@@ -88,9 +92,7 @@
 
   // 发送消息
   const sendMessage = async () => {
-    if (!inputMessage.trim()) return;
-
-    let abortStream: () => void;
+    if (!inputMessage.trim() || receiving) return;
 
     // 添加用户消息
     const userMessage: Message = {
@@ -125,6 +127,9 @@
     // 滚动到底部
     await tick();
     scrollToBottom();
+
+    // 接收消息
+    receiving = true;
 
     try {
       // 使用流式请求
@@ -194,17 +199,20 @@
         () => {
           // 流结束
           scrollToBottom();
+          receiving = false;
         },
         (error) => {
           // 处理错误
           messages = messages.map(msg =>
             msg.id === botMessageId ? {
               ...msg,
-              content: `请求错误: ${error.message}`,
+              content: msg.content + (error.message.match(/aborted/) ? ' 该请求被取消' : ` 请求错误: ${error.message}`),
               sender: 'bot'
             } : msg
           );
           scrollToBottom();
+
+          receiving = false;
         }
       );
     } catch (error) {
@@ -216,11 +224,18 @@
         } : msg
       );
       scrollToBottom();
+
+      receiving = false;
     }
 
     // 提供取消功能
     return () => abortStream && abortStream();
   };
+
+  const stopReceiveMessage = async () => {
+    receiving = false;
+    abortStream();
+  }
 
   // 处理输入框回车事件
   const handleKeyPress = (e: KeyboardEvent) => {
@@ -341,14 +356,27 @@
                 onfocusout={() => handleFocus(false)}
                 placeholder="请输入您的问题..."
             />
-            <Button
-                class="send-button"
-                color="primary"
-                onclick={sendMessage}
-                disabled={disabled}
-            >
-              <SendIcon></SendIcon>
-            </Button>
+            {#if receiving}
+              <Button
+                  class="send-button"
+                  color="primary"
+                  onclick={stopReceiveMessage}
+                  title="取消接收消息"
+              >
+                <StopIcon></StopIcon>
+              </Button>
+            {:else}
+              <Button
+                  class="send-button"
+                  color="primary"
+                  onclick={sendMessage}
+                  disabled={disabled}
+                  title="发送消息"
+              >
+                <SendIcon></SendIcon>
+              </Button>
+            {/if}
+
           </div>
         </Paper>
       </div>

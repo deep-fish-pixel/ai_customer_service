@@ -17,5 +17,3 @@ class AgentEntityTable(Status):
   LEAVE_REQUEST = ('leave_requests', LeaveRequestTable)
   FLIGHT_BOOKING = ('flight_bookings', FlightBookingTable)
   HOTEL_BOOKING = ('hotel_bookings', HotelBookingTable)
-
-print(AgentEntityTable.get_text_by_value(AgentEntity.get_value_by_text("日程会议")).get_value_by_text("会议类型"))
