@@ -92,7 +92,7 @@ def change_my_nickname_graph() -> StateGraph:
                 user_id=user_id,
                 new_nickname=account_info["new_nickname"],
             )
-            return {** state, "query": f"昵称修改成功！您的新昵称是：{result["nickname"]}{JsonSeperator.CALL_GET_USER_INFO}", "task_status": 2}
+            return {** state, "query": f'昵称修改成功！您的新昵称是：{result[""]}{JsonSeperator.CALL_GET_USER_INFO}', "task_status": 2}
         except Exception as e:
             return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_status": 0}
 

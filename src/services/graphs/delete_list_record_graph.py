@@ -118,10 +118,10 @@ def delete_list_record_graph() -> StateGraph:
                     table_name=table_name,
                 )
 
-                return {** state, "query": f"{update_info["record_type"]}的第{update_info["index"]}条记录删除成功！{table_info.get_list_json_str(records)}", "task_status": 2}
-            return {** state, "query": f"{update_info["record_type"]}的第{update_info["index"]}条记录删除失败！", "task_status": 2}
+                return {** state, "query": f'{update_info["record_type"]}的第{update_info["index"]}条记录删除成功！{table_info.get_list_json_str(records)}', "task_status": 2}
+            return {** state, "query": f'{update_info["record_type"]}的第{update_info["index"]}条记录删除失败！', "task_status": 2}
         except Exception as e:
-            return {** state, "query": f"{update_info["record_type"]}的第{update_info["index"]}条记录删除失败：{str(e)}", "error": str(e), "task_status": 1}
+            return {** state, "query": f'{update_info["record_type"]}的第{update_info["index"]}条记录删除失败：{str(e)}', "error": str(e), "task_status": 1}
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)

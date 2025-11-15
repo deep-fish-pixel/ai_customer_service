@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
 from src.enums import get_table_info, get_table_name, get_column_name
@@ -6,7 +8,7 @@ from src.services.graphs.utils import getHistoryAndNextQuestion
 from src.services.relative_db_service import relative_db_service
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
-from typing import Optional
+from typing import Optional, Any
 from src.utils.getOpenAI import getChatOpenAI
 from src.enums.JsonSeperator import JsonSeperator
 
@@ -16,9 +18,9 @@ class UpdateInfo(BaseModel):
     record_type: Optional[str] = None
     index: Optional[int] = None
     property_name: Optional[str] = None
-    new_value: Optional[str|int] = None
+    new_value: Optional[Any] = None
     size: Optional[int] = None
-    exit: Optional[int] = 0
+    exit_flag: Optional[int] = 0  # 修改字段名避免冲突
 
 
 def change_list_record_property_graph() -> StateGraph:
@@ -154,8 +156,8 @@ def change_list_record_property_graph() -> StateGraph:
                         user_id=state["user_id"],
                         table_name=table_name,
                     )
-                return {** state, "query": f"{update_info["record_type"]}的{update_info["property_name"]}修改成功！{table_info.get_list_json_str(records)}", "task_status": 2}
-            return {** state, "query": f"{update_info["property_name"]}修改失败！", "task_status": 2}
+                return {** state, "query": f'{update_info["record_type"]}的{update_info["property_name"]}修改成功！{table_info.get_list_json_str(records)}', "task_status": 2}
+            return {** state, "query": f'{update_info["property_name"]}修改失败！', "task_status": 2}
         except Exception as e:
             return {** state, "query": f"修改失败：{str(e)}", "error": str(e), "task_status": 1}
 

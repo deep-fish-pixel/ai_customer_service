@@ -1,7 +1,6 @@
 import os
 from typing import List, Dict, Any, Optional
 from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings
 from langchain_community.embeddings.dashscope import DashScopeEmbeddings
 from dotenv import load_dotenv
 

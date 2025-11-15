@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from typing import List, Dict, Any, Coroutine
 from fastapi import UploadFile, HTTPException

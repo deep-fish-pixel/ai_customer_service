@@ -1,6 +1,8 @@
 langchain
 langchain-core
 langchain-community
+langchain_openai
+langchain_chroma
 langgraph
 chromadb
 fastapi
@@ -17,3 +19,5 @@ tiktoken
 python-dotenv
 PyJWT
 passlib
+dashscope
+bs4

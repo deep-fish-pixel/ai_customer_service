@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 import asyncio
-from typing import AsyncGenerator
-from typing import Dict, Any, List, Optional, TypedDict
+from typing_extensions import AsyncGenerator
+from typing_extensions import Dict, Any, List, Optional, TypedDict
 
 from src import RESPONSE_STATUS_FAILED
 from src.api.endpoints.user import get_current_user_id

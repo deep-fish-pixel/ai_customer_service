@@ -1,5 +1,6 @@
 import os
-from typing import TypedDict, Dict, Any, List, Optional, Literal
+from typing import Dict, Any, List, Optional, Literal
+from typing_extensions import TypedDict
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser

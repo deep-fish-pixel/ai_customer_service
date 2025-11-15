@@ -1,4 +1,5 @@
-from typing import TypedDict, Union, Dict, Any
+from typing import Union, Dict, Any
+from typing_extensions import TypedDict
 
 # src包初始化文件
 # 定义两个常量字符串
