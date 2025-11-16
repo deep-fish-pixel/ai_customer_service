@@ -77,7 +77,15 @@ async def register_user(request: UserRegisterRequest) -> Dict[str, Any]:
             }
         
         # 密码加密
-        hashed_password = auth_service.hash_password(request.password)
+        try:
+            hashed_password = auth_service.hash_password(request.password)
+        except ValueError as e:
+            logger.error(f"密码加密失败: {str(e)}")
+            return {
+                "status": RESPONSE_STATUS_FAILED,
+                "message": f"密码加密失败: {str(e)}",
+                "data": None
+            }
         
         # 创建用户
         user_id = db_service.create_user(
