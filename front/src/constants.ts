@@ -1,6 +1,6 @@
 import {escapeRegex} from "./lib/utils/regex";
 
-export const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = import.meta.env.VITE_API_URL;
 // 请求成功标识
 export const RESPONSE_STATUS_SUCCESS = "success"
 // 请求失败标识
