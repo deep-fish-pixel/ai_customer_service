@@ -136,9 +136,9 @@ def create_flight_booking_graph() -> StateGraph:
             return {** state, "query": f"机票预订成功！您的订单已确认。预定机票信息如下："
                                                                  f"{FlightBookingTable.get_list_json_str([result])}", "task_status": 2}
         except ValueError:
-            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_status": 0}
+            return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_status": 1}
         except Exception as e:
-            return {** state, "query": f"预订失败：{str(e)}", "error": str(e), "task_status": 0}
+            return {** state, "query": f"预定失败：{str(e)}", "error": str(e), "task_status": 1}
 
     # 添加节点到图中
     graph.add_node("extract_info", extract_info)

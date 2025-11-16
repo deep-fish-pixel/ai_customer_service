@@ -375,6 +375,9 @@ class RelativeDBService:
             return None
         
         try:
+            #res 的事务模式默认是 REPEATABLE READ，需要设置成READ COMMITTED
+            self.cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED")
+
             query = "SELECT username, nickname, created_at FROM users WHERE id = %s"
             self.cursor.execute(query, (user_id,))
             return self.cursor.fetchone()
