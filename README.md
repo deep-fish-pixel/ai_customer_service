@@ -1,6 +1,7 @@
 # AI超级智能客服
 
-基于LangChain和LangGraph、MCP的智能客服系统，支持RAG功能和Agent功能等。
+基于LangChain和LangGraph的智能客服系统，支持RAG功能和Agent功能等。
+[在线体验](http://115.190.242.191/)
 
 ## 功能展示
 
