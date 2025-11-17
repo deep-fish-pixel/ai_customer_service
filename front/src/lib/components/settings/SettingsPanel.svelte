@@ -3,50 +3,84 @@
   import TabBar from '@smui/tab-bar';
   import DocumentsTab from './DocumentsTab.svelte';
   import ToolsTab from './ToolsTab.svelte';
+  import HideShowIcon from './HideShowIcon.svelte';
 
   // 标签页类型
   type TabValue = '个人知识库' | '高效工具';
 
   // 状态管理
-  let activeTab: TabValue = '个人知识库';
+  let activeTab: TabValue = $state('个人知识库');
+
+  let expanded = $state(true);
+
+
+  const iconClickHandle = (isHide: boolean) => {
+    console.log(isHide);
+    expanded = isHide;
+    debugger
+  };
 
   // 从父组件接收的属性
-  export let onToolOperate: (message?: string) => void;
+  export const onToolOperate: (message?: string) => void = () => undefined;
 </script>
 
-<div class="settings-panel">
-  <!-- 标签页 -->
-  <TabBar
-    tabs={['个人知识库', '高效工具']}
-    bind:active={activeTab}
-  >
-    {#snippet tab(tab)}
-      <Tab {tab}>
-        <Label>{tab}</Label>
-      </Tab>
-    {/snippet}
-  </TabBar>
+<div class="settings-container">
+  <HideShowIcon class={'settings-icon' + (expanded?' settings-panel-hide':'')} value={expanded} onClick={iconClickHandle} />
+  <div class={'settings-panel' + (expanded?'':' settings-panel-hide')}>
+    <div class="settings-header">
+      <p class="settings-title">模型设置</p>
+      <HideShowIcon value={expanded} onClick={iconClickHandle} />
+    </div>
+    <!-- 标签页 -->
+    <TabBar
+      class="settings-tab-bar"
+      tabs={['个人知识库', '高效工具']}
+      bind:active={activeTab}
+    >
+      {#snippet tab(tab)}
+        <Tab {tab}>
+          <Label>{tab}</Label>
+        </Tab>
+      {/snippet}
+    </TabBar>
 
-  <!-- 标签页内容 -->
-  <div class="tab-content">
-    {#if activeTab === '个人知识库'}
-      <DocumentsTab/>
-    {/if}
-    
-    {#if activeTab === '高效工具'}
-      <ToolsTab
-        onToolOperate={onToolOperate}
-      />
-    {/if}
+    <!-- 标签页内容 -->
+    <div class="tab-content">
+      {#if activeTab === '个人知识库'}
+        <DocumentsTab/>
+      {/if}
+
+      {#if activeTab === '高效工具'}
+        <ToolsTab
+          onToolOperate={onToolOperate}
+        />
+      {/if}
+    </div>
   </div>
 </div>
-
 <style lang="scss">
+  .settings-container{
+    position: relative;
+  }
   .settings-panel {
+    min-width: 320px;
+    max-width: 400px;
     height: 100%;
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
+    border-left: 1px solid var(--boxBorderColor);
+    overflow: hidden;
+  }
+
+  .settings-panel-hide{
+    display: none;
+  }
+
+  :global(.settings-icon){
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 
   :global(.MuiTabs-root) {
@@ -66,5 +100,18 @@
   .tab-content {
     flex: 1;
     overflow: hidden;
+  }
+
+  .settings-header{
+    height: 48px;
+    display: flex;
+    flex-direction: row;
+
+    .settings-title{
+      flex: 1;
+      font-size: 1rem;
+      line-height: 1.2rem;
+      margin-left: 10px;
+    }
   }
 </style>

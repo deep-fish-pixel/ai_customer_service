@@ -323,7 +323,7 @@
 <div class="app-container">
   <Toast></Toast>
   <header class="header">
-    <p>AI超级智能客服</p>
+    <p>AI智能客服</p>
     <div class="user-icon" onclick={handleUserClick}>
       <img src={userIcon} width="30" height="30" alt="user"/>
     </div>
@@ -383,11 +383,9 @@
     </div>
 
     <!-- 右侧设置区域 -->
-    <div class="settings-container">
-      <SettingsPanel
-          onToolOperate={handleToolOperation}
-      />
-    </div>
+    <SettingsPanel
+        onToolOperate={handleToolOperation}
+    />
   </div>
   <UserConfirm visible={loginVisible} onclose={handleClose}></UserConfirm>
 </div>
@@ -529,14 +527,6 @@
       right: 0;
       bottom: 8px;
     }
-  }
-
-
-  .settings-container {
-    height: 100%;
-    background-color: #ffffff;
-    border-left: 1px solid var(--boxBorderColor);
-    width: 350px;
   }
 
   /* 滚动条样式 */
