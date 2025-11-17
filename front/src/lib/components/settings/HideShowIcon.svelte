@@ -73,7 +73,7 @@
   }
 
   .active svg {
-    transform: rotate(90deg) scale(0.7);
+    transform: rotate(90deg) scale(0.6);
   }
 
   .active path:nth-child(1) {

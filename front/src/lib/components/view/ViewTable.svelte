@@ -1,6 +1,22 @@
 <script lang="ts">
   // 从父组件接收的属性
-  let { headers, list, }: { headers: Array<string>, list: Array<any> } = $props();
+  let { headers, list, prevContent, }: { headers: Array<string>, list: Array<any> , prevContent: string} = $props();
+
+  const tipMap = new Map([
+    ['酒店预定', '入住城市修改为三亚'],
+    ['机票预定', '目的地修改为三亚'],
+    ['请假申请', '原因修改为私人事务'],
+    ['日程会议', '标题修改为突发事故的处理'],
+  ]);
+
+  function getTip(isSingle: boolean) {
+    for (let [key, value] of tipMap) {
+      if (prevContent.indexOf(key)>=0) {
+        return `把${isSingle ? '' : '第一条记录的'}${value}`;
+      }
+    }
+    return '';
+  }
 
 </script>
 
@@ -21,6 +37,7 @@
         {/each}
       </ul>
     {/each}
+    <span class="tip">可以对上面的记录进行对话编辑，举例：{getTip(list.length === 1)}</span>
   {:else}
     <ul class="row last center">
       <li>-</li>
@@ -34,6 +51,11 @@
     min-width: 520px;
     padding: 0;
     margin: 0;
+
+    .tip{
+      font-size: 12px;
+      color: #666;
+    }
   }
   .table > ul{
     flex: 1;

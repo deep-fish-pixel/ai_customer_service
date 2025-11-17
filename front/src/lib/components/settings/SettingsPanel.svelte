@@ -18,8 +18,7 @@
     expanded = isHide;
   };
 
-  // 从父组件接收的属性
-  export const onToolOperate: (message?: string) => void = () => undefined;
+  const { onToolOperate, } = $props();
 </script>
 
 <div class="settings-container">

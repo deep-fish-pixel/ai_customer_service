@@ -20,7 +20,7 @@ class UpdateInfo(BaseModel):
     property_name: Optional[str] = None
     new_value: Optional[Any] = None
     size: Optional[int] = None
-    exit_flag: Optional[int] = 0  # 修改字段名避免冲突
+    exit: Optional[int] = 0
 
 
 def change_list_record_property_graph() -> StateGraph:

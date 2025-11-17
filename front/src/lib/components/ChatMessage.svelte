@@ -26,11 +26,11 @@
 <div class={`chat-message ${message.sender}`}>
   <div>
     {#if message.content}
-      {#each contents as content}
+      {#each contents as content, index}
           {#if isSimpleType(content)}
             {content}
           {:else}
-            <ViewTable headers={content[0]} list={content[1]}></ViewTable>
+            <ViewTable headers={content[0]} list={content[1]} prevContent={contents[index-1]}></ViewTable>
           {/if}
       {/each}
     {:else}
