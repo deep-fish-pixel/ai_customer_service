@@ -293,7 +293,7 @@
   };
 
   const resize = () => {
-    height = window.innerHeight - 80 - (inputContainer ? inputContainer.clientHeight + 48 : 0);
+    height = window.innerHeight - 80 - (inputContainer ? inputContainer.clientHeight + 24 : 0);
 
     // fix Textfield bug
     inputContainer.querySelector('textarea')?.setAttribute('placeholder', '请输入您的问题...');
@@ -458,7 +458,7 @@
     justify-content: center;
     width: 100%;
     max-width: 1000px;
-    padding: 10px 0 0 0;
+    padding: 0;
   }
 
   .messages-container {

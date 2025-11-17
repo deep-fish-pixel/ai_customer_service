@@ -69,10 +69,27 @@
     position: relative;
   }
 
+  @media screen and (max-width: 768px) {
+    .settings-panel {
+      width: 280px;
+    }
+  }
+
+  @media screen and (min-width: 768px) and (max-width: 1024px) {
+    .settings-panel {
+      width: 320px;
+    }
+  }
+
+
   .settings-panel-hide{
     width: 0;
     min-width: 0;
     max-width: 0;
+
+    :global(.settings-title){
+      display: none;
+    }
   }
 
   :global(.settings-icon){

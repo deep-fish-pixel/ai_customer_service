@@ -18,7 +18,7 @@
     {
       id: 'schedule_meeting',
       name: '日程会议',
-      description: '便捷创建、查询和管理您的日程会议，高效规划团队协作时间',
+      description: '便捷创建、查询和管理日程会议，高效规划团队协作时间',
       questions: {
         question: '帮我创建日程会议',
         query: '查询我的日程会议记录',
