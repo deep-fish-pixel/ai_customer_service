@@ -15,9 +15,7 @@
 
 
   const iconClickHandle = (isHide: boolean) => {
-    console.log(isHide);
     expanded = isHide;
-    debugger
   };
 
   // 从父组件接收的属性
@@ -25,11 +23,10 @@
 </script>
 
 <div class="settings-container">
-  <HideShowIcon class={'settings-icon' + (expanded?' settings-panel-hide':'')} value={expanded} onClick={iconClickHandle} />
   <div class={'settings-panel' + (expanded?'':' settings-panel-hide')}>
     <div class="settings-header">
       <p class="settings-title">模型设置</p>
-      <HideShowIcon value={expanded} onClick={iconClickHandle} />
+      <HideShowIcon class="settings-icon" value={expanded} onClick={iconClickHandle} />
     </div>
     <!-- 标签页 -->
     <TabBar
@@ -63,18 +60,19 @@
     position: relative;
   }
   .settings-panel {
-    min-width: 320px;
-    max-width: 400px;
+    width: 350px;
     height: 100%;
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
     border-left: 1px solid var(--boxBorderColor);
-    overflow: hidden;
+    position: relative;
   }
 
   .settings-panel-hide{
-    display: none;
+    width: 0;
+    min-width: 0;
+    max-width: 0;
   }
 
   :global(.settings-icon){
