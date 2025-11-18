@@ -324,7 +324,7 @@
   }
 
   const userLogoutHandle = () => {
-    showLogin();
+    resetUser();
     window.location.reload();
   }
 </script>

@@ -37,7 +37,7 @@
         {/each}
       </ul>
     {/each}
-    <span class="tip">可以对上面的记录进行对话编辑，举例：{getTip(list.length === 1)}</span>
+    <span class="tip">可以对上面的记录进行对话编辑和删除功能，举例：{getTip(list.length === 1)}</span>
   {:else}
     <ul class="row last center">
       <li>-</li>

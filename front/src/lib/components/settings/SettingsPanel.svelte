@@ -6,7 +6,7 @@
   import HideShowIcon from './HideShowIcon.svelte';
 
   // 标签页类型
-  type TabValue = '个人知识库' | '高效工具';
+  type TabValue = '个人知识库' | '提效工具';
 
   // 状态管理
   let activeTab: TabValue = $state('个人知识库');
@@ -30,7 +30,7 @@
     <!-- 标签页 -->
     <TabBar
       class="settings-tab-bar"
-      tabs={['个人知识库', '高效工具']}
+      tabs={['个人知识库', '提效工具']}
       bind:active={activeTab}
     >
       {#snippet tab(tab)}
@@ -46,7 +46,7 @@
         <DocumentsTab/>
       {/if}
 
-      {#if activeTab === '高效工具'}
+      {#if activeTab === '提效工具'}
         <ToolsTab
           onToolOperate={onToolOperate}
         />
