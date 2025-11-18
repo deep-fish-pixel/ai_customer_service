@@ -69,12 +69,28 @@
   }
 
   @media screen and (max-width: 768px) {
+    .settings-container{
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      z-index: 1;
+      padding-top: 54px;
+    }
     .settings-panel {
       width: 280px;
     }
   }
 
   @media screen and (min-width: 768px) and (max-width: 1024px) {
+    .settings-container{
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      z-index: 1;
+      padding-top: 54px;
+    }
     .settings-panel {
       width: 320px;
     }

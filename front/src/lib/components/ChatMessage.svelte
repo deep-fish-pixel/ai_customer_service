@@ -14,6 +14,10 @@
     return getReceiveMessageData(message.content)
   });
 
+  let hasTable = $derived.by(() => {
+    return contents.some(content => !isSimpleType(content))
+  });
+
   // 格式化时间
   const formatTime = (date: Date): string => {
     return date.toLocaleTimeString('zh-CN', { 
@@ -23,7 +27,7 @@
   };
 </script>
 
-<div class={`chat-message ${message.sender}`}>
+<div class={`chat-message ${message.sender} ${hasTable ? ' chat-message-table' : ''}`}>
   <div>
     {#if message.content}
       {#each contents as content, index}
@@ -53,6 +57,10 @@
     max-width: 70%;
     word-wrap: break-word;
     clear: both;
+  }
+
+  .chat-message-table{
+    max-width: 80%;
   }
 
   .message-bubble {
