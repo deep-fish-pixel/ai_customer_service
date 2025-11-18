@@ -14,6 +14,7 @@
   import {formatDate} from "../../utils/date";
   import Dialog, { Title, Content, Actions } from '@smui/dialog';
   import { getUserId } from "../../utils/getUser";
+  import {showToast} from "../../utils/toast";
 
 
   const ButtonName = '上传知识库';
@@ -29,6 +30,11 @@
   const handleFileInputChange = async (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
+      // 限制文件1M内
+      if (target.files[0].size > 1024 * 1024) {
+        showToast("文件大小不能超过1M");
+        return;
+      }
       try {
         buttonName = '上传中...'
         await uploadDocument(target.files[0]);
@@ -49,17 +55,6 @@
       target.value = '';
     }
   };
-
-  // 格式化文件大小
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-
 
   const deleteConfirmDialog = (document: DocumentFile) => {
     deleteVisible = true;
