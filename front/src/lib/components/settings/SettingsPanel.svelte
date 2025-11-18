@@ -21,8 +21,9 @@
   const { onToolOperate, } = $props();
 </script>
 
-<div class="settings-container">
-  <div class={'settings-panel' + (expanded?'':' settings-panel-hide')}>
+<div class={'settings-container' + (expanded?'':' settings-container-hide')}>
+  <div class="settings-bg" onclick={() => iconClickHandle(false)}></div>
+  <div class="settings-panel">
     <div class="settings-header">
       <p class="settings-title">模型设置</p>
       <HideShowIcon class="settings-icon" value={expanded} onClick={iconClickHandle} />
@@ -58,6 +59,12 @@
   .settings-container{
     position: relative;
   }
+  .settings-bg {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
   .settings-panel {
     width: 350px;
     height: 100%;
@@ -70,12 +77,15 @@
 
   @media screen and (max-width: 768px) {
     .settings-container{
+      width: 100%;
+      height: calc(100% - 54px);
       position: absolute;
       top: 0;
       right: 0;
-      height: calc(100% - 54px);
       z-index: 1;
       padding-top: 54px;
+      display: grid;
+      justify-items: end;
     }
     .settings-panel {
       width: 280px;
@@ -84,28 +94,39 @@
 
   @media screen and (min-width: 768px) and (max-width: 1024px) {
     .settings-container{
+      width: 100%;
+      height: calc(100% - 54px);
       position: absolute;
       top: 0;
       right: 0;
-      height: calc(100% - 54px);
       z-index: 1;
       padding-top: 54px;
+      display: grid;
+      justify-items: end;
     }
     .settings-panel {
       width: 320px;
     }
   }
 
-
-  .settings-panel-hide{
+  .settings-container-hide{
     width: 0;
-    min-width: 0;
-    max-width: 0;
 
-    :global(.settings-title){
+    .settings-bg{
       display: none;
     }
+    .settings-panel{
+      width: 0;
+      min-width: 0;
+      max-width: 0;
+
+      :global(.settings-title){
+        display: none;
+      }
+    }
   }
+
+
 
   :global(.settings-icon){
     position: absolute;
