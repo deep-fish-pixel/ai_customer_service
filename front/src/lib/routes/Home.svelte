@@ -23,6 +23,8 @@
   import {getTokenAuthorization} from "../utils/authorization";
   import { getRecentMessages, } from "../utils/handleMessages";
   import StopIcon from "../icons/StopIcon.svelte";
+  import Menu from '@smui/menu';
+  import List, { Item, Text } from '@smui/list';
 
   // 状态管理
   let inputContainer: HTMLElement;
@@ -40,6 +42,7 @@
   let receiving = $state(false);
   // 停止接收消息流句柄
   let abortStream: () => void;
+  let menu: Menu;
 
   // 初始化示例消息
   onMount(async () => {
@@ -69,14 +72,13 @@
     } catch (e) {
       console.error(e)
     }
-
-    function showLogin() {
-      loginVisible = true;
-      resetUser();
-      userinfo = getUser();
-    }
-
   });
+
+  function showLogin() {
+    loginVisible = true;
+    resetUser();
+    userinfo = getUser();
+  }
 
   // 获取用户信息并更新本地数据
   const getUserinfoLocal = async () => {
@@ -307,7 +309,9 @@
   }
 
   const handleUserClick = () => {
-    if (!userinfo.nickname) {
+    if (userinfo.nickname) {
+      menu.setOpen(true)
+    } else {
       loginVisible = true;
     }
   }
@@ -318,16 +322,31 @@
       sendMessage();
     }
   }
+
+  const userLogoutHandle = () => {
+    showLogin();
+    window.location.reload();
+  }
 </script>
 
 <div class="app-container">
   <Toast></Toast>
   <header class="header">
     <p>AI智能客服</p>
-    <div class="user-icon" onclick={handleUserClick}>
-      <img src={userIcon} width="30" height="30" alt="user"/>
+    <div>
+      <div class="user-icon" onclick={handleUserClick}>
+        <img src={userIcon} width="30" height="30" alt="user"/>
+      </div>
+      <Menu bind:this={menu}>
+        <List>
+          <Item onSMUIAction={userLogoutHandle}>
+            <Text>退出登录</Text>
+          </Item>
+        </List>
+      </Menu>
     </div>
     <span class="user-nickname">{userinfo.nickname}</span>
+
   </header>
   <div class="content">
     <div class="chat-container">
