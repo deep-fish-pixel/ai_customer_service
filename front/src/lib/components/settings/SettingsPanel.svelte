@@ -73,7 +73,7 @@
       position: absolute;
       top: 0;
       right: 0;
-      height: 100%;
+      height: calc(100% - 54px);
       z-index: 1;
       padding-top: 54px;
     }
@@ -87,7 +87,7 @@
       position: absolute;
       top: 0;
       right: 0;
-      height: 100%;
+      height: calc(100% - 54px);
       z-index: 1;
       padding-top: 54px;
     }
