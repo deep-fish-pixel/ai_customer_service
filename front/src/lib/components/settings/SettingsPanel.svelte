@@ -150,7 +150,8 @@
 
   .tab-content {
     flex: 1;
-    overflow: hidden;
+    height: calc(100% - 150px);
+    overflow-y: auto;
   }
 
   .settings-header{

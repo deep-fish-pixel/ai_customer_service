@@ -212,9 +212,11 @@
       margin-bottom: 10px;
     }
     :global(.material-icons){
+      width: 60px;
+      text-align: right;
+      font-size: 14px;
       color: var(--mdc-text-button-label-text-color, var(--mdc-theme-primary, #6200ee));
       cursor: pointer;
-      font-size: 14px;
     }
   }
 </style>
