@@ -11,7 +11,7 @@
   // 状态管理
   let activeTab: TabValue = $state('个人知识库');
 
-  let expanded = $state(true);
+  let expanded = $state(window.screen.width > 768);
 
 
   const iconClickHandle = (isHide: boolean) => {

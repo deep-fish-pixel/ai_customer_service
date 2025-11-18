@@ -83,7 +83,7 @@
                 bind:dirty={usernameDirty}
                 autofocus
                 label="账号"
-                style="min-width: 450px;"
+                style="width: 100%;"
                 oninput={handlerUsernameChange}
         >
             {#snippet helper()}
@@ -98,7 +98,7 @@
                 bind:invalid={passwordInvalid}
                 bind:dirty={passwordDirty}
                 label="密码"
-                style="min-width: 450px;"
+                style="width: 100%;"
                 oninput={handlerPasswordChange}
         >
             {#snippet helper()}
@@ -113,7 +113,7 @@
                 bind:invalid={nicknameInvalid}
                 bind:dirty={nicknameDirty}
                 label="昵称"
-                style="min-width: 450px;"
+                style="width: 100%;"
                 oninput={handlerNicknameChange}
         >
             {#snippet helper()}
@@ -139,6 +139,8 @@
 
 <style lang="scss">
   .user-register{
+    width: 500px;
+
     :global(.simple-title){
       text-align: center;
     }
@@ -148,10 +150,10 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      margin-bottom: 10px;
+      padding: 20px 24px 20px 24px;
 
       :global(.confirm){
-        width: 90%;
+        width: 100%;
       }
       :global(.text){
         font-size: 12px;
@@ -160,6 +162,16 @@
     }
   }
 
+  @media screen and (max-width: 768px) {
+      .user-register {
+          width: 300px;
+      }
+  }
 
+  @media screen and (min-width: 768px) and (max-width: 1024px) {
+      .user-register {
+          width: 400px;
+      }
+  }
 
 </style>
