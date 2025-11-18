@@ -39,6 +39,7 @@
         buttonName = '上传中...'
         await uploadDocument(target.files[0]);
 
+        showToast("上传文件成功");
         getDocuments();
 
         delay(300, () => {
@@ -46,6 +47,7 @@
         });
 
       } catch (err) {
+        showToast("上传文件失败：" + err.message);
         delay(300, () => {
           buttonName = ButtonName;
         });
@@ -109,7 +111,7 @@
         id="file-input"
         class="file-input" 
         on:change={handleFileInputChange}
-        accept=".pdf,.txt,.csv,.md"
+        accept=".pdf,.txt,.csv,.md,.docx,.xlsx"
       />
       <Button
         class="file-button"

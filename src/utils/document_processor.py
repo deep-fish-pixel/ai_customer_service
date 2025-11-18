@@ -1,7 +1,7 @@
 import os
 from typing import List, Dict, Any
 from langchain.schema import Document
-from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader, ToMarkdownLoader
+from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader, ToMarkdownLoader, UnstructuredWordDocumentLoader, UnstructuredExcelLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import markdown
 from bs4 import BeautifulSoup
@@ -43,6 +43,14 @@ class DocumentProcessor:
                 documents = [
                     Document(page_content=text, metadata={"source": file_path}),
                 ]
+            elif file_ext == '.docx':
+                # 处理Word文档
+                loader = UnstructuredWordDocumentLoader(file_path)
+                documents = loader.load()
+            elif file_ext == '.xlsx':
+                # 处理Excel文件
+                loader = UnstructuredExcelLoader(file_path)
+                documents = loader.load()
             else:
                 raise ValueError(f"不支持的文件格式: {file_ext}")
             

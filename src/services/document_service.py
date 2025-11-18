@@ -36,7 +36,7 @@ class DocumentService:
         """
         # 检查文件格式
         file_ext = os.path.splitext(file.filename)[1].lower()
-        if file_ext not in ['.pdf', '.txt', '.md', '.csv']:
+        if file_ext not in ['.pdf', '.txt', '.md', '.csv', '.docx', '.xlsx']:
             return {
                 "status": RESPONSE_STATUS_FAILED,
                 "message": f"不支持的文件格式: {file_ext}",
