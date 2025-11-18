@@ -93,7 +93,7 @@
             {/snippet}
         </Textfield>
         <Textfield
-                type="text"
+                type="password"
                 bind:value={password}
                 bind:invalid={passwordInvalid}
                 bind:dirty={passwordDirty}

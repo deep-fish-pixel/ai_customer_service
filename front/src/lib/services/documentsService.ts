@@ -1,14 +1,14 @@
 import { request } from './apiClient';
 import type { DocumentFile, } from '../types/document';
 import type {ApiError, Response} from '../types/request';
-import {API_BASE_URL} from "../../constants";
+import {API_BASE_URL, RESPONSE_STATUS_FAILED} from "../../constants";
 import getHeaders from "../utils/getHeaders";
 
 const CHAT_ENDPOINT = `${API_BASE_URL}/api/documents`;
 
 // 类型守卫：检查是否为ApiError
 const isApiError = (response: any): response is ApiError => {
-  return 'error' in response && 'message' in response;
+  return ('error' in response || response.status === RESPONSE_STATUS_FAILED) && 'message' in response;
 };
 
 /**
@@ -24,14 +24,15 @@ const isApiError = (response: any): response is ApiError => {
 export async function uploadDocument(file: File, onProgress?: (progress: number) => void): Promise<DocumentFile> {
   const formData = new FormData();
   formData.append('file', file);
-    // 文件上传不需要设置Content-Type，浏览器会自动添加正确的类型和边界
-    const response = await request<DocumentFile>(`${CHAT_ENDPOINT}/upload`, {
-      method: 'POST',
-      headers: getHeaders(), //'multipart/form-data'
-      body: formData,
-    });
 
-    if (isApiError(response)) {
+  // 文件上传不需要设置Content-Type，浏览器会自动添加正确的类型和边界
+  const response = await request<DocumentFile>(`${CHAT_ENDPOINT}/upload`, {
+    method: 'POST',
+    headers: getHeaders(), //'multipart/form-data'
+    body: formData,
+  });
+
+  if (isApiError(response)) {
     throw new Error(response.message || '文件上传失败');
   }
 

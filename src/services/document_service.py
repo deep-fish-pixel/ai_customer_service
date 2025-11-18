@@ -75,23 +75,24 @@ class DocumentService:
                     "message": "文档已上传过",
                     "data": document_info
                 }
+
             # 保存文件
             file_path = await self.save_uploaded_file(user_id, file)
-            
+
             # 获取文档元数据
             metadata = self.document_processor.get_document_metadata(file_path)
-            
+
             # 加载文档
             documents = self.document_processor.load_document(file_path)
-            
+
             # 切分文档
             chunks = self.document_processor.split_documents(documents)
-            
+
             # 为每个文档块添加用户ID和文档信息
             for chunk in chunks:
                 chunk.metadata["user_id"] = user_id
                 chunk.metadata["document_name"] = file.filename
-            
+
             # 存储到向量数据库
             collection_name = f"user_{user_id}_documents"
             document_ids = vector_db_service.add_documents(collection_name, chunks)
@@ -105,10 +106,10 @@ class DocumentService:
                 "chunks_count": len(chunks),
                 "upload_time": datetime.datetime.now()
             }
-            
+
             # 存储文档信息到数据库
             relative_db_service.save_document_info(user_id, document_info)
-            
+
             return {
                 "status": RESPONSE_STATUS_SUCCESS,
                 "message": "文档上传成功",

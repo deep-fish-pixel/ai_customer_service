@@ -46,7 +46,7 @@
           buttonName = ButtonName;
         });
 
-      } catch (err) {
+      } catch (err: any) {
         showToast("上传文件失败：" + err.message);
         delay(300, () => {
           buttonName = ButtonName;

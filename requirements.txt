@@ -23,3 +23,4 @@ passlib
 dashscope
 bs4
 unstructured
+networkx
