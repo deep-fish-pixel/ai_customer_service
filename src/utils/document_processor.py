@@ -60,7 +60,7 @@ class DocumentProcessor:
             raise
 
     @staticmethod
-    def split_documents(documents: List[Dict[str, Any]], chunk_size: int = 1000, chunk_overlap: int = 100) -> List[Dict[str, Any]]:
+    def split_documents(documents: List[Dict[str, Any]], chunk_size: int = 160, chunk_overlap: int = 40) -> List[Dict[str, Any]]:
         """
         切分文档为小块
         
