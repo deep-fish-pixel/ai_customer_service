@@ -96,6 +96,10 @@
 - `DELETE /api/documents/{file_name}` - 删除文档
 - `GET /api/documents/` - 列出所有文档
 
+### 多模态接口
+- `POST /api/model/image_tasks/{task_id}` - 查询图片任务信息
+
+
 ## 项目结构
 
 ```

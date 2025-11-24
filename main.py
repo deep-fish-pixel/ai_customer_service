@@ -4,7 +4,7 @@ import uvicorn
 import os
 from dotenv import load_dotenv
 # 导入并注册路由
-from src.api.endpoints import chat, documents, agent, user
+from src.api.endpoints import chat, documents, agent, user, muti_model
 
 # 加载环境变量
 load_dotenv()
@@ -30,6 +30,7 @@ app.include_router(user.router, prefix="/api/user", tags=["用户"])
 app.include_router(chat.router, prefix="/api/chat", tags=["聊天"])
 app.include_router(documents.router, prefix="/api/documents", tags=["文档管理"])
 app.include_router(agent.router, prefix="/api/agent", tags=["Agent功能"])
+app.include_router(muti_model.router, prefix="/api/model", tags=["多模态"])
 
 # 根路径
 @app.get("/")
