@@ -99,7 +99,8 @@ class ChatService:
         user_id: str,
         query: str,
         history: Optional[List[Dict[str, str]]] = None,
-        task_type: str = ''
+        task_type: str = '',
+        task_extra: Dict[str, str] = None,
     ) -> Any:
         """使用LangGraph处理特定任务"""
         graph = get_task_graph(task_type)
@@ -109,6 +110,7 @@ class ChatService:
             "user_id": user_id,
             "query": query,
             "task_type":task_type,
+            "task_extra": task_extra,
             "history": history or [],
             "exit": 0,
         }
@@ -122,7 +124,7 @@ class ChatService:
             stream_mode="values"
         )
 
-    async def chat_with_rag(self, user_id: str, query: str, history: List[Dict[str, str]] = None, task_type: str = '', stream: bool = False) -> Any:
+    async def chat_with_rag(self, user_id: str, query: str, history: List[Dict[str, str]] = None, task_type: str = '', task_extra: Dict[str, str] = None, stream: bool = False) -> Any:
         """
         使用RAG进行聊天
 
@@ -153,7 +155,7 @@ class ChatService:
 
             if task_type in SUPPORTED_TASKS:
                 # 使用langgraph处理特定任务
-                result = await self.process_with_langgraph(user_id, query, history, task_type)
+                result = await self.process_with_langgraph(user_id, query, history, task_type, task_extra)
                 return result
 
 

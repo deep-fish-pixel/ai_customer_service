@@ -23,6 +23,7 @@ class ChatRequest(BaseModel):
     history: Optional[List[ChatMessage]] = None
     use_rag: bool = True
     task_type: str
+    task_extra: Optional[Dict[str, Any]] = None
 
 @router.post("/invoke", response_model=Dict[str, Any])
 async def send_message_invoke(
@@ -94,6 +95,7 @@ async def stream_generator(
             query=request.message,
             history=request.history or [],
             task_type=request.task_type,
+            task_extra=request.task_extra,
             stream=True
         )
 
@@ -167,7 +169,6 @@ async def send_message_stream(
                             yield f"data: {chunk}\n\n"
                 return StreamingResponse(
                     event_generator(),
-                    # media_type="text/event-stream"
                     media_type="text/event-stream"
                 )
             else:

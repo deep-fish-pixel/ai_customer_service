@@ -15,7 +15,11 @@ from dashscope import ImageSynthesis
 import os
 import dashscope
 import time
+from src.enums.LeaveRequest import LeaveRequestTable
+from src.enums.JsonSeperator import JsonSeperator
 
+
+api_key = os.getenv("DASHSCOPE_API_KEY")
 
 class HotelBookingInfo(BaseModel):
     origin: Optional[str] = None
@@ -25,10 +29,9 @@ class HotelBookingInfo(BaseModel):
     seat_preference: Optional[str] = None
     exit: Optional[int] = 0
 
-def query_hotel_booking_graph() -> StateGraph:
-    """查询酒店预订的信息工作流，收集所有必要信息并完成数据库存储"""
+def text_to_image_graph() -> StateGraph:
+    """文本生成图像的信息工作流"""
     graph = StateGraph(AgentState)
-    api_key = os.getenv("DASHSCOPE_API_KEY")
 
     def create_async_task(state: AgentState):
         rsp = ImageSynthesis.async_call(api_key=api_key,
@@ -36,16 +39,14 @@ def query_hotel_booking_graph() -> StateGraph:
                                         prompt=state["query"],
                                         n=1,
                                         size='1328*1328',
-                                        # ref_img="https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20250925/thtclx/input1.png",
                                         prompt_extend=True,
                                         watermark=False)
         print(rsp)
         if rsp.status_code == HTTPStatus.OK:
             print(rsp.output)
+            return {** state, "task_status": 2, "query": "生成的图片如下：" + JsonSeperator.CALL_GET_IMAGE_TASKS}
         else:
-            print(f'创建任务失败, status_code: {rsp.status_code}, code: {rsp.code}, message: {rsp.message}')
-        return rsp
-
+            return {** state, "task_status": 2, "query": "请求失败，稍后再重试一次"}
 
     # 添加节点到图中
     graph.add_node("create_async_task", create_async_task)
