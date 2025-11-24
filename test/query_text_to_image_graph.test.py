@@ -18,7 +18,7 @@ input_data = {
     "task_type":"text_to_image",
     "task_extra": {
         "size": "1328*1328",
-        "n": 2,
+        "n": 3,
     },
 }
 
