@@ -18,8 +18,6 @@
   import Header from "../components/Header.svelte";
   import {getUser, resetUser, setUser} from "../state/userState.svelte";
 
-  let files: FileItem[] = $state([]);
-  let tools: ToolConfig[] = $state([]);
   let loginVisible = $state(false);
   let userinfo = $state(getUser());
   let chatAreaContainer: any;

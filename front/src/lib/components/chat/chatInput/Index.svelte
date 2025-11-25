@@ -199,7 +199,7 @@
 <Paper elevation={2} class="input-container">
   <div class="input-wrapper" bind:this={inputContainer}>
     <Textfield
-        class={focus ? 'input-focus' : 'input-focusout'}
+        class="input-focus"
         textarea={true}
         variant="outlined"
         value={inputMessage}
