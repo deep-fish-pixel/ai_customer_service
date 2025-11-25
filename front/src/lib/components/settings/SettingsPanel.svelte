@@ -4,6 +4,7 @@
   import DocumentsTab from './DocumentsTab.svelte';
   import ToolsTab from './ToolsTab.svelte';
   import HideShowIcon from './HideShowIcon.svelte';
+  import {onMount} from "svelte";
 
   // 标签页类型
   type TabValue = '个人知识库' | '提效工具';
@@ -12,6 +13,7 @@
   let activeTab: TabValue = $state('个人知识库');
 
   let expanded = $state(window.screen.width > 768);
+  let height = $state(400);
 
 
   const iconClickHandle = (isHide: boolean) => {
@@ -19,6 +21,16 @@
   };
 
   const { onToolOperate, } = $props();
+
+  const resize = () => {
+    height = window.innerHeight - 160;
+  };
+
+  window.addEventListener('resize', resize);
+
+  onMount(() => {
+    resize();
+  });
 </script>
 
 <div class={'settings-container' + (expanded?'':' settings-container-hide')}>
@@ -42,7 +54,7 @@
     </TabBar>
 
     <!-- 标签页内容 -->
-    <div class="tab-content">
+    <div class="tab-content" style={"height:" + height + "px;"}>
       {#if activeTab === '个人知识库'}
         <DocumentsTab/>
       {/if}
@@ -149,7 +161,6 @@
   }
 
   .tab-content {
-    flex: 1;
     height: calc(100% - 150px);
     overflow-y: auto;
   }
