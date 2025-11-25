@@ -11,6 +11,8 @@
   import {chatMessageState} from "../../../state/chatMessages.svelte";
   import {sendChatMessageStream} from "../../../services/chatService";
   import {getUserId} from "../../../state/userState.svelte";
+  import ModelTabs from "./ModelTabs.svelte";
+  import ModelImageOpts from "./opts/ModelImageOpts.svelte";
 
 
   const { onScrollToBottom, onGetUserinfoLocal }: {onScrollToBottom: () => void, onGetUserinfoLocal: () => void} = $props();
@@ -196,7 +198,8 @@
 </script>
 
 <!-- 输入区域 -->
-<Paper elevation={2} class="input-container">
+<div class="input-container">
+  <ModelTabs />
   <div class="input-wrapper" bind:this={inputContainer}>
     <Textfield
         class="input-focus"
@@ -229,14 +232,14 @@
         <SendIcon></SendIcon>
       </Button>
     {/if}
-
   </div>
-</Paper>
+  <div class="opts">
+    <ModelImageOpts />
+  </div>
+</div>
 <style lang="scss">
   .input-container {
-    padding: 16px;
-    background-color: #ffffff;
-    border-top: 1px solid #e0e0e0;
+    background-color: #f5f5f5;
   }
 
   .input-wrapper {
@@ -244,6 +247,8 @@
     align-items: flex-end;
     gap: 8px;
     position: relative;
+    background-color: #fff;
+    //box-shadow:  3px 3px 6px 6px #ddd;
 
     :global(.input-focusout) {
       width: 100%;
@@ -257,10 +262,15 @@
     :global(.input-focus) {
       width: 100%;
       height: 100px;
+      border:none;
 
       :global(textarea) {
         resize: none;
         width: 100%;
+      }
+
+      :global(.mdc-notched-outline){
+        display: none;
       }
     }
 
@@ -288,5 +298,9 @@
       right: 0;
       bottom: 8px;
     }
+  }
+
+  .opts{
+    background: #fff;
   }
 </style>

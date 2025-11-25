@@ -153,6 +153,7 @@
     width: 100%;
     max-width: 1000px;
     padding: 0;
+    border: 1px solid #ddd;
   }
 
 
