@@ -1,5 +1,5 @@
-import { getUserId } from "./getUser";
 import {getTokenAuthorization} from "./authorization";
+import {getUserId} from "../state/userState.svelte";
 
 /**
  * 创建基础请求头

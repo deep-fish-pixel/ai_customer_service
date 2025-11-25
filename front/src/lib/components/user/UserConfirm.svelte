@@ -3,7 +3,7 @@
     import UserLogin from './UserLogin.svelte';
     import UserRegister from './UserRegister.svelte';
     import type {User} from "../../types/user";
-    import {setUser} from "../../utils/getUser";
+    import {setUser} from "../../state/userState.svelte";
 
     const { visible: propVisible, onclose } = $props();
     let visible = $state(false);

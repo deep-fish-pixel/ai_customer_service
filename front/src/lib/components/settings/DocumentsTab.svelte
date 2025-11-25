@@ -13,8 +13,8 @@
   import type {DocumentFile} from "../../types/document";
   import {formatDate} from "../../utils/date";
   import Dialog, { Title, Content, Actions } from '@smui/dialog';
-  import { getUserId } from "../../utils/getUser";
   import {showToast} from "../../utils/toast";
+  import {getUserId} from "../../state/userState.svelte";
 
 
   const ButtonName = '上传知识库';

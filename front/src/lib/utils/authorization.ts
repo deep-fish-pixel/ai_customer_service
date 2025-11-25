@@ -1,5 +1,4 @@
-import {getUser} from "./getUser";
-
+import {getUser} from "../state/userState.svelte";
 
 export  function getTokenAuthorization() {
     const user = getUser();

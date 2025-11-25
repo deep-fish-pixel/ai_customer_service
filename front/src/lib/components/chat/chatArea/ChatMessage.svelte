@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Message, } from "../types/chat";
-  import ViewTable from "./view/ViewTable.svelte"
-  import {getReceiveMessageData} from "../utils/handleMessages";
+  import type { Message, } from "../../../types/chat";
+  import ViewTable from "../../view/ViewTable.svelte"
+  import {getReceiveMessageData} from "../../../utils/handleMessages";
 
   function isSimpleType(data: any){
     return !data || typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean';
