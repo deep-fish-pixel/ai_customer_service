@@ -22,7 +22,13 @@ def query_flight_booking_graph() -> StateGraph:
     async def query(state: AgentState) -> AgentState:
         result = relative_db_service.list_flight_bookings(state['user_id'])
 
-        return {** state, "task_status": 2, "query": '已查询到您的机票预定记录：' + FlightBookingTable.get_list_json_str(result)}
+        return {
+            ** state,
+            "query": "已查询到您的机票预定记录：",
+            "res_type": 'table',
+            "res_value": FlightBookingTable.get_list_json_str(result),
+            "task_status": 2,
+        }
 
     # 添加节点到图中
     graph.add_node("query", query)

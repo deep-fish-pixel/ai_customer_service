@@ -1,22 +1,9 @@
 <script lang="ts">
   import type { Message, } from "../../../types/chat";
   import ViewTable from "../../view/ViewTable.svelte"
-  import {getReceiveMessageData} from "../../../utils/handleMessages";
-
-  function isSimpleType(data: any){
-    return !data || typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean';
-  }
 
   // 从父组件接收的属性
   let { message, }: { message: Message } = $props();
-
-  let contents = $derived.by(() => {
-    return getReceiveMessageData(message.content)
-  });
-
-  let hasTable = $derived.by(() => {
-    return contents.some(content => !isSimpleType(content))
-  });
 
   // 格式化时间
   const formatTime = (date: Date): string => {
@@ -27,16 +14,14 @@
   };
 </script>
 
-<div class={`chat-message ${message.sender} ${hasTable ? ' chat-message-table' : ''}`}>
+<div class={`chat-message ${message.sender} ${message.data_type === 'table' ? ' chat-message-table' : ''}`}>
   <div>
     {#if message.content}
-      {#each contents as content, index}
-          {#if isSimpleType(content)}
-            {content}
-          {:else}
-            <ViewTable headers={content[0]} list={content[1]} prevContent={contents[index-1]}></ViewTable>
-          {/if}
-      {/each}
+      {message.content}
+
+      {#if message.data_type === 'table'}
+        <ViewTable headers={message.data_value[0]} list={message.data_value[1]} prevContent={message.content}></ViewTable>
+      {/if}
     {:else}
       <!--等待标识-->
       <span class="loader">

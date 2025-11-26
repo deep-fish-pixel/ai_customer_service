@@ -161,7 +161,13 @@ def create_leave_request_graph() -> StateGraph:
                 attachments=booking_info["attachments"]
             )
 
-            return {** state, "query": f"请假申请成功！请假申请信息：{LeaveRequestTable.get_list_json_str([result])}", "task_status": 2}
+            return {
+                ** state,
+                "query": "请假申请成功！请假申请信息：",
+                "res_type": 'table',
+                "res_value": LeaveRequestTable.get_list_json_str([result]),
+                "task_status": 2,
+            }
         except ValueError:
             return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD hh:mm格式重试。", "error": "invalid_date_format", "task_status": 1}
         except Exception as e:

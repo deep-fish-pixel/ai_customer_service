@@ -156,7 +156,14 @@ def change_list_record_property_graph() -> StateGraph:
                         user_id=state["user_id"],
                         table_name=table_name,
                     )
-                return {** state, "query": f'{update_info["record_type"]}的{update_info["property_name"]}修改成功！{table_info.get_list_json_str(records)}', "task_status": 2}
+
+                return {
+                    ** state,
+                    "query": f'{update_info["record_type"]}的{update_info["property_name"]}修改成功！',
+                    "res_type": 'table',
+                    "res_value": table_info.get_list_json_str(records),
+                    "task_status": 2,
+                }
             return {** state, "query": f'{update_info["property_name"]}修改失败！', "task_status": 2}
         except Exception as e:
             return {** state, "query": f"修改失败：{str(e)}", "error": str(e), "task_status": 1}

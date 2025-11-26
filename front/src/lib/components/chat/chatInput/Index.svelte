@@ -19,7 +19,11 @@
 
   const callMethods = {
     getUserinfo: onGetUserinfoLocal,
-    getImageTasks: onGetUserinfoLocal,
+    getImageTasks: (message: Message, images: Array<any>) => {
+      debugger
+      message.data_type = "images";
+      message.data_value = images;
+    },
   };
   // 状态管理
   let inputContainer: HTMLElement;
@@ -77,7 +81,6 @@
     receiving = true;
 
     try {
-      debugger
       // 使用流式请求
       abortStream = sendChatMessageStream(
         userMessage.content,
@@ -99,33 +102,31 @@
               return;
             }
 
-            debugger
-            let delayCallMethod: (message: Message) => void;
-            response.query = response.query.replace(JsonSeperatorRegex.CALL_GET_USER_INFO, (all: string, methodName: keyof typeof callMethods, paramStr: string) => {
-              const params: Array<any> = JSON.parse(paramStr);
-              const method = callMethods[methodName]
-
-              debugger
-              if (method) {
-                // 延迟调用
-                delayCallMethod = (message: Message) => {
-                  try{
-                    debugger
-                    method.apply(null, [message, ...params]);
-                  }catch (e) {
-                    console.error(e);
-                  }
-                }
-              }
-              return '';
-            })
-
             const task_status = response.task_status;
             // 任务完成后结束任务类型
             if (task_status === 2) {
               chatMessageState.task_type = '';
             } else {
               chatMessageState.task_type = response.task_type;
+            }
+
+            if (response.res_value) {
+              response.res_value = JSON.parse(response.res_value);
+            }
+
+
+            let delayCallMethod: (message: Message) => void;
+
+            if (response.res_type === 'call') {
+              const method = callMethods[response.res_value.name as keyof typeof callMethods]
+
+              delayCallMethod = (message: Message) => {
+                try{
+                  method.apply(null, [message, ...response.res_value.params]);
+                }catch (e) {
+                  console.error(e);
+                }
+              };
             }
 
             chatMessageState.messages = chatMessageState.messages.map((msg, index) => {
@@ -140,9 +141,11 @@
                 const message = {
                   ...msg,
                   content: msg.content + response.query,
+                  data_type: response.res_type,
+                  data_value: response.res_value,
                   task_status: task_status,
                 }
-                debugger
+
                 // 触发调用接口
                 delayCallMethod && delayCallMethod(message);
 

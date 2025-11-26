@@ -52,7 +52,7 @@ class LeaveRequestTable(Status):
       ]
       list.append(data)
 
-    return JsonSeperator.TYPE_LIST + json_stringfy(dataList)
+    return json_stringfy(dataList)
 
 
 # 请假申请类型

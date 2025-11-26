@@ -143,7 +143,13 @@ def create_hotel_booking_graph() -> StateGraph:
                 room_type=booking_info["room_type"],
                 guest_count=booking_info["guest_count"]
             )
-            return {** state, "booking_result": result, "query": f"酒店预订成功！您的订单信息：{HotelBookingTable.get_list_json_str([result])}", "task_status": 2}
+            return {
+                ** state,
+                "query": "酒店预订成功！您的订单信息：",
+                "res_type": 'table',
+                "res_value": HotelBookingTable.get_list_json_str([result]),
+                "task_status": 2,
+            }
         except ValueError:
             return {** state, "query": "日期格式不正确，请使用YYYY-MM-DD格式重试。", "error": "invalid_date_format", "task_status": 1}
         except Exception as e:

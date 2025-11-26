@@ -26,7 +26,14 @@ def query_hotel_booking_graph() -> StateGraph:
         result = relative_db_service.list_hotel_bookings(state['user_id'])
 
         query = '已查询到您的酒店预定记录：'
-        return {** state, "task_status": 2, "query": query + HotelBookingTable.get_list_json_str(result)}
+
+        return {
+            ** state,
+            "query": query,
+            "res_type": 'table',
+            "res_value": HotelBookingTable.get_list_json_str(result),
+            "task_status": 2,
+        }
 
     # 添加节点到图中
     graph.add_node("query", query)

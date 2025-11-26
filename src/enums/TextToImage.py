@@ -70,7 +70,7 @@ class ScheduleMeetingTable(Status):
         ]
       list.append(data)
 
-    return JsonSeperator.TYPE_LIST + json_stringfy(dataList)
+    return json_stringfy(dataList)
 
 # 日程类型
 class ScheduleMeetingType(Status):

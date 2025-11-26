@@ -9,6 +9,10 @@ export interface Message {
   timestamp: Date;
   // 任务状态
   task_status?: number;
+  // 数据类型
+  data_type?: string;
+  // 数据值
+  data_value?: any;
 }
 
 // 聊天请求参数接口

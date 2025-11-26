@@ -23,7 +23,7 @@ export function getRecentMessages(messages: Message[], size: number) {
         recents.push(recent);
       }
       else if (recent.task_status === 2) {
-        const content = getSendMessageData(recent.content);
+        const content = getSendMessageData(recent);
 
         recents.push({
           ...recent,
@@ -49,31 +49,14 @@ export function getRecentMessages(messages: Message[], size: number) {
   return recents.reverse();
 }
 
-
-/**
- * 接收消息，对特殊消息的处理，把json字符串进行转换为对象，方便展示
- * @param content
- */
-export function getReceiveMessageData(content: string){
-  const list = content && content.split(JsonSeperatorRegex.TYPE_LIST) || [];
-
-  return list.map(str => {
-    return str.match(/^\[\[/) ? JSON.parse(str) : str;
-  });
-}
-
-
 /**
  * 发送消息，对特殊消息的处理，把json字符串进行过滤，只保留列表的id
- * @param content
+ * @param message
  */
-export function getSendMessageData(content: string){
-  const list = getReceiveMessageData(content);
-
-  if (list.length === 2 && Array.isArray(list[1])) {
-    list[1] = list[1][1].map((item: Array<any>) => ({"id": item[0]}));
-
-    return list[0] + JSON.stringify(list[1]);
+export function getSendMessageData(message: Message){
+  if (message.data_type === 'table') {
+    debugger
+    return message.content + JSON.stringify(message.data_value[1].map((item: any) => item.id));
   }
-  return content;
+  return message.content;
 }
