@@ -31,7 +31,6 @@
   chatMessageState.task_type = tabs[0].taskType
 
   const clickHandle = (index: number) => {
-    debugger
     tabIndex = index;
     chatMessageState.task_type = tabs[index].taskType
   }

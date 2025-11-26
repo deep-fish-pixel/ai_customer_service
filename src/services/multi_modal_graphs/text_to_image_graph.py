@@ -1,24 +1,12 @@
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
 import json
-
-from src.enums.HotelBooking import HotelBookingTable
 from src.services.graphs.agent_state import AgentState
 from src.services.graphs.utils import getImageHistoryAndNextChat
-from src.services.relative_db_service import relative_db_service
-from src.utils.json import json_stringfy
 from typing import List, Dict, Any, Optional
-from src.enums.JsonSeperator import JsonSeperator
 from http import HTTPStatus
-from urllib.parse import urlparse, unquote
-from pathlib import PurePosixPath
-import requests
 from dashscope import ImageSynthesis
 import os
-import dashscope
-import time
-from src.enums.LeaveRequest import LeaveRequestTable
-from src.enums.JsonSeperator import JsonSeperator
 
 
 api_key = os.getenv("DASHSCOPE_API_KEY")
@@ -64,7 +52,13 @@ def text_to_image_graph() -> StateGraph:
 
       if len(rsps) > 0:
         response = await getImageHistoryAndNextChat("已为您生成的图片", state['history'][-1], state['query'])
-        return {** state, "task_status": 2, "query": response.content + JsonSeperator.CALL_GET_IMAGE_TASKS + f"__Params__:{json.dumps(rsps, ensure_ascii=False)}"}
+        return {
+          ** state,
+          "query": response.content,
+          "res_type": 'call',
+          "res_value": f'{{"name": "getImageTasks","params":[{json.dumps(rsps, ensure_ascii=False)}]}}',
+          "task_status": 2,
+        }
       else:
         return {** state, "task_status": 2, "query": "请求失败，稍后再重试一次"}
 

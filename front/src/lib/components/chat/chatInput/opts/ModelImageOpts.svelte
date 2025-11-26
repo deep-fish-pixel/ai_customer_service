@@ -23,7 +23,6 @@
   };
 
   $effect(() => {
-    debugger
     chatMessageState.task_extra['style'] = style;
     chatMessageState.task_extra['size'] = sizeTypes[size] || sizeTypes['1:1'];
     chatMessageState.task_extra['n'] = number;

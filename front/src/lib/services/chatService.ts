@@ -49,7 +49,6 @@ export function sendChatMessageStream(
 ): () => void {
   const requestData: ChatRequest = { message, history, task_type, task_extra, stream: true };
   const abortController = new AbortController();
-  debugger
 
   // 使用fetch API处理POST流式请求
   fetch(`${CHAT_STREAM_ENDPOINT}?stream=true`, {

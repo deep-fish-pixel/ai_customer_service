@@ -16,6 +16,11 @@
 
 
   const { onScrollToBottom, onGetUserinfoLocal }: {onScrollToBottom: () => void, onGetUserinfoLocal: () => void} = $props();
+
+  const callMethods = {
+    getUserinfo: onGetUserinfoLocal,
+    getImageTasks: onGetUserinfoLocal,
+  };
   // 状态管理
   let inputContainer: HTMLElement;
   let disabled = $derived(!chatMessageState.query || !getUserId());
@@ -94,9 +99,24 @@
               return;
             }
 
-            response.query = response.query.replace(JsonSeperatorRegex.CALL_GET_USER_INFO, () => {
-              // 触发调用接口
-              onGetUserinfoLocal();
+            debugger
+            let delayCallMethod: (message: Message) => void;
+            response.query = response.query.replace(JsonSeperatorRegex.CALL_GET_USER_INFO, (all: string, methodName: keyof typeof callMethods, paramStr: string) => {
+              const params: Array<any> = JSON.parse(paramStr);
+              const method = callMethods[methodName]
+
+              debugger
+              if (method) {
+                // 延迟调用
+                delayCallMethod = (message: Message) => {
+                  try{
+                    debugger
+                    method.apply(null, [message, ...params]);
+                  }catch (e) {
+                    console.error(e);
+                  }
+                }
+              }
               return '';
             })
 
@@ -117,11 +137,16 @@
                     lastMessage.task_status = 0;
                   }
                 }
-                return {
+                const message = {
                   ...msg,
                   content: msg.content + response.query,
                   task_status: task_status,
                 }
+                debugger
+                // 触发调用接口
+                delayCallMethod && delayCallMethod(message);
+
+                return  message;
               }
 
               return msg;

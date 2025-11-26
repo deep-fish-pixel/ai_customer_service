@@ -14,7 +14,9 @@ export const JsonSeperator = {
   // 表格类型展示
   TYPE_LIST: "__Type__[List]",
   // 方法调用
-  CALL_GET_USER_INFO: "__Call__[getUserinfo]"
+  CALL_GET_USER_INFO: "__Call__[Method]__[", //完整数据格式：__Call__[Method]__[getUserinfo, []]
+  // 方法调用
+  CALL_GET_IMAGE_TASKS: "__Call__[Method]__["
 }
 
 // 特殊功能分隔符正则
@@ -22,7 +24,7 @@ export const JsonSeperatorRegex = {
   // 表格类型展示
   TYPE_LIST: new RegExp(escapeRegex(JsonSeperator.TYPE_LIST)),
   // 方法调用
-  CALL_GET_USER_INFO: new RegExp(escapeRegex(JsonSeperator.CALL_GET_USER_INFO) + '$')
+  CALL_GET_USER_INFO: new RegExp(escapeRegex(JsonSeperator.CALL_GET_USER_INFO) + '(\\S+),\\s*(\[[\\s\\S]*])]')
 }
 
 // 对JsonSeperator下所有正则的拼接

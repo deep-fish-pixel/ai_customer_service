@@ -9,4 +9,6 @@ class AgentState(TypedDict):
     history: List[Any]
     task_collected: dict
     task_extra: Optional[Dict[str, Any]] = None
+    res_type: str
+    res_value: str
     exit: int
