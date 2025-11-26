@@ -13,6 +13,7 @@
   import {getUserId} from "../../../state/userState.svelte";
   import ModelTabs from "./ModelTabs.svelte";
   import ModelImageOpts from "./opts/ModelImageOpts.svelte";
+  import ImageUploads from "./opts/ImageUploads.svelte";
 
 
   const { onScrollToBottom, onGetUserinfoLocal }: {onScrollToBottom: () => void, onGetUserinfoLocal: () => void} = $props();
@@ -201,6 +202,7 @@
 <div class="input-container">
   <ModelTabs />
   <div class="input-wrapper" bind:this={inputContainer}>
+    <ImageUploads />
     <Textfield
         class="input-focus"
         textarea={true}
@@ -244,7 +246,7 @@
 
   .input-wrapper {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 8px;
     position: relative;
     background-color: #fff;
