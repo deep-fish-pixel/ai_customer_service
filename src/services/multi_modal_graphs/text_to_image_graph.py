@@ -4,6 +4,7 @@ import json
 
 from src.enums.HotelBooking import HotelBookingTable
 from src.services.graphs.agent_state import AgentState
+from src.services.graphs.utils import getImageHistoryAndNextChat
 from src.services.relative_db_service import relative_db_service
 from src.utils.json import json_stringfy
 from typing import List, Dict, Any, Optional
@@ -34,11 +35,14 @@ def text_to_image_graph() -> StateGraph:
     """文本生成图像的信息工作流"""
     graph = StateGraph(AgentState)
 
-    def create_async_task(state: AgentState):
+    async def create_async_task(state: AgentState):
       task_extra = state.get("task_extra", {
+        "style": "",
         "size": "1328*1328",
         "n": 3,
       })
+      query = state.get("query", "")
+      style = task_extra.get("style", "")
       n = task_extra.get("n", 1)
       size = task_extra.get("size", "1328*1328")
       rsps = []
@@ -48,7 +52,7 @@ def text_to_image_graph() -> StateGraph:
       for i in range(n):
         rsp = ImageSynthesis.async_call(api_key=api_key,
                                         model="qwen-image-plus",
-                                        prompt=state["query"],
+                                        prompt=f"使用{style}风格，{query}",
                                         n=1,
                                         size=size,
                                         seed=seeds[i],
@@ -59,9 +63,10 @@ def text_to_image_graph() -> StateGraph:
           rsps.append(rsp["output"])
 
       if len(rsps) > 0:
-          return {** state, "task_status": 2, "query": "生成的图片如下：" + JsonSeperator.CALL_GET_IMAGE_TASKS + f"__Params__:{json.dumps(rsps, ensure_ascii=False)}"}
+        response = await getImageHistoryAndNextChat("已为您生成的图片", state['history'][-1], state['query'])
+        return {** state, "task_status": 2, "query": response.content + JsonSeperator.CALL_GET_IMAGE_TASKS + f"__Params__:{json.dumps(rsps, ensure_ascii=False)}"}
       else:
-          return {** state, "task_status": 2, "query": "请求失败，稍后再重试一次"}
+        return {** state, "task_status": 2, "query": "请求失败，稍后再重试一次"}
 
     # 添加节点到图中
     graph.add_node("create_async_task", create_async_task)

@@ -2,31 +2,38 @@
   import TextIcon from "../../../icons/TextIcon.svelte";
   import ImageIcon from "../../../icons/ImageIcon.svelte";
   import VideoIcon from "../../../icons/VideoIcon.svelte";
+  import {chatMessageState} from "../../../state/chatMessages.svelte";
 
   const ModelTypes = {
     Text: {
       value: 'text',
       lable: '文本对话',
       icon: TextIcon,
+      taskType: '',
     },
     Image: {
       value: 'image',
       lable: '图片生成',
       icon: ImageIcon,
+      taskType: 'create_image',
     },
     Video: {
       value: 'video',
       lable: '视频生成',
       icon: VideoIcon,
+      taskType: 'create_video',
     },
   }
 
   const tabs = [ModelTypes.Text, ModelTypes.Image, ModelTypes.Video, ];
-
   let tabIndex = $state(0);
 
+  chatMessageState.task_type = tabs[0].taskType
+
   const clickHandle = (index: number) => {
+    debugger
     tabIndex = index;
+    chatMessageState.task_type = tabs[index].taskType
   }
 </script>
 

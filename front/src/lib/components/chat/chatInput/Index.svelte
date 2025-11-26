@@ -1,6 +1,6 @@
 <script lang="ts">
   import Textfield from '@smui/textfield';
-  import Button, {Label} from '@smui/button';
+  import Button from '@smui/button';
   import type {Message,} from "../../../types/chat";
   import SendIcon from "../../../icons/SendIcon.svelte";
   import {onMount, tick} from "svelte";
@@ -18,11 +18,8 @@
   const { onScrollToBottom, onGetUserinfoLocal }: {onScrollToBottom: () => void, onGetUserinfoLocal: () => void} = $props();
   // 状态管理
   let inputContainer: HTMLElement;
-  let inputMessage = $state('');
-  let disabled = $derived(!inputMessage || !getUserId());
+  let disabled = $derived(!chatMessageState.query || !getUserId());
   let receiving = $state(false);
-  let focus = $state(false);
-  let task_type = '';
   // 停止接收消息流句柄
   let abortStream: () => void;
 
@@ -34,14 +31,14 @@
   // 发送消息
   export const sendMessage = async (message?: string) => {
     if (message) {
-      inputMessage = message;
+      chatMessageState.query = message;
     }
-    if (!inputMessage.trim() || receiving) return;
+    if (!chatMessageState.query.trim() || receiving) return;
 
     // 添加用户消息
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputMessage.trim(),
+      content: chatMessageState.query.trim(),
       sender: 'user',
       task_status: -1,
       timestamp: new Date(),
@@ -66,7 +63,7 @@
     chatMessageState.messages = [...chatMessageState.messages, botMessage];
 
     // 清空输入框
-    inputMessage = '';
+    chatMessageState.query = '';
 
     // 滚动到底部
     await tick();
@@ -75,11 +72,13 @@
     receiving = true;
 
     try {
+      debugger
       // 使用流式请求
       abortStream = sendChatMessageStream(
         userMessage.content,
         history,
-        task_type,
+        chatMessageState.task_type,
+        chatMessageState.task_extra,
         (chunk) => {
           // 更新机器人消息内容
           // 任务类型
@@ -104,9 +103,9 @@
             const task_status = response.task_status;
             // 任务完成后结束任务类型
             if (task_status === 2) {
-              task_type = '';
+              chatMessageState.task_type = '';
             } else {
-              task_type = response.task_type;
+              chatMessageState.task_type = response.task_type;
             }
 
             chatMessageState.messages = chatMessageState.messages.map((msg, index) => {
@@ -188,7 +187,6 @@
 
   // 工具切换处理
   const handleFocus = (focused: boolean) => {
-    focus = focused;
     tick().then(() => resize());
   };
 
@@ -206,8 +204,8 @@
         class="input-focus"
         textarea={true}
         variant="outlined"
-        value={inputMessage}
-        oninput={(e) => inputMessage = (e.target as HTMLInputElement)?.value}
+        value={chatMessageState.query}
+        oninput={(e) => chatMessageState.query = (e.target as HTMLInputElement)?.value}
         onkeydown={handleKeyPress}
         onfocus={() => handleFocus(true)}
         onfocusout={() => handleFocus(false)}

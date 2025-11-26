@@ -1,21 +1,14 @@
 <script lang="ts">
   import Button, { Label } from '@smui/button';
-  import List, {
-    Item,
-    Meta,
-    Text,
-    PrimaryText,
-    SecondaryText,
-  } from '@smui/list';
   import {deleteDocument, getDocumentList, uploadDocument} from "../../../../services/documentsService";
   import {onMount} from "svelte";
   import {delay} from "../../../../utils/delay";
   import type {DocumentFile} from "../../../../types/document";
-  import {formatDate} from "../../../../utils/date";
   import Dialog, { Title, Content, Actions } from '@smui/dialog';
   import {showToast} from "../../../../utils/toast";
   import {getUserId} from "../../../../state/userState.svelte";
   import PlusIcon from "../../../../icons/PlusIcon.svelte";
+  import {chatMessageState} from "../../../../state/chatMessages.svelte";
 
 
   const ButtonName = '上传知识库';

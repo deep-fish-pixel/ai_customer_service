@@ -21,6 +21,8 @@ export interface ChatRequest {
   stream?: boolean;
   // 任务类型
   task_type?: string;
+  // 任务更多配置
+  task_extra?: any;
   // 历史消息
   history?: Array<Message>
 }

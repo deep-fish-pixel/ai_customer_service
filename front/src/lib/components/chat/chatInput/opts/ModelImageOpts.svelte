@@ -5,14 +5,29 @@
   import StyleIcon from "../../../../icons/StyleIcon.svelte";
   import SizeIcon from "../../../../icons/SizeIcon.svelte";
   import NumberIcon from "../../../../icons/NumberIcon.svelte";
+  import {chatMessageState} from "../../../../state/chatMessages.svelte";
 
   let menuStyle: Menu;
   let menuSize: Menu;
   let menuNumber: Menu;
-  let clicked = $state('nothing yet');
   let style = $state('');
-  let size = $state('1:1');
   let number = $state(2);
+  let size: keyof typeof sizeTypes = $state("1:1");
+
+  const sizeTypes = {
+    '16:9': '1664*928',
+    '4:3': '1472*1140',
+    '1:1': '1328*1328',
+    '3:4': '1140*1472',
+    '9:16': '928*1664',
+  };
+
+  $effect(() => {
+    debugger
+    chatMessageState.task_extra['style'] = style;
+    chatMessageState.task_extra['size'] = sizeTypes[size] || sizeTypes['1:1'];
+    chatMessageState.task_extra['n'] = number;
+  });
 
 </script>
 

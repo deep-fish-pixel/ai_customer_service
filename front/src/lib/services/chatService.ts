@@ -32,6 +32,7 @@ export async function sendChatMessage(message: string, history: Array<Message> =
  * @param message 用户输入的消息内容
  * @param history 历史消息列表
  * @param task_type 任务类型
+ * @param task_extra 任务更多配置信息
  * @param onChunk 接收流式数据的回调函数
  * @param onComplete 流结束的回调函数
  * @param onError 错误处理的回调函数
@@ -41,12 +42,14 @@ export function sendChatMessageStream(
   message: string,
   history: Array<Message> = [],
   task_type: string = '',
+  task_extra: string = '',
   onChunk: (chunk: string) => void,
   onComplete: () => void,
   onError: (error: Error) => void
 ): () => void {
-  const requestData: ChatRequest = { message, history, task_type, stream: true };
+  const requestData: ChatRequest = { message, history, task_type, task_extra, stream: true };
   const abortController = new AbortController();
+  debugger
 
   // 使用fetch API处理POST流式请求
   fetch(`${CHAT_STREAM_ENDPOINT}?stream=true`, {
