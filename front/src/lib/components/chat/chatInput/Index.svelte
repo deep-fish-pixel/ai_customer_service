@@ -1,7 +1,6 @@
 <script lang="ts">
   import Textfield from '@smui/textfield';
   import Button, {Label} from '@smui/button';
-  import Paper from '@smui/paper';
   import type {Message,} from "../../../types/chat";
   import SendIcon from "../../../icons/SendIcon.svelte";
   import {onMount, tick} from "svelte";

@@ -2,11 +2,17 @@
   import Menu from '@smui/menu';
   import List, { Item, Separator, Text } from '@smui/list';
   import Button, { Label } from '@smui/button';
+  import StyleIcon from "../../../../icons/StyleIcon.svelte";
+  import SizeIcon from "../../../../icons/SizeIcon.svelte";
+  import NumberIcon from "../../../../icons/NumberIcon.svelte";
 
   let menuStyle: Menu;
   let menuSize: Menu;
   let menuNumber: Menu;
   let clicked = $state('nothing yet');
+  let style = $state('');
+  let size = $state('1:1');
+  let number = $state(2);
 
 </script>
 
@@ -14,66 +20,87 @@
 <div class="opts-image">
   <div class="opt">
     <Button onclick={() => menuStyle.setOpen(true)}>
-      <Label>风格模型</Label>
+      <StyleIcon />
+      <Label>风格{style ? ':'+style : ''}</Label>
     </Button>
     <Menu bind:this={menuStyle}>
       <List>
-        <Item onSMUIAction={() => (clicked = 'Cut')}>
-          <Text>Cut</Text>
+        <Item onSMUIAction={() => (style = '人像写真')}>
+          <Text>人像摄影</Text>
         </Item>
-        <Item onSMUIAction={() => (clicked = 'Copy')}>
-          <Text>Copy</Text>
+        <Item onSMUIAction={() => (style = '写实摄影')}>
+          <Text>电影写真</Text>
         </Item>
-        <Item onSMUIAction={() => (clicked = 'Paste')}>
-          <Text>Paste</Text>
+        <Item onSMUIAction={() => (style = '绘画流派')}>
+          <Text>绘画流派</Text>
         </Item>
-        <Separator />
-        <Item onSMUIAction={() => (clicked = 'Delete')}>
-          <Text>Delete</Text>
+        <Item onSMUIAction={() => (style = '海报设计')}>
+          <Text>海报设计</Text>
+        </Item>
+        <Item onSMUIAction={() => (style = '建筑室内设计')}>
+          <Text>建筑室内设计</Text>
+        </Item>
+        <Item onSMUIAction={() => (style = '小说封面')}>
+          <Text>小说封面</Text>
+        </Item>
+        <Item onSMUIAction={() => (style = '动漫游戏')}>
+          <Text>海报设计</Text>
+        </Item>
+        <Item onSMUIAction={() => (style = '3D渲染')}>
+          <Text>3D渲染</Text>
+        </Item>
+        <Item onSMUIAction={() => (style = '水墨画')}>
+          <Text>水墨画</Text>
+        </Item>
+        <Item onSMUIAction={() => (style = '儿童绘画')}>
+          <Text>儿童绘画</Text>
+        </Item>
+        <Item onSMUIAction={() => (style = '二次元')}>
+          <Text>二次元</Text>
         </Item>
       </List>
     </Menu>
   </div>
   <div class="opt">
     <Button onclick={() => menuSize.setOpen(true)}>
-      <Label>图片尺寸</Label>
+      <SizeIcon />
+      <Label>尺寸{size ? ':'+size : ''}</Label>
     </Button>
     <Menu bind:this={menuSize}>
       <List>
-        <Item onSMUIAction={() => (clicked = 'Cut')}>
-          <Text>Cut</Text>
+        <Item onSMUIAction={() => (size = '16:9')}>
+          <Text>16:9</Text>
         </Item>
-        <Item onSMUIAction={() => (clicked = 'Copy')}>
-          <Text>Copy</Text>
+        <Item onSMUIAction={() => (size = '4:3')}>
+          <Text>4:3</Text>
         </Item>
-        <Item onSMUIAction={() => (clicked = 'Paste')}>
-          <Text>Paste</Text>
+        <Item onSMUIAction={() => (size = '1:1')}>
+          <Text>1:1</Text>
         </Item>
-        <Separator />
-        <Item onSMUIAction={() => (clicked = 'Delete')}>
-          <Text>Delete</Text>
+        <Item onSMUIAction={() => (size = '3:4')}>
+          <Text>3:4</Text>
+        </Item>
+        <Item onSMUIAction={() => (size = '9:16')}>
+          <Text>9:16</Text>
         </Item>
       </List>
     </Menu>
   </div>
   <div class="opt">
     <Button onclick={() => menuNumber.setOpen(true)}>
-      <Label>图片张数</Label>
+      <NumberIcon />
+      <Label>张数{number ? ':'+number+'张' : ''}</Label>
     </Button>
     <Menu bind:this={menuNumber}>
       <List>
-        <Item onSMUIAction={() => (clicked = 'Cut')}>
-          <Text>Cut</Text>
+        <Item onSMUIAction={() => (number = 1)}>
+          <Text>1</Text>
         </Item>
-        <Item onSMUIAction={() => (clicked = 'Copy')}>
-          <Text>Copy</Text>
+        <Item onSMUIAction={() => (number = 2)}>
+          <Text>2</Text>
         </Item>
-        <Item onSMUIAction={() => (clicked = 'Paste')}>
-          <Text>Paste</Text>
-        </Item>
-        <Separator />
-        <Item onSMUIAction={() => (clicked = 'Delete')}>
-          <Text>Delete</Text>
+        <Item onSMUIAction={() => (number = 3)}>
+          <Text>3</Text>
         </Item>
       </List>
     </Menu>
@@ -84,10 +111,21 @@
     display: flex;
 
     .opt{
+      min-width: 60px;
+      margin-right: 20px;
+
+      &:first-child{
+        margin-left: 8px;
+      }
+
       :global(.mdc-button){
         color: #424242;
         outline: none;
-        border: none;
+        border: 1px solid #eee;
+
+        :global(svg){
+          margin-right: 4px;
+        }
       }
     }
   }
