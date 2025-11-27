@@ -136,8 +136,8 @@ def create_flight_booking_graph() -> StateGraph:
             return {
                 ** state,
                 "query": "机票预订成功！您的订单已确认。预定机票信息如下：",
-                "res_type": 'table',
-                "res_value": FlightBookingTable.get_list_json_str([result]),
+                "data_type": 'table',
+                "data_value": FlightBookingTable.get_list_json_str([result]),
                 "task_status": 2,
             }
         except ValueError:

@@ -95,8 +95,8 @@ def change_my_nickname_graph() -> StateGraph:
             return {
                 ** state,
                 "query": f'昵称修改成功！您的新昵称是：{result["nickname"]}',
-                "res_type": 'call',
-                "res_value": f'{{"name": "getUserinfo","params":[]}}',
+                "data_type": 'call',
+                "data_value": f'{{"name": "getUserinfo","params":[]}}',
                 "task_status": 2
             }
         except Exception as e:

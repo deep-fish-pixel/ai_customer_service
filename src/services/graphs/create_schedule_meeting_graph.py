@@ -163,8 +163,8 @@ def create_schedule_meeting_graph() -> StateGraph:
             return {
                 ** state,
                 "query": "日程会议成功！日程会议信息：",
-                "res_type": 'table',
-                "res_value": ScheduleMeetingTable.get_list_json_str([result]),
+                "data_type": 'table',
+                "data_value": ScheduleMeetingTable.get_list_json_str([result]),
                 "task_status": 2,
             }
         except ValueError:

@@ -6,28 +6,21 @@
   import SizeIcon from "../../../../icons/SizeIcon.svelte";
   import NumberIcon from "../../../../icons/NumberIcon.svelte";
   import {chatMessageState} from "../../../../state/chatMessages.svelte";
+  import {ImageRatioTypes} from "../../../../../constants";
 
   let menuStyle: Menu;
-  let menuSize: Menu;
+  let menuRatio: Menu;
   let menuNumber: Menu;
   let style = $state('');
   let number = $state(2);
-  let size: keyof typeof sizeTypes = $state("1:1");
-
-  const sizeTypes = {
-    '16:9': '1664*928',
-    '4:3': '1472*1140',
-    '1:1': '1328*1328',
-    '3:4': '1140*1472',
-    '9:16': '928*1664',
-  };
+  let ratio: keyof typeof ImageRatioTypes = $state("1:1");
 
   $effect(() => {
     chatMessageState.task_extra['style'] = style;
-    chatMessageState.task_extra['size'] = sizeTypes[size] || sizeTypes['1:1'];
+    chatMessageState.task_extra['size'] = ImageRatioTypes[ratio].size || ImageRatioTypes['1:1'].size;
+    chatMessageState.task_extra['ratio'] = ratio || '1:1';
     chatMessageState.task_extra['n'] = number;
   });
-
 </script>
 
 <!-- 输入区域 -->
@@ -43,7 +36,7 @@
           <Text>人像摄影</Text>
         </Item>
         <Item onSMUIAction={() => (style = '写实摄影')}>
-          <Text>电影写真</Text>
+          <Text>写实摄影</Text>
         </Item>
         <Item onSMUIAction={() => (style = '绘画流派')}>
           <Text>绘画流派</Text>
@@ -58,7 +51,7 @@
           <Text>小说封面</Text>
         </Item>
         <Item onSMUIAction={() => (style = '动漫游戏')}>
-          <Text>海报设计</Text>
+          <Text>动漫游戏</Text>
         </Item>
         <Item onSMUIAction={() => (style = '3D渲染')}>
           <Text>3D渲染</Text>
@@ -76,25 +69,25 @@
     </Menu>
   </div>
   <div class="opt">
-    <Button onclick={() => menuSize.setOpen(true)}>
+    <Button onclick={() => menuRatio.setOpen(true)}>
       <SizeIcon />
-      <Label>尺寸{size ? ':'+size : ''}</Label>
+      <Label>尺寸{ratio ? ':'+ratio : ''}</Label>
     </Button>
-    <Menu bind:this={menuSize}>
+    <Menu bind:this={menuRatio}>
       <List>
-        <Item onSMUIAction={() => (size = '16:9')}>
+        <Item onSMUIAction={() => (ratio = '16:9')}>
           <Text>16:9</Text>
         </Item>
-        <Item onSMUIAction={() => (size = '4:3')}>
+        <Item onSMUIAction={() => (ratio = '4:3')}>
           <Text>4:3</Text>
         </Item>
-        <Item onSMUIAction={() => (size = '1:1')}>
+        <Item onSMUIAction={() => (ratio = '1:1')}>
           <Text>1:1</Text>
         </Item>
-        <Item onSMUIAction={() => (size = '3:4')}>
+        <Item onSMUIAction={() => (ratio = '3:4')}>
           <Text>3:4</Text>
         </Item>
-        <Item onSMUIAction={() => (size = '9:16')}>
+        <Item onSMUIAction={() => (ratio = '9:16')}>
           <Text>9:16</Text>
         </Item>
       </List>

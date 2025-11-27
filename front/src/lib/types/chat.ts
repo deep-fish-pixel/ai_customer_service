@@ -9,6 +9,8 @@ export interface Message {
   timestamp: Date;
   // 任务状态
   task_status?: number;
+  // 任务更多配置
+  task_extra?: any;
   // 数据类型
   data_type?: string;
   // 数据值

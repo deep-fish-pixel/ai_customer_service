@@ -160,8 +160,8 @@ def change_list_record_property_graph() -> StateGraph:
                 return {
                     ** state,
                     "query": f'{update_info["record_type"]}的{update_info["property_name"]}修改成功！',
-                    "res_type": 'table',
-                    "res_value": table_info.get_list_json_str(records),
+                    "data_type": 'table',
+                    "data_value": table_info.get_list_json_str(records),
                     "task_status": 2,
                 }
             return {** state, "query": f'{update_info["property_name"]}修改失败！', "task_status": 2}

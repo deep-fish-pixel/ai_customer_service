@@ -121,8 +121,8 @@ def delete_list_record_graph() -> StateGraph:
                 return {
                     ** state,
                     "query": f'{update_info["record_type"]}的第{update_info["index"]}条记录删除成功！',
-                    "res_type": 'table',
-                    "res_value": table_info.get_list_json_str([result]),
+                    "data_type": 'table',
+                    "data_value": table_info.get_list_json_str([result]),
                     "task_status": 2,
                 }
             return {** state, "query": f'{update_info["record_type"]}的第{update_info["index"]}条记录删除失败！', "task_status": 2}

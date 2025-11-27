@@ -16,8 +16,8 @@ def query_leave_request_graph() -> StateGraph:
         return {
             ** state,
             "query": query,
-            "res_type": 'table',
-            "res_value": LeaveRequestTable.get_list_json_str(result),
+            "data_type": 'table',
+            "data_value": LeaveRequestTable.get_list_json_str(result),
             "task_status": 2,
         }
 

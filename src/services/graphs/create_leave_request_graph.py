@@ -164,8 +164,8 @@ def create_leave_request_graph() -> StateGraph:
             return {
                 ** state,
                 "query": "请假申请成功！请假申请信息：",
-                "res_type": 'table',
-                "res_value": LeaveRequestTable.get_list_json_str([result]),
+                "data_type": 'table',
+                "data_value": LeaveRequestTable.get_list_json_str([result]),
                 "task_status": 2,
             }
         except ValueError:

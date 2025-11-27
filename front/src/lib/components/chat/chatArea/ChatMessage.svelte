@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Message, } from "../../../types/chat";
-  import ViewTable from "../../view/ViewTable.svelte"
+  import ViewTable from "./views/ViewTable.svelte"
+  import ViewImages from "./views/ViewImages.svelte"
 
   // 从父组件接收的属性
   let { message, }: { message: Message } = $props();
@@ -22,6 +23,10 @@
       {#if message.data_type === 'table'}
         <ViewTable headers={message.data_value[0]} list={message.data_value[1]} prevContent={message.content}></ViewTable>
       {/if}
+
+      {#if message.data_type === 'images'}
+        <ViewImages list={message.data_value} taskExtra={message.task_extra}></ViewImages>
+      {/if}
     {:else}
       <!--等待标识-->
       <span class="loader">
@@ -39,7 +44,7 @@
     padding: 12px 16px;
     margin-bottom: 20px;
     border-radius: 18px;
-    max-width: 70%;
+    max-width: 80%;
     word-wrap: break-word;
     clear: both;
   }

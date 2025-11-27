@@ -15,15 +15,10 @@
   import ImageUploads from "./opts/ImageUploads.svelte";
 
 
-  const { onScrollToBottom, onGetUserinfoLocal }: {onScrollToBottom: () => void, onGetUserinfoLocal: () => void} = $props();
+  const { onScrollToBottom, onGetUserinfoLocal }: {onScrollToBottom: () => void, onGetUserinfoLocal: (message: Message) => void} = $props();
 
   const callMethods = {
     getUserinfo: onGetUserinfoLocal,
-    getImageTasks: (message: Message, images: Array<any>) => {
-      debugger
-      message.data_type = "images";
-      message.data_value = images;
-    },
   };
   // 状态管理
   let inputContainer: HTMLElement;
@@ -110,19 +105,19 @@
               chatMessageState.task_type = response.task_type;
             }
 
-            if (response.res_value) {
-              response.res_value = JSON.parse(response.res_value);
+            if (response.data_value) {
+              response.data_value = JSON.parse(response.data_value);
             }
 
 
             let delayCallMethod: (message: Message) => void;
 
-            if (response.res_type === 'call') {
-              const method = callMethods[response.res_value.name as keyof typeof callMethods]
+            if (response.data_type === 'call') {
+              const method: (...args: Array<any>) => void = callMethods[response.data_value.name as keyof typeof callMethods]
 
               delayCallMethod = (message: Message) => {
                 try{
-                  method.apply(null, [message, ...response.res_value.params]);
+                  method.apply(null, [message, ...response.data_value.params]);
                 }catch (e) {
                   console.error(e);
                 }
@@ -138,12 +133,13 @@
                     lastMessage.task_status = 0;
                   }
                 }
-                const message = {
+                const message: Message = {
                   ...msg,
                   content: msg.content + response.query,
-                  data_type: response.res_type,
-                  data_value: response.res_value,
+                  data_type: response.data_type,
+                  data_value: response.data_value,
                   task_status: task_status,
+                  task_extra: chatMessageState.task_extra,
                 }
 
                 // 触发调用接口

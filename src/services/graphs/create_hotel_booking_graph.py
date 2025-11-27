@@ -146,8 +146,8 @@ def create_hotel_booking_graph() -> StateGraph:
             return {
                 ** state,
                 "query": "酒店预订成功！您的订单信息：",
-                "res_type": 'table',
-                "res_value": HotelBookingTable.get_list_json_str([result]),
+                "data_type": 'table',
+                "data_value": HotelBookingTable.get_list_json_str([result]),
                 "task_status": 2,
             }
         except ValueError:

@@ -55,7 +55,6 @@ export function getRecentMessages(messages: Message[], size: number) {
  */
 export function getSendMessageData(message: Message){
   if (message.data_type === 'table') {
-    debugger
     return message.content + JSON.stringify(message.data_value[1].map((item: any) => item.id));
   }
   return message.content;

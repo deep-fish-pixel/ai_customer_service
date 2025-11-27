@@ -55,8 +55,8 @@ def text_to_image_graph() -> StateGraph:
         return {
           ** state,
           "query": response.content,
-          "res_type": 'call',
-          "res_value": f'{{"name": "getImageTasks","params":[{json.dumps(rsps, ensure_ascii=False)}]}}',
+          "data_type": 'images',
+          "data_value": json.dumps(rsps, ensure_ascii=False),
           "task_status": 2,
         }
       else:

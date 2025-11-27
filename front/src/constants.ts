@@ -30,3 +30,27 @@ export const JsonSeperatorRegex = {
 // 对JsonSeperator下所有正则的拼接
 export const JsonSeperatorRegexJoinings = new RegExp(`(${escapeRegex(JsonSeperator.TYPE_LIST)}|${escapeRegex(JsonSeperator.CALL_GET_USER_INFO)})`);
 
+// 图片比例
+export const ImageRatioTypes = {
+  '16:9': {
+    size: '1664*928',
+    style: [16, 9].map(value => value * 15),
+  },
+  '4:3': {
+    size: '1472*1140',
+    style: [4, 3].map(value => value * 60),
+  },
+  '1:1': {
+    size: '1328*1328',
+    style: [1, 1].map(value => value * 240),
+  },
+  '3:4': {
+    size: '1140*1472',
+    style: [3, 4].map(value => value * 80),
+  },
+  '9:16': {
+    size: '928*1664',
+    style: [9, 16].map(value => value * 25),
+  },
+};
+

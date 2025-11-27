@@ -25,8 +25,8 @@ def query_flight_booking_graph() -> StateGraph:
         return {
             ** state,
             "query": "已查询到您的机票预定记录：",
-            "res_type": 'table',
-            "res_value": FlightBookingTable.get_list_json_str(result),
+            "data_type": 'table',
+            "data_value": FlightBookingTable.get_list_json_str(result),
             "task_status": 2,
         }
 

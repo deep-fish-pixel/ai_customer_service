@@ -12,6 +12,7 @@ export const chatMessageState: {
   task_extra: {
     style: '',
     size: '',
+    ratio: '',
     n: 0,
   },
 });
