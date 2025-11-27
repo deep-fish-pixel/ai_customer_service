@@ -4,7 +4,13 @@ export const chatMessageState: {
   messages: Message[],
   query: string,
   task_type: string,
-  task_extra: any,
+  task_extra: {
+    style?: string;
+    size?: string;
+    ratio?: string;
+    n?: number;
+    images?: string[];
+  },
   model_index: number,
 } = $state({
   messages: [],
@@ -16,5 +22,6 @@ export const chatMessageState: {
     size: '',
     ratio: '',
     n: 0,
+    images: []
   },
 });

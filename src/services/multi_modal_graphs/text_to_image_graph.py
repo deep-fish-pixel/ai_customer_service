@@ -37,21 +37,22 @@ def text_to_image_graph() -> StateGraph:
       # 随机数种子，取值范围[0,2147483647]
       seeds = [147483647, 847483647, 1847483647, ]
 
+      query = f"{f'使用{style}风格，' if style else '' }{query}"
+      response = await getImageHistoryAndNextChat("已为您生成图片", state['history'][-1], query)
+
       for i in range(n):
         rsp = ImageSynthesis.async_call(api_key=api_key,
                                         model="qwen-image-plus",
-                                        prompt=f"使用{style}风格，{query}",
+                                        prompt= response.content,
                                         n=1,
                                         size=size,
                                         seed=seeds[i],
                                         prompt_extend=True,
                                         watermark=False)
-        print(rsp)
         if rsp.status_code == HTTPStatus.OK:
           rsps.append(rsp["output"])
 
       if len(rsps) > 0:
-        response = await getImageHistoryAndNextChat("已为您生成的图片", state['history'][-1], state['query'])
         return {
           ** state,
           "query": response.content,

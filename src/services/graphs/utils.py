@@ -47,7 +47,7 @@ async def getImageHistoryAndNextChat(chat_message: str, last_chat_message: str, 
   """
   llm = getChatOpenAI()
   prompt = ChatPromptTemplate.from_template("""
-        你是一个跟用户进行友好沟通的机器人，用户需要你生成图片，假设你已经成功生成图片，根据当前会话内容做出合理回复。
+        你是一个跟用户进行友好沟通的机器人，用户需要你对当前的会话做为绘图输入的美化和补充的处理，并做出合理回复。
         上一个会话: {last_chat_message}
         用户的回答: {last_chat_message_answer}
         当前会话：{chat_message}

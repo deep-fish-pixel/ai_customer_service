@@ -1,91 +1,75 @@
 <script lang="ts">
-  import Button, { Label } from '@smui/button';
-  import {deleteDocument, getDocumentList, uploadDocument} from "../../../../services/documentsService";
-  import {onMount} from "svelte";
-  import {delay} from "../../../../utils/delay";
-  import type {DocumentFile} from "../../../../types/document";
-  import Dialog, { Title, Content, Actions } from '@smui/dialog';
+  import Button from '@smui/button';
   import {showToast} from "../../../../utils/toast";
   import {getUserId} from "../../../../state/userState.svelte";
   import PlusIcon from "../../../../icons/PlusIcon.svelte";
+  import {chatMessageState} from "../../../../state/chatMessages.svelte";
 
+  const task_extra = chatMessageState.task_extra;
 
-  let deleteVisible = $state(false);
-  let forDeletedDocument:DocumentFile = $state({
-    file_name: '',
-    file_size: 0,
-    upload_time: Date(),
-  });
+  initImages();
 
-  // 文件输入处理
+  function initImages() {
+    // 初始化
+    if(!task_extra.images){
+      chatMessageState.task_extra.images = [];
+    }
+  }
+
+  // 图片输入处理
   const handleFileInputChange = async (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
-      // 限制文件1M内
-      if (target.files[0].size > 1024 * 1024) {
-        showToast("文件大小不能超过1M");
+      const file = target.files[0]
+      // 限制图片10M内
+      if (file.size > 1024 * 1024 * 10) {
+        showToast("图片大小不能超过10M");
         return;
       }
       try {
-        await uploadDocument(target.files[0]);
+        // 创建FileReader对象
+        const reader = new FileReader();
+        reader.onload = function(loadEvent) {
+          // 获取Base64编码的字符串
+          const imageSrc = loadEvent?.target?.result as string;
 
-        showToast("上传文件成功");
-        getDocuments();
-
+          initImages();
+          task_extra.images && task_extra.images.push(imageSrc);
+          console.log(imageSrc); // 输出或使用Base64编码
+        };
+        reader.readAsDataURL(file);
       } catch (err: any) {
-        showToast("上传文件失败：" + err.message);
+        showToast("上传图片失败：" + err.message);
       }
 
-      // 重置input以便可以再次上传相同的文件
+      // 重置input以便可以再次上传相同的图片
       target.value = '';
     }
   };
 
-  const deleteConfirmDialog = (document: DocumentFile) => {
-    deleteVisible = true;
-    forDeletedDocument = document;
+  const removeHandle = (index: number) => {
+    task_extra.images && task_extra.images.splice(index, 1);
   }
-
-  const deleteConfirm = async () => {
-    const res = await deleteDocument(forDeletedDocument.file_name)
-
-    if (res.status === "success") {
-      getDocuments();
-    }
-  }
-
-  async function getDocuments() {
-    if(getUserId()) {
-      documentList = await getDocumentList();
-    }
-  }
-
-  // 模拟文件数据（用于演示）
-  let documentList: DocumentFile[] = $state([]);
-
-  onMount(() => {
-    getDocuments();
-  })
 </script>
 
 <div class="image-uploader">
-  <!-- 上传文件区域 -->
-  <div class="upload-area">
-    <img width="62px" height="72px" src="https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20250925/thtclx/input1.png"/>
-    <div class="remove">-</div>
-  </div>
-  <div class="upload-area">
-    <img width="62px" height="72px" src="https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20250925/thtclx/input1.png"/>
-    <div class="remove">-</div>
-  </div>
+  <!-- 上传图片区域 -->
+  {#each task_extra.images as image, index}
+    <div class="upload-area">
+      <div class="image-container">
+        <img src={image}/>
+      </div>
+      <div class="remove" onclick={() => removeHandle(index)}>-</div>
+    </div>
+  {/each}
   <div class="upload-area">
     <div class="file-upload">
       <input 
         type="file" 
         id="file-input"
-        class="file-input" 
-        on:change={handleFileInputChange}
-        accept=".pdf,.txt,.csv,.md,.docx,.xlsx"
+        class="file-input"
+        accept=".jpg,.jpeg,.png,.bmp,.webp,.tiff"
+        onchange={handleFileInputChange}
       />
       <Button
         class="file-button"
@@ -100,23 +84,6 @@
       </Button>
     </div>
   </div>
-
-  <Dialog
-          bind:open={deleteVisible}
-          aria-labelledby="simple-title"
-          aria-describedby="simple-content"
-  >
-    <Title id="simple-title">再次确定</Title>
-    <Content id="simple-content">确定要删除{forDeletedDocument?.file_name}吗？</Content>
-    <Actions>
-      <Button variant="outlined" color="secondary" onclick={() => ('No')}>
-        <Label>取消</Label>
-      </Button>
-      <Button variant="raised" onclick={deleteConfirm}>
-        <Label>确定</Label>
-      </Button>
-    </Actions>
-  </Dialog>
 </div>
 
 <style lang="scss">
@@ -138,9 +105,20 @@
         }
       }
 
-      img{
-        border-radius: 4px;
+      .image-container{
+        width: 62px;
+        height: 72px;
+        overflow: hidden;
+        position: relative;
+
+        img{
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 4px;
+        }
       }
+
       .remove{
         width: 14px;
         height: 14px;
