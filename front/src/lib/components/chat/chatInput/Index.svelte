@@ -100,7 +100,9 @@
             const task_status = response.task_status;
             // 任务完成后结束任务类型
             if (task_status === 2) {
-              chatMessageState.task_type = '';
+              if (chatMessageState.model_index === 0) {
+                chatMessageState.task_type = '';
+              }
             } else {
               chatMessageState.task_type = response.task_type;
             }
@@ -144,6 +146,13 @@
 
                 // 触发调用接口
                 delayCallMethod && delayCallMethod(message);
+
+                if (response.data_type) {
+                  // 动态数据延迟滚动
+                  setTimeout(() => {
+                    onScrollToBottom();
+                  }, 100);
+                }
 
                 return  message;
               }
@@ -191,6 +200,10 @@
       receiving = false;
       onScrollToBottom();
     }
+
+    setTimeout(() => {
+      onScrollToBottom();
+    }, 100);
 
     // 提供取消功能
     return () => abortStream && abortStream();
@@ -262,7 +275,8 @@
 </div>
 <style lang="scss">
   .input-container {
-    background-color: #f5f5f5;
+    background-color: transparent;
+    position: relative;
   }
 
   .input-wrapper {

@@ -1,10 +1,8 @@
 <script lang="ts">
-  import {type Component, onMount,} from 'svelte';
+  import {onMount,} from 'svelte';
   import SettingsPanel from '../components/settings/SettingsPanel.svelte';
   import ChatArea from '../components/chat/chatArea/Index.svelte';
   import ChatInput from '../components/chat/chatInput/Index.svelte';
-  import type {FileItem, ToolConfig} from "../types";
-  import type {Message,} from "../types/chat";
   import Toast from "../components/Toast.svelte";
   import UserConfirm from "../components/user/UserConfirm.svelte";
   import {getUserinfo} from "../services/userService";
@@ -85,7 +83,6 @@
   }
 
   const scrollToBottomHandle = () => {
-    console.log(chatAreaContainer)
     chatAreaContainer.scrollToBottom();
   }
 </script>

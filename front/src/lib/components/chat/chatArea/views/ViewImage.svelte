@@ -15,9 +15,6 @@
 
   const style = ImageRatioTypes[ratio].style || ImageRatioTypes["1:1"].style;
   const [width, height] = style;
-  /*
-  {"task_id":"09d6a5ff-c192-4cbd-9732-c1518f300dac","task_status":"PENDING","results":[]}
-  */
   let lottieContainer: HTMLElement;
   let imgSrc = $state('');
   let animation: any;

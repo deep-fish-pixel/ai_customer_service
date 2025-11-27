@@ -8,11 +8,8 @@
   import {showToast} from "../../../../utils/toast";
   import {getUserId} from "../../../../state/userState.svelte";
   import PlusIcon from "../../../../icons/PlusIcon.svelte";
-  import {chatMessageState} from "../../../../state/chatMessages.svelte";
 
 
-  const ButtonName = '上传知识库';
-  let buttonName = ButtonName;
   let deleteVisible = $state(false);
   let forDeletedDocument:DocumentFile = $state({
     file_name: '',
@@ -30,21 +27,13 @@
         return;
       }
       try {
-        buttonName = '上传中...'
         await uploadDocument(target.files[0]);
 
         showToast("上传文件成功");
         getDocuments();
 
-        delay(300, () => {
-          buttonName = ButtonName;
-        });
-
       } catch (err: any) {
         showToast("上传文件失败：" + err.message);
-        delay(300, () => {
-          buttonName = ButtonName;
-        });
       }
 
       // 重置input以便可以再次上传相同的文件

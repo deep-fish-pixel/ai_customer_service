@@ -5,14 +5,6 @@
 
   // 从父组件接收的属性
   let { message, }: { message: Message } = $props();
-
-  // 格式化时间
-  const formatTime = (date: Date): string => {
-    return date.toLocaleTimeString('zh-CN', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  };
 </script>
 
 <div class={`chat-message ${message.sender} ${message.data_type === 'table' ? ' chat-message-table' : ''}`}>
@@ -73,6 +65,7 @@
   .bot {
     background-color: #ffffff;
     align-self: flex-start;
+    margin-left: 8px;
     margin-right: auto;
     border-top-left-radius: 5px;
   }
@@ -82,6 +75,7 @@
     background-color: #8984FF;
     align-self: flex-end;
     margin-left: auto;
+    margin-right: 8px;
     border-top-right-radius: 5px;
   }
 

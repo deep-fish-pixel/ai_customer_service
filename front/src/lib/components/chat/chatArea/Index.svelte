@@ -10,7 +10,7 @@
   // 停止接收消息流句柄
 
   const resize = () => {
-    height = window.innerHeight - 236 - 50;
+    height = window.innerHeight - 238;
   };
 
   export const scrollToBottom = () => {
@@ -37,9 +37,9 @@
 </div>
 <style lang="scss">
   .messages-container {
-    padding: 16px;
     overflow-y: scroll;
     background-color: #f5f5f5;
+    padding: 16px 0 28px 0;
   }
 
   .messages {

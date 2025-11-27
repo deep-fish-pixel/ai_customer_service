@@ -26,12 +26,11 @@
   }
 
   const tabs = [ModelTypes.Text, ModelTypes.Image, ModelTypes.Video, ];
-  let tabIndex = $state(0);
 
   chatMessageState.task_type = tabs[0].taskType
 
   const clickHandle = (index: number) => {
-    tabIndex = index;
+    chatMessageState.model_index = index;
     chatMessageState.task_type = tabs[index].taskType
   }
 </script>
@@ -41,7 +40,7 @@
   <div class="tabs">
     {#each tabs as tab, index}
       <div
-        class={"tab" + (tabIndex === index ? " active" : tabIndex - 1 === index ? " active-prev" : "")}
+        class={"tab" + (chatMessageState.model_index === index ? " active" : chatMessageState.model_index - 1 === index ? " active-prev" : "")}
         onclick={() => clickHandle(index)}>
         {#if index===0}
           <TextIcon />
@@ -57,8 +56,9 @@
 </div>
 <style lang="scss">
   .tabs-box{
-    position: relative;
+    position: absolute;
     z-index: 1;
+    top: -38px;
   }
   .tabs{
     position: relative;
