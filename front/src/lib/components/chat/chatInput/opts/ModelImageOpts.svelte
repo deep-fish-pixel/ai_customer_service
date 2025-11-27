@@ -12,7 +12,7 @@
   let menuRatio: Menu;
   let menuNumber: Menu;
   let style = $state('');
-  let number = $state(2);
+  let number = $state(1);
   let ratio: keyof typeof ImageRatioTypes = $state("1:1");
 
   $effect(() => {

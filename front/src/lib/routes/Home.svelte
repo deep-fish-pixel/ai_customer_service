@@ -148,7 +148,7 @@
     flex-direction: column;
     justify-content: center;
     width: 100%;
-    max-width: 1000px;
+    max-width: 1040px;
     padding: 0;
     border: 1px solid #ddd;
   }

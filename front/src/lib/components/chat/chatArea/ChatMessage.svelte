@@ -36,7 +36,7 @@
     padding: 12px 16px;
     margin-bottom: 20px;
     border-radius: 18px;
-    max-width: 80%;
+    max-width: 72%;
     word-wrap: break-word;
     clear: both;
   }
