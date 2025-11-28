@@ -34,7 +34,7 @@
 <style lang="scss">
   .chat-message {
     position: relative;
-    padding: 12px 16px;
+    padding: 16px;
     margin-bottom: 20px;
     border-radius: 18px;
     max-width: 72%;
@@ -44,12 +44,6 @@
 
   .chat-message-table{
     max-width: 80%;
-  }
-
-  .message-bubble {
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
   }
 
   .message-content {

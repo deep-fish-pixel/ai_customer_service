@@ -5,23 +5,47 @@
   /*
   {"task_id":"09d6a5ff-c192-4cbd-9732-c1518f300dac","task_status":"PENDING","results":[]}
   */
-  const size = taskExtra && taskExtra.size && taskExtra.size.split("*") || ["1328", "1328"];
   const ratio = taskExtra && taskExtra.ratio || "1:1";
 
 </script>
 
-<ul class="image-list">
-  {#each list as task, index(task.task_id || index)}
-    <ViewImage data={task} ratio={ratio}/>
-  {/each}
-</ul>
+<div class={`images-container images-container_${list.length}`}>
+  <ul class="images">
+    {#each list as task, index(task.task_id || index)}
+      <ViewImage data={task} ratio={ratio}/>
+    {/each}
+  </ul>
+</div>
 
 <style lang="scss">
-.image-list{
-  display: flex;
-  flex-direction: row;
-  list-style: none;
-  padding: 0;
-  margin: 8px 0 0 0;
-}
+  .images-container{
+    overflow: hidden;
+    overflow-x: scroll;
+  }
+  .images{
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    padding: 0;
+    margin: 2px 0 0 0;
+
+    :global(.image-container){
+      &:last-child{
+        margin-right: 0;
+      }
+    }
+  }
+
+  .images-container_2{
+    .images{
+      min-width: 480px;
+    }
+  }
+
+  .images-container_3{
+    .images{
+      min-width: 720px;
+    }
+  }
+
 </style>

@@ -29,7 +29,7 @@
         {:else if index===2}
           <VideoIcon />
         {/if}
-        <span>{tab.lable}</span>
+        <span class="name">{tab.lable}</span>
       </div>
     {/each}
   </div>
@@ -143,7 +143,36 @@
   .tab.active::after{
     height: 100%;
   }
-  .tab.active-prev{
-    //z-index: 3;
+
+  @media screen and (max-width: 490px) {
+    .tabs{
+      width: 360px;
+      .name{
+        display: none;
+      }
+    }
+
+    .tab{
+      width: 120px;
+
+      &:first-child{
+        &::before{
+          width: 120px;
+        }
+        &::after{
+          width: 120px;
+        }
+      }
+    }
+    .tab::after{
+      width: 120px;
+    }
+
+    .active::before{
+      width: 90px;
+    }
+    .active::after{
+      width: 120px;
+    }
   }
 </style>
