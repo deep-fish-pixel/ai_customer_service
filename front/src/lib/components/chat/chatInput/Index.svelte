@@ -6,13 +6,13 @@
   import {onMount, tick} from "svelte";
   import {getRecentMessages} from "../../../utils/handleMessages";
   import StopIcon from "../../../icons/StopIcon.svelte";
-  import {JsonSeperatorRegex} from "../../../../constants";
   import {chatMessageState} from "../../../state/chatMessages.svelte";
   import {sendChatMessageStream} from "../../../services/chatService";
   import {getUserId} from "../../../state/userState.svelte";
   import ModelTabs from "./ModelTabs.svelte";
   import ModelImageOpts from "./opts/ModelImageOpts.svelte";
   import ImageUploads from "./opts/ImageUploads.svelte";
+  import {DataShowTypes, ModelTypes} from "../../../../constants";
 
 
   const { onScrollToBottom, onGetUserinfoLocal }: {onScrollToBottom: () => void, onGetUserinfoLocal: (message: Message) => void} = $props();
@@ -27,10 +27,31 @@
   // 停止接收消息流句柄
   let abortStream: () => void;
 
+  const getInputPlaceholder = () => {
+    switch (chatMessageState.model_index) {
+      case 0:
+        return '请输入您的问题...';
+      case 1:
+        return '支持图像生成与编辑，快速实现创意设计';
+      case 2:
+        return '支持视频生成与编辑，快速实现创意设计';
+      default:
+        return '请输入您的问题...';
+    }
+  };
+
   const resize = () => {
     // fix Textfield bug
-    inputContainer.querySelector('textarea')?.setAttribute('placeholder', '请输入您的问题...');
+    const placeholder = getInputPlaceholder();
+    inputContainer.querySelector('textarea')?.setAttribute('placeholder', placeholder);
+
   }
+
+  $effect(() => {
+    resize();
+  });
+
+  //
 
   // 发送消息
   export const sendMessage = async (message?: string) => {
@@ -39,12 +60,16 @@
     }
     if (!chatMessageState.query.trim() || receiving) return;
 
+    const task_extra = chatMessageState.task_extra;
+
     // 添加用户消息
     const userMessage: Message = {
       id: Date.now().toString(),
       content: chatMessageState.query.trim(),
       sender: 'user',
       task_status: -1,
+      data_type: chatMessageState.task_type === ModelTypes.Image.taskType ? DataShowTypes.Images.value : '',
+      data_value: (task_extra?.images || []).map(image => ({image: image})),
       timestamp: new Date(),
     };
 
@@ -53,18 +78,20 @@
 
     chatMessageState.messages = [...chatMessageState.messages, userMessage];
 
-    console.log('send========', chatMessageState.messages);
-
     // 创建临时机器人消息
     const botMessageId = (Date.now() + 1).toString();
     const botMessage: Message = {
       id: botMessageId,
-      content: '',
+      content: chatMessageState.task_type === ModelTypes.Image.taskType ? chatMessageState.task_extra.images?.length ? '图片正在编辑中...' : '图片正在生成中...' : '',
       sender: 'bot',
       task_status: -1,
+      data_type: chatMessageState.task_type === ModelTypes.Image.taskType ? DataShowTypes.Images.value : '',
+      data_value: chatMessageState.task_type === ModelTypes.Image.taskType ? [...Array(chatMessageState.task_extra.n)].map(() => ({image: ''})) : [],
       timestamp: new Date(),
     };
+
     chatMessageState.messages = [...chatMessageState.messages, botMessage];
+
 
     // 清空输入框
     chatMessageState.query = '';
@@ -74,6 +101,8 @@
 
     // 接收消息
     receiving = true;
+
+    let firstReceive = true;
 
     try {
       // 使用流式请求
@@ -135,6 +164,11 @@
                     lastMessage.task_status = 0;
                   }
                 }
+
+                if (firstReceive) {
+                  msg.content = '';
+                }
+
                 const message: Message = {
                   ...msg,
                   content: msg.content + response.query,
@@ -160,12 +194,10 @@
               return msg;
             });
 
-            console.log('receive===========1', chatMessageState.messages);
           } else {
             chatMessageState.messages = chatMessageState.messages.map(msg =>
               msg.id === botMessageId ? {...msg, content: msg.content + chunk} : msg
             );
-            console.log('receive===========2', chatMessageState.messages);
           }
 
           onScrollToBottom();
@@ -189,6 +221,13 @@
           onScrollToBottom();
         }
       );
+
+      if (task_extra?.images?.length) {
+        if (chatMessageState.task_extra) {
+          // 重置images
+          task_extra.images = [];
+        }
+      }
     } catch (error) {
       chatMessageState.messages = chatMessageState.messages.map(msg =>
         msg.id === botMessageId ? {
@@ -236,7 +275,9 @@
 <div class="input-container">
   <ModelTabs />
   <div class="input-wrapper" bind:this={inputContainer}>
-    <ImageUploads />
+    {#if chatMessageState.model_index !== 0}
+      <ImageUploads />
+    {/if}
     <Textfield
         class="input-focus"
         textarea={true}
@@ -270,7 +311,9 @@
     {/if}
   </div>
   <div class="opts">
-    <ModelImageOpts />
+    {#if chatMessageState.model_index !== 0}
+      <ModelImageOpts />
+    {/if}
   </div>
 </div>
 <style lang="scss">
@@ -287,15 +330,6 @@
     background-color: #fff;
     //box-shadow:  3px 3px 6px 6px #ddd;
 
-    :global(.input-focusout) {
-      width: 100%;
-      height: 56px;
-
-      :global(textarea) {
-        resize: none;
-      }
-    }
-
     :global(.input-focus) {
       width: 100%;
       height: 100px;
@@ -304,6 +338,8 @@
       :global(textarea) {
         resize: none;
         width: 100%;
+        margin-top: 10px;
+        margin-bottom: 2px;
       }
 
       :global(.mdc-notched-outline){
@@ -338,6 +374,7 @@
   }
 
   .opts{
+    height: 36px;
     background: #fff;
   }
 </style>

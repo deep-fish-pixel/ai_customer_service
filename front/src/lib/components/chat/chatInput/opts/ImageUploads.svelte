@@ -5,13 +5,11 @@
   import PlusIcon from "../../../../icons/PlusIcon.svelte";
   import {chatMessageState} from "../../../../state/chatMessages.svelte";
 
-  const task_extra = chatMessageState.task_extra;
-
   initImages();
 
   function initImages() {
     // 初始化
-    if(!task_extra.images){
+    if(!chatMessageState.task_extra.images){
       chatMessageState.task_extra.images = [];
     }
   }
@@ -32,10 +30,10 @@
         reader.onload = function(loadEvent) {
           // 获取Base64编码的字符串
           const imageSrc = loadEvent?.target?.result as string;
-
           initImages();
-          task_extra.images && task_extra.images.push(imageSrc);
-          console.log(imageSrc); // 输出或使用Base64编码
+          if (chatMessageState.task_extra.images) {
+            chatMessageState.task_extra.images.push(imageSrc);
+          }
         };
         reader.readAsDataURL(file);
       } catch (err: any) {
@@ -48,13 +46,13 @@
   };
 
   const removeHandle = (index: number) => {
-    task_extra.images && task_extra.images.splice(index, 1);
+    chatMessageState.task_extra.images && chatMessageState.task_extra.images.splice(index, 1);
   }
 </script>
 
 <div class="image-uploader">
   <!-- 上传图片区域 -->
-  {#each task_extra.images as image, index}
+  {#each chatMessageState.task_extra.images as image, index}
     <div class="upload-area">
       <div class="image-container">
         <img src={image}/>

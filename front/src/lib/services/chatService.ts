@@ -2,7 +2,7 @@ import type { ChatRequest, } from '../types/chat';
 import type {Response} from '../types/request';
 import { request } from './apiClient';
 import type { Message, } from "../types/chat";
-import {API_BASE_URL} from "../../constants";
+import {API_BASE_URL, ModelTypes} from "../../constants";
 import getHeaders from "../utils/getHeaders";
 
 // API基础配置
@@ -42,13 +42,18 @@ export function sendChatMessageStream(
   message: string,
   history: Array<Message> = [],
   task_type: string = '',
-  task_extra: string = '',
+  task_extra: { [key: string]: any } = {},
   onChunk: (chunk: string) => void,
   onComplete: () => void,
   onError: (error: Error) => void
 ): () => void {
   const requestData: ChatRequest = { message, history, task_type, task_extra, stream: true };
   const abortController = new AbortController();
+
+  if (requestData.task_type === ModelTypes.Image.taskType && requestData.task_extra?.images?.length) {
+    // 图片编辑识别，处理图片编辑的同步获取的交互问题
+    requestData.task_type = ModelTypes.ImageEdit.taskType;
+  }
 
   // 使用fetch API处理POST流式请求
   fetch(`${CHAT_STREAM_ENDPOINT}?stream=true`, {

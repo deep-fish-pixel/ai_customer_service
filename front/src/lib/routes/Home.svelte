@@ -144,13 +144,14 @@
   }
 
   .chat-inner-container {
+    width: 100%;
+    max-width: 1040px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 100%;
-    max-width: 1040px;
-    padding: 0;
     border: 1px solid #ddd;
+    margin-bottom: 4px;
+    padding: 0;
   }
 
 

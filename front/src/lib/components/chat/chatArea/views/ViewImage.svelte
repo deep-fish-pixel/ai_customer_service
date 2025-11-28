@@ -8,9 +8,10 @@
 
 
   let { data, ratio }: { data: {
-      task_id: string;
+      task_id?: string;
       task_status: string;
       results: any[];
+      image?: string;
     }; ratio: keyof typeof ImageRatioTypes;} = $props();
 
   const style = ImageRatioTypes[ratio].style || ImageRatioTypes["1:1"].style;
@@ -18,6 +19,12 @@
   let lottieContainer: HTMLElement;
   let imgSrc = $state('');
   let animation: any;
+
+  $effect(() => {
+    if (data.image) {
+      imgSrc = data.image;
+    }
+  });
 
   const loadHandle = (event: any) => {
     event.target.classList.add('loaded');
@@ -45,7 +52,6 @@
     if (data.task_id && (data.task_status === 'PENDING' || data.task_status === 'RUNNING') && data.results.length === 0) {
       try{
         const response = await getRequestPromise(getImageTask, data.task_id);
-        console.log(response)
         if (response.status === RESPONSE_STATUS_SUCCESS) {
           imgSrc = response.data[0];
         } else {

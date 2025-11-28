@@ -70,6 +70,10 @@
 <style lang="scss">
   .settings-container{
     position: relative;
+    background-color: #fff;
+    border-left: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 4px;
   }
   .settings-bg {
     height: 100%;
@@ -79,11 +83,9 @@
   }
   .settings-panel {
     width: 350px;
-    height: 100%;
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
-    border-left: 1px solid var(--boxBorderColor);
     position: relative;
   }
 

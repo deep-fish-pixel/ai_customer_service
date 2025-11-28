@@ -2,6 +2,7 @@
   import type { Message, } from "../../../types/chat";
   import ViewTable from "./views/ViewTable.svelte"
   import ViewImages from "./views/ViewImages.svelte"
+  import {DataShowTypes} from "../../../../constants";
 
   // 从父组件接收的属性
   let { message, }: { message: Message } = $props();
@@ -12,11 +13,11 @@
     {#if message.content}
       {message.content}
 
-      {#if message.data_type === 'table'}
+      {#if message.data_type === DataShowTypes.Table.value}
         <ViewTable headers={message.data_value[0]} list={message.data_value[1]} prevContent={message.content}></ViewTable>
       {/if}
 
-      {#if message.data_type === 'images'}
+      {#if message.data_type === DataShowTypes.Images.value}
         <ViewImages list={message.data_value} taskExtra={message.task_extra}></ViewImages>
       {/if}
     {:else}

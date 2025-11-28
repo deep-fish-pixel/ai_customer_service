@@ -3,27 +3,7 @@
   import ImageIcon from "../../../icons/ImageIcon.svelte";
   import VideoIcon from "../../../icons/VideoIcon.svelte";
   import {chatMessageState} from "../../../state/chatMessages.svelte";
-
-  const ModelTypes = {
-    Text: {
-      value: 'text',
-      lable: '文本对话',
-      icon: TextIcon,
-      taskType: '',
-    },
-    Image: {
-      value: 'image',
-      lable: '图片生成',
-      icon: ImageIcon,
-      taskType: 'create_image',
-    },
-    Video: {
-      value: 'video',
-      lable: '视频生成',
-      icon: VideoIcon,
-      taskType: 'create_video',
-    },
-  }
+  import {ModelTypes} from "../../../../constants";
 
   const tabs = [ModelTypes.Text, ModelTypes.Image, ModelTypes.Video, ];
 

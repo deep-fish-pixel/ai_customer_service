@@ -11,8 +11,8 @@
 </script>
 
 <ul class="image-list">
-  {#each list as task(task.task_id)}
-    <ViewImage data={task} ratio={ratio} width={size[0]} height={size[1]} />
+  {#each list as task, index(task.task_id || index)}
+    <ViewImage data={task} ratio={ratio}/>
   {/each}
 </ul>
 

@@ -30,6 +30,43 @@ export const JsonSeperatorRegex = {
 // 对JsonSeperator下所有正则的拼接
 export const JsonSeperatorRegexJoinings = new RegExp(`(${escapeRegex(JsonSeperator.TYPE_LIST)}|${escapeRegex(JsonSeperator.CALL_GET_USER_INFO)})`);
 
+
+// 多模态类型
+export const ModelTypes = {
+  Text: {
+    value: 'text',
+    lable: '文本对话',
+    taskType: '',
+  },
+  Image: {
+    value: 'image',
+    lable: '图片生成',
+    taskType: 'create_image',
+  },
+  ImageEdit: {
+    value: 'image',
+    lable: '图片编辑',
+    taskType: 'edit_image',
+  },
+  Video: {
+    value: 'video',
+    lable: '视频生成',
+    taskType: 'create_video',
+  },
+}
+
+// 数据展示格式
+export const DataShowTypes = {
+  Table: {
+    value: 'table',
+    lable: '表格',
+  },
+  Images: {
+    value: 'images',
+    lable: '图片列表',
+  },
+}
+
 // 图片比例
 export const ImageRatioTypes = {
   '16:9': {
@@ -53,4 +90,5 @@ export const ImageRatioTypes = {
     style: [9, 16].map(value => value * 25),
   },
 };
+
 
