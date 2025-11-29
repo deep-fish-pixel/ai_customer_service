@@ -1,6 +1,4 @@
 <script lang="ts">
-  import type {Snippet} from "svelte";
-
   let active = $state(false);
 
   type OwnProps = {

@@ -15,7 +15,6 @@
   $effect(() => {
     chatMessageState.model[chatMessageState.model_type].task_extra['duration'] = duration = 5;
     chatMessageState.model[chatMessageState.model_type].task_extra['size'] = VideoRatioTypes[ratio].size || VideoRatioTypes['1:1'].size;
-
   });
 </script>
 

@@ -1,30 +1,29 @@
 <script lang="ts">
   // 从父组件接收的属性
   import {onMount} from "svelte";
-  import {ImageRatioTypes, RESPONSE_STATUS_FAILED, RESPONSE_STATUS_SUCCESS} from "../../../../../constants";
-  import {getImageTask} from "../../../../services/mutiModelService";
+  import {
+    ImageRatioTypes,
+    RESPONSE_STATUS_FAILED,
+    RESPONSE_STATUS_SUCCESS,
+    VideoRatioTypes
+  } from "../../../../../constants";
+  import {getVideoTask} from "../../../../services/mutiModelService";
   import {Exception} from "sass";
   import type {Response} from "../../../../types/request";
 
 
-  let { data, ratio }: { data: {
+  let { data, ratio, scrollToBottom }: { data: {
       task_id?: string;
       task_status: string;
-      results: any[];
+      video_url: string;
       image?: string;
-    }; ratio: keyof typeof ImageRatioTypes;} = $props();
+    }; ratio: keyof typeof VideoRatioTypes;  scrollToBottom:() => void} = $props();
 
-  const style = ImageRatioTypes[ratio].style || ImageRatioTypes["1:1"].style;
+  const style = VideoRatioTypes[ratio].style || VideoRatioTypes["1:1"].style;
   const [width, height] = style;
   let lottieContainer: HTMLElement;
-  let imgUrl = $state('');
+  let videoUrl = $state('');
   let animation: any;
-
-  $effect(() => {
-    if (data.image) {
-      imgUrl = data.image;
-    }
-  });
 
   const loadHandle = (event: any) => {
     event.target.classList.add('loaded');
@@ -49,11 +48,11 @@
       });
     }
 
-    if (data.task_id && (data.task_status === 'PENDING' || data.task_status === 'RUNNING') && data.results.length === 0) {
+    if (data.task_id && (data.task_status === 'PENDING' || data.task_status === 'RUNNING') && !data.video_url) {
       try{
-        const response = await getRequestPromise(getImageTask, data.task_id);
+        const response = await getRequestPromise(getVideoTask, data.task_id);
         if (response.status === RESPONSE_STATUS_SUCCESS) {
-          imgUrl = response.data[0];
+          videoUrl = response.data.video_url;
         } else {
           // todo 加载失败
         }
@@ -71,12 +70,15 @@
 
   function getLoopRequest(resove: any, reject:any, request: any, task_id: string, duration = 3000) {
     request(task_id).then((res: any) => {
-      const { process, list, } = res.data;
+      const { process, video_url, params, } = res.data;
 
       if (process === 'SUCCEEDED') {
         resove({
           status: RESPONSE_STATUS_SUCCESS,
-          data: list,
+          data: {
+            video_url,
+            params,
+          },
         });
       }
       else if (process === 'FAILED') {
@@ -103,9 +105,9 @@
   }
 </script>
 
-<li class="image-container" style={`width:${width}px;height:${height}px;`}>
+<li class="image-container" style={`width:${width ? width + 'px' : 'initial' };height:${height ? height + 'px' : 'initial' }`}>
   <div class="lottie-placeholder" bind:this={lottieContainer}></div>
-  <img class="image" src={imgUrl} width={width} height={height} onload={loadHandle}/>
+  <video class="image" src={videoUrl} controls onloadeddata={loadHandle}></video>
 </li>
 
 <style lang="scss">
@@ -134,6 +136,7 @@
   .image {
     width: 100%;
     height: 100%;
+    max-width: 400px;
     object-fit: cover;
     opacity: 0;
     transition: opacity 0.4s ease;

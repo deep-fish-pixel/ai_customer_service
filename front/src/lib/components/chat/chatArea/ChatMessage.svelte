@@ -3,9 +3,10 @@
   import ViewTable from "./views/ViewTable.svelte"
   import ViewImages from "./views/ViewImages.svelte"
   import {DataShowTypes} from "../../../../constants";
+  import ViewVideos from "./views/ViewVideos.svelte";
 
   // 从父组件接收的属性
-  let { message, }: { message: Message } = $props();
+  let { message, scrollToBottom }: { message: Message, scrollToBottom:() => void } = $props();
 </script>
 
 <div class={`chat-message ${message.sender} ${message.data_type === 'table' ? ' chat-message-table' : ''}`}>
@@ -14,11 +15,15 @@
       {message.content}
 
       {#if message.data_type === DataShowTypes.Table.value}
-        <ViewTable headers={message.data_value[0]} list={message.data_value[1]} prevContent={message.content}></ViewTable>
+        <ViewTable headers={message.data_value[0]} list={message.data_value[1]} prevContent={message.content} />
       {/if}
 
       {#if message.data_type === DataShowTypes.Images.value}
-        <ViewImages list={message.data_value} taskExtra={message.task_extra}></ViewImages>
+        <ViewImages list={message.data_value} taskExtra={message.task_extra} />
+      {/if}
+
+      {#if message.data_type === DataShowTypes.Videos.value}
+        <ViewVideos list={message.data_value} taskExtra={message.task_extra} scrollToBottom={scrollToBottom} />
       {/if}
     {:else}
       <!--等待标识-->

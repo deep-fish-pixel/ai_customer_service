@@ -12,7 +12,7 @@
   // 状态管理
   let activeTab: TabValue = $state('个人知识库');
 
-  let expanded = $state(window.screen.width > 768);
+  let expanded = $state(window.innerWidth > 1024);
   let height = $state(400);
 
 
@@ -131,6 +131,7 @@
       width: 0;
       min-width: 0;
       max-width: 0;
+      border: none;
 
       :global(.settings-title){
         display: none;

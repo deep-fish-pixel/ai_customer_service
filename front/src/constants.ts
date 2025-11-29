@@ -66,6 +66,10 @@ export const DataShowTypes = {
     value: 'images',
     lable: '图片列表',
   },
+  Videos: {
+    value: 'videos',
+    lable: '图片列表',
+  },
 }
 
 // 图片比例
@@ -96,15 +100,15 @@ export const ImageRatioTypes = {
 export const VideoRatioTypes = {
   '16:9': {
     size: '832*480',
-    style: [16, 9].map(value => value * 15),
+    style: [16, 9].map(value => value * 25),
   },
   '1:1': {
     size: '624*624',
-    style: [1, 1].map(value => value * 240),
+    style: [1, 1].map(value => value * 400),
   },
   '9:16': {
     size: '480*832',
-    style: [9, 16].map(value => value * 25),
+    style: [9, 16].map(value => value * 44),
   },
 };
 

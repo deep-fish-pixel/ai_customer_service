@@ -35,25 +35,35 @@ def text_to_video_graph() -> StateGraph:
       images = task_extra.get("images", [])
       rsps = []
 
+      # #Mock data
+      # if True:
+      #   return {
+      #     ** state,
+      #     "query": "已为您生成视频",
+      #     "data_type": 'videos',
+      #     "data_value": json.dumps([{
+      #       "task_status": "PENDING",
+      #       "task_id": "24d4e14c-27b6-441e-b867-f4d5dc411c97"
+      #     }], ensure_ascii=False),
+      #     "task_status": 2,
+      #   }
+
       response = await getVideoHistoryAndNextChat("已为您生成视频", state['history'][-1], query)
 
       rsp = VideoSynthesis.async_call(api_key=api_key,
                                       model='wan2.5-t2v-preview',
-                                      prompt=response.content,
-                                      size=size,
-                                      #图生视频首帧
-                                      # resolution="480P",
-                                      img_url=images[0],
-                                      #图生视频首尾帧
-                                      # resolution="480P",
-                                      first_frame_url=images[0],
-                                      last_frame_url=images[1],
-                                      duration=duration,
-                                      negative_prompt="",
-                                      audio=True,
-                                      prompt_extend=True,
-                                      watermark=False,
-                                      seed=12345)
+                                        prompt=response.content,
+                                        # 根据images长度动态设置参数
+                                        **({ 'img_url': images[0], 'resolution': '480P' } if len(images) == 1 else
+                                           { 'first_frame_url': images[0], 'last_frame_url': images[1], 'resolution': '480P' } if len(images) == 2 else
+                                           {'size': size}),
+                                        duration=duration,
+                                        negative_prompt="",
+                                        audio=True,
+                                        prompt_extend=True,
+                                        watermark=False,
+                                        seed=12345
+                                    )
       if rsp.status_code == HTTPStatus.OK:
         rsps.append(rsp["output"])
 
@@ -61,7 +71,7 @@ def text_to_video_graph() -> StateGraph:
         return {
           ** state,
           "query": response.content,
-          "data_type": 'images',
+          "data_type": 'videos',
           "data_value": json.dumps(rsps, ensure_ascii=False),
           "task_status": 2,
         }

@@ -31,7 +31,7 @@
      bind:this={messageContainer}>
   <div class="messages">
     {#each chatMessageState.messages as message}
-      <ChatMessage message={message}/>
+      <ChatMessage message={message} scrollToBottom={scrollToBottom}/>
     {/each}
   </div>
 </div>
