@@ -1,36 +1,41 @@
 <script lang="ts">
   import Menu from '@smui/menu';
-  import List, { Item, Separator, Text } from '@smui/list';
+  import List, { Item, Text } from '@smui/list';
   import Button, { Label } from '@smui/button';
-  import ResolutionIcon from "../../../../icons/ResolutionIcon.svelte";
   import DurationIcon from "../../../../icons/DurationIcon.svelte";
   import {chatMessageState} from "../../../../state/chatMessages.svelte";
+  import SizeIcon from "../../../../icons/SizeIcon.svelte";
+  import {VideoRatioTypes} from "../../../../../constants";
 
-  let menuResolution: Menu;
+  let menuRatio: Menu;
   let menuDuration: Menu;
-  let resolution = $state('480P');
+  let ratio: keyof typeof VideoRatioTypes = $state("1:1");
   let duration = $state(5);
 
   $effect(() => {
-    chatMessageState.model[chatMessageState.model_type].task_extra['resolution'] = resolution;
     chatMessageState.model[chatMessageState.model_type].task_extra['duration'] = duration = 5;
+    chatMessageState.model[chatMessageState.model_type].task_extra['size'] = VideoRatioTypes[ratio].size || VideoRatioTypes['1:1'].size;
+
   });
 </script>
 
 <!-- 输入区域 -->
 <div class="opts-image">
   <div class="opt">
-    <Button onclick={() => menuResolution.setOpen(true)}>
-      <ResolutionIcon />
-      <Label>分辨率{resolution ? ':'+resolution : ''}</Label>
+    <Button onclick={() => menuRatio.setOpen(true)}>
+      <SizeIcon />
+      <Label>尺寸{ratio ? ':'+ ratio : ''}</Label>
     </Button>
-    <Menu bind:this={menuResolution}>
+    <Menu bind:this={menuRatio}>
       <List>
-        <Item onSMUIAction={() => (resolution = '480P')}>
-          <Text>480P</Text>
+        <Item onSMUIAction={() => (ratio = '16:9')}>
+          <Text>16:9</Text>
         </Item>
-        <Item onSMUIAction={() => (resolution = '720P')}>
-          <Text>720P</Text>
+        <Item onSMUIAction={() => (ratio = '1:1')}>
+          <Text>1:1</Text>
+        </Item>
+        <Item onSMUIAction={() => (ratio = '9:16')}>
+          <Text>9:16</Text>
         </Item>
       </List>
     </Menu>

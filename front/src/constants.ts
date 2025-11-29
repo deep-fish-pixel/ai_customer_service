@@ -92,4 +92,21 @@ export const ImageRatioTypes = {
   },
 };
 
+// 视频比例
+export const VideoRatioTypes = {
+  '16:9': {
+    size: '832*480',
+    style: [16, 9].map(value => value * 15),
+  },
+  '1:1': {
+    size: '624*624',
+    style: [1, 1].map(value => value * 240),
+  },
+  '9:16': {
+    size: '480*832',
+    style: [9, 16].map(value => value * 25),
+  },
+};
+
+
 

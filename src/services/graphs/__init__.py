@@ -13,6 +13,7 @@ from src.services.graphs.change_list_record_property_graph import change_list_re
 from src.services.graphs.delete_list_record_graph import delete_list_record_graph
 from src.services.multi_modal_graphs.text_to_image_graph import text_to_image_graph
 from src.services.multi_modal_graphs.edit_image_graph import edit_image_graph
+from src.services.multi_modal_graphs.text_to_video_graph import text_to_video_graph
 
 
 SUPPORTED_TASKS = [
@@ -34,6 +35,7 @@ SUPPORTED_TASKS = [
 
     "create_image",
     "edit_image",
+    "create_video",
 ]
 
 task_graphs = {
@@ -56,6 +58,7 @@ task_graphs = {
 
     "create_image": text_to_image_graph,
     "edit_image": edit_image_graph,
+    "create_video": text_to_video_graph,
 }
 
 def get_task_graph(task_type: str) -> StateGraph:

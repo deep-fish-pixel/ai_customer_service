@@ -1,6 +1,6 @@
 <script lang="ts">
   import Menu from '@smui/menu';
-  import List, { Item, Separator, Text } from '@smui/list';
+  import List, { Item, Text } from '@smui/list';
   import Button, { Label } from '@smui/button';
   import StyleIcon from "../../../../icons/StyleIcon.svelte";
   import SizeIcon from "../../../../icons/SizeIcon.svelte";

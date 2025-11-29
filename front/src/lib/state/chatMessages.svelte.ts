@@ -46,7 +46,7 @@ export const chatMessageState: {
       task_extra: {
         images: [],
         duration: 5,
-        resolution:'480P',
+        size: '',
       },
     },
   }
