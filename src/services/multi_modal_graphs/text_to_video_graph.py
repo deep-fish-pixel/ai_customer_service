@@ -32,6 +32,7 @@ def text_to_video_graph() -> StateGraph:
       query = state.get("query", "")
       size = task_extra.get("size", "624*624")
       duration = task_extra.get("duration", 5)
+      images = task_extra.get("images", [])
       rsps = []
 
       response = await getVideoHistoryAndNextChat("已为您生成视频", state['history'][-1], query)
@@ -42,11 +43,11 @@ def text_to_video_graph() -> StateGraph:
                                       size=size,
                                       #图生视频首帧
                                       # resolution="480P",
-                                      # img_url="img_url",
+                                      img_url=images[0],
                                       #图生视频首尾帧
                                       # resolution="480P",
-                                      # first_frame_url="first_frame_url",
-                                      # last_frame_url="last_frame_url",
+                                      first_frame_url=images[0],
+                                      last_frame_url=images[1],
                                       duration=duration,
                                       negative_prompt="",
                                       audio=True,
