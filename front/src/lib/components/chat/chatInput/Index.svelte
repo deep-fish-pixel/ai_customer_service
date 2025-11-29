@@ -13,6 +13,7 @@
   import ModelImageOpts from "./opts/ModelImageOpts.svelte";
   import ImageUploads from "./opts/ImageUploads.svelte";
   import {DataShowTypes, ModelTypes} from "../../../../constants";
+  import ModelVideoOpts from "./opts/ModelVideoOpts.svelte";
 
 
   const { onScrollToBottom, onGetUserinfoLocal }: {onScrollToBottom: () => void, onGetUserinfoLocal: (message: Message) => void} = $props();
@@ -22,18 +23,18 @@
   };
   // 状态管理
   let inputContainer: HTMLElement;
-  let disabled = $derived(!chatMessageState.query || !getUserId());
+  let disabled = $derived(!chatMessageState.model[chatMessageState.model_type].query || !getUserId());
   let receiving = $state(false);
   // 停止接收消息流句柄
   let abortStream: () => void;
 
   const getInputPlaceholder = () => {
-    switch (chatMessageState.model_index) {
-      case 0:
+    switch (chatMessageState.model_type) {
+      case ModelTypes.Text.value:
         return '请输入您的问题...';
-      case 1:
+      case ModelTypes.Image.value:
         return '支持图像生成与编辑，快速实现创意设计';
-      case 2:
+      case ModelTypes.Video.value:
         return '支持视频生成与编辑，快速实现创意设计';
       default:
         return '请输入您的问题...';
@@ -56,20 +57,20 @@
   // 发送消息
   export const sendMessage = async (message?: string) => {
     if (message) {
-      chatMessageState.query = message;
+      chatMessageState.model[chatMessageState.model_type].query = message;
     }
-    if (!chatMessageState.query.trim() || receiving) return;
+    if (!chatMessageState.model[chatMessageState.model_type].query.trim() || receiving) return;
 
-    const task_extra = chatMessageState.task_extra;
+    const task_extra = chatMessageState.model[chatMessageState.model_type].task_extra;
 
     // 添加用户消息
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: chatMessageState.query.trim(),
+      content: chatMessageState.model[chatMessageState.model_type].query.trim(),
       sender: 'user',
       task_status: -1,
       data_type: chatMessageState.task_type === ModelTypes.Image.taskType ? DataShowTypes.Images.value : '',
-      data_value: (task_extra?.images || []).map(image => ({image: image})),
+      data_value: (task_extra.images || []).map(image => ({image: image})),
       timestamp: new Date(),
     };
 
@@ -82,11 +83,11 @@
     const botMessageId = (Date.now() + 1).toString();
     const botMessage: Message = {
       id: botMessageId,
-      content: chatMessageState.task_type === ModelTypes.Image.taskType ? chatMessageState.task_extra.images?.length ? '图片正在编辑中...' : '图片正在生成中...' : '',
+      content: chatMessageState.task_type === ModelTypes.Image.taskType ? chatMessageState.model[chatMessageState.model_type].task_extra.images?.length ? '图片正在编辑中...' : '图片正在生成中...' : '',
       sender: 'bot',
       task_status: -1,
       data_type: chatMessageState.task_type === ModelTypes.Image.taskType ? DataShowTypes.Images.value : '',
-      data_value: chatMessageState.task_type === ModelTypes.Image.taskType ? [...Array(chatMessageState.task_extra.n)].map(() => ({image: ''})) : [],
+      data_value: chatMessageState.task_type === ModelTypes.Image.taskType ? [...Array(chatMessageState.model[chatMessageState.model_type].task_extra.n)].map(() => ({image: ''})) : [],
       timestamp: new Date(),
     };
 
@@ -94,7 +95,7 @@
 
 
     // 清空输入框
-    chatMessageState.query = '';
+    chatMessageState.model[chatMessageState.model_type].query = '';
 
     // 滚动到底部
     await tick();
@@ -110,7 +111,7 @@
         userMessage.content,
         history,
         chatMessageState.task_type,
-        chatMessageState.task_extra,
+        chatMessageState.model[chatMessageState.model_type].task_extra,
         (chunk) => {
           // 更新机器人消息内容
           // 任务类型
@@ -129,7 +130,7 @@
             const task_status = response.task_status;
             // 任务完成后结束任务类型
             if (task_status === 2) {
-              if (chatMessageState.model_index === 0) {
+              if (chatMessageState.model_type === ModelTypes.Text.value) {
                 chatMessageState.task_type = '';
               }
             } else {
@@ -175,7 +176,7 @@
                   data_type: response.data_type,
                   data_value: response.data_value,
                   task_status: task_status,
-                  task_extra: chatMessageState.task_extra,
+                  task_extra: chatMessageState.model[chatMessageState.model_type].task_extra,
                 }
 
                 // 触发调用接口
@@ -223,7 +224,7 @@
       );
 
       if (task_extra?.images?.length) {
-        if (chatMessageState.task_extra) {
+        if (chatMessageState.model[chatMessageState.model_type].task_extra) {
           // 重置images
           task_extra.images = [];
         }
@@ -275,15 +276,15 @@
 <div class="input-container">
   <ModelTabs />
   <div class="input-wrapper" bind:this={inputContainer}>
-    {#if chatMessageState.model_index !== 0}
+    {#if chatMessageState.model_type !== ModelTypes.Text.value}
       <ImageUploads />
     {/if}
     <Textfield
         class="input-focus"
         textarea={true}
         variant="outlined"
-        value={chatMessageState.query}
-        oninput={(e) => chatMessageState.query = (e.target as HTMLInputElement)?.value}
+        value={chatMessageState.model[chatMessageState.model_type].query}
+        oninput={(e) => chatMessageState.model[chatMessageState.model_type].query = (e.target as HTMLInputElement)?.value}
         onkeydown={handleKeyPress}
         onfocus={() => handleFocus(true)}
         onfocusout={() => handleFocus(false)}
@@ -311,8 +312,11 @@
     {/if}
   </div>
   <div class="opts">
-    {#if chatMessageState.model_index !== 0}
+    {#if chatMessageState.model_type === ModelTypes.Image.value}
       <ModelImageOpts />
+    {/if}
+    {#if chatMessageState.model_type === ModelTypes.Video.value}
+      <ModelVideoOpts />
     {/if}
   </div>
 </div>

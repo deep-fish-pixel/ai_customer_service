@@ -6,11 +6,21 @@
   import {ModelTypes} from "../../../../constants";
 
   const tabs = [ModelTypes.Text, ModelTypes.Image, ModelTypes.Video, ];
+  let modelIndex = $state(0);
 
   chatMessageState.task_type = tabs[0].taskType
 
+  $effect(() => {
+    tabs.some((tab,index) => {
+      if(tab.value === chatMessageState.model_type){
+        modelIndex = index;
+        return true;
+      }
+    });
+  });
+
   const clickHandle = (index: number) => {
-    chatMessageState.model_index = index;
+    chatMessageState.model_type = tabs[index].value;
     chatMessageState.task_type = tabs[index].taskType
   }
 </script>
@@ -20,7 +30,7 @@
   <div class="tabs">
     {#each tabs as tab, index}
       <div
-        class={"tab" + (chatMessageState.model_index === index ? " active" : chatMessageState.model_index - 1 === index ? " active-prev" : "")}
+        class={"tab" + (modelIndex === index ? " active" : modelIndex - 1 === index ? " active-prev" : "")}
         onclick={() => clickHandle(index)}>
         {#if index===0}
           <TextIcon />

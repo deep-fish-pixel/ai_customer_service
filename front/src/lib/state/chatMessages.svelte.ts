@@ -1,27 +1,51 @@
 import type {Message} from "../types/chat";
+import {ModelTypes} from "../../constants";
+import type {ModelType, TaskExtra} from "../types";
 
 export const chatMessageState: {
   messages: Message[],
-  query: string,
   task_type: string,
-  task_extra: {
-    style?: string;
-    size?: string;
-    ratio?: string;
-    n?: number;
-    images?: string[];
-  },
-  model_index: number,
+  model_type: ModelType,
+  model: {
+    text: {
+      query: string,
+      task_extra: TaskExtra,
+    },
+    image: {
+      query: string,
+      task_extra: TaskExtra,
+    },
+    video: {
+      query: string,
+      task_extra: TaskExtra,
+    },
+  }
 } = $state({
   messages: [],
-  query: '',
   task_type: '',
-  model_index: 0,
-  task_extra: {
-    style: '',
-    size: '',
-    ratio: '',
-    n: 0,
-    images: []
-  },
+  model_type: ModelTypes.Text.value,
+  model: {
+    text: {
+      query: '',
+      task_extra: {
+      },
+    },
+    image: {
+      query: '',
+      task_extra: {
+        style: '',
+        size: '',
+        ratio: '',
+        n: 0,
+        images: []
+      },
+    },
+    video: {
+      query: '',
+      task_extra: {
+        duration: 5,
+        resolution:'480P',
+      },
+    },
+  }
 });

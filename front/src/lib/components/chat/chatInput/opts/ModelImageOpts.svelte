@@ -16,10 +16,10 @@
   let ratio: keyof typeof ImageRatioTypes = $state("1:1");
 
   $effect(() => {
-    chatMessageState.task_extra['style'] = style;
-    chatMessageState.task_extra['size'] = ImageRatioTypes[ratio].size || ImageRatioTypes['1:1'].size;
-    chatMessageState.task_extra['ratio'] = ratio || '1:1';
-    chatMessageState.task_extra['n'] = number;
+    chatMessageState.model[chatMessageState.model_type].task_extra['style'] = style;
+    chatMessageState.model[chatMessageState.model_type].task_extra['size'] = ImageRatioTypes[ratio].size || ImageRatioTypes['1:1'].size;
+    chatMessageState.model[chatMessageState.model_type].task_extra['ratio'] = ratio || '1:1';
+    chatMessageState.model[chatMessageState.model_type].task_extra['n'] = number;
   });
 </script>
 

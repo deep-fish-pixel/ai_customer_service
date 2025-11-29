@@ -9,8 +9,8 @@
 
   function initImages() {
     // 初始化
-    if(!chatMessageState.task_extra.images){
-      chatMessageState.task_extra.images = [];
+    if(!chatMessageState.model[chatMessageState.model_type].task_extra.images){
+      chatMessageState.model[chatMessageState.model_type].task_extra.images = [];
     }
   }
 
@@ -31,8 +31,8 @@
           // 获取Base64编码的字符串
           const imageSrc = loadEvent?.target?.result as string;
           initImages();
-          if (chatMessageState.task_extra.images) {
-            chatMessageState.task_extra.images.push(imageSrc);
+          if (chatMessageState.model[chatMessageState.model_type].task_extra.images) {
+            chatMessageState.model[chatMessageState.model_type].task_extra.images.push(imageSrc);
           }
         };
         reader.readAsDataURL(file);
@@ -46,13 +46,13 @@
   };
 
   const removeHandle = (index: number) => {
-    chatMessageState.task_extra.images && chatMessageState.task_extra.images.splice(index, 1);
+    chatMessageState.model[chatMessageState.model_type].task_extra.images && chatMessageState.model[chatMessageState.model_type].task_extra.images.splice(index, 1);
   }
 </script>
 
 <div class="image-uploader">
   <!-- 上传图片区域 -->
-  {#each chatMessageState.task_extra.images as image, index}
+  {#each chatMessageState.model[chatMessageState.model_type].task_extra.images as image, index}
     <div class="upload-area">
       <div class="image-container">
         <img src={image}/>

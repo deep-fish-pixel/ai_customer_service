@@ -1,4 +1,5 @@
 import {escapeRegex} from "./lib/utils/regex";
+import type {ModelType} from "./lib/types";
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL;
 // 请求成功标识
@@ -34,22 +35,22 @@ export const JsonSeperatorRegexJoinings = new RegExp(`(${escapeRegex(JsonSeperat
 // 多模态类型
 export const ModelTypes = {
   Text: {
-    value: 'text',
+    value: 'text' as ModelType,
     lable: '文本对话',
     taskType: '',
   },
   Image: {
-    value: 'image',
+    value: 'image' as ModelType,
     lable: '图片生成',
     taskType: 'create_image',
   },
   ImageEdit: {
-    value: 'image',
+    value: 'image' as ModelType,
     lable: '图片编辑',
     taskType: 'edit_image',
   },
   Video: {
-    value: 'video',
+    value: 'video' as ModelType,
     lable: '视频生成',
     taskType: 'create_video',
   },
