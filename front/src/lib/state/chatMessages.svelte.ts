@@ -28,6 +28,7 @@ export const chatMessageState: {
     text: {
       query: '',
       task_extra: {
+        images: []
       },
     },
     image: {
@@ -43,6 +44,7 @@ export const chatMessageState: {
     video: {
       query: '',
       task_extra: {
+        images: [],
         duration: 5,
         resolution:'480P',
       },

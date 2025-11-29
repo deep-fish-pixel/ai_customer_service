@@ -1,11 +1,3 @@
-// 文件接口定义
-export interface FileItem {
-  id: string;
-  name: string;
-  uploadTime: string;
-  size: number;
-}
-
 // 工具配置接口
 export interface ToolConfig {
   id: string;
@@ -26,7 +18,7 @@ export interface TaskExtra {
   size?: string;
   ratio?: string;
   n?: number;
-  images?: string[];
+  images: string[];
   resolution?: string;
   duration?: number;
 }

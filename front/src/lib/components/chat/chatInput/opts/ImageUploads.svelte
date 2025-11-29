@@ -4,6 +4,7 @@
   import {getUserId} from "../../../../state/userState.svelte";
   import PlusIcon from "../../../../icons/PlusIcon.svelte";
   import {chatMessageState} from "../../../../state/chatMessages.svelte";
+  import {ModelTypes} from "../../../../../constants";
 
   initImages();
 
@@ -57,31 +58,36 @@
       <div class="image-container">
         <img src={image}/>
       </div>
+      {#if chatMessageState.model_type === ModelTypes.Video.value}
+        <div class="tag">{index === 0 ? '首帧' : '尾帧'}</div>
+      {/if}
       <div class="remove" onclick={() => removeHandle(index)}>-</div>
     </div>
   {/each}
-  <div class="upload-area">
-    <div class="file-upload">
-      <input 
-        type="file" 
-        id="file-input"
-        class="file-input"
-        accept=".jpg,.jpeg,.png,.bmp,.webp,.tiff"
-        onchange={handleFileInputChange}
-      />
-      <Button
-        class="file-button"
-        variant="raised"
-        color="primary"
-        disabled={!getUserId()}
-      >
-        <div class="upload-text">
-          <PlusIcon />
-          <p>添加</p>
-        </div>
-      </Button>
+  {#if (chatMessageState.model_type === ModelTypes.Image.value  && chatMessageState.model[chatMessageState.model_type].task_extra.images.length < 8) || (chatMessageState.model_type === ModelTypes.Video.value && chatMessageState.model[chatMessageState.model_type].task_extra.images.length < 2)}
+    <div class="upload-area">
+      <div class="file-upload">
+        <input
+            type="file"
+            id="file-input"
+            class="file-input"
+            accept=".jpg,.jpeg,.png,.bmp,.webp,.tiff"
+            onchange={handleFileInputChange}
+        />
+        <Button
+            class="file-button"
+            variant="raised"
+            color="primary"
+            disabled={!getUserId()}
+        >
+          <div class="upload-text">
+            <PlusIcon />
+            <p>添加</p>
+          </div>
+        </Button>
+      </div>
     </div>
-  </div>
+  {/if}
 </div>
 
 <style lang="scss">
@@ -115,6 +121,21 @@
           object-fit: cover;
           border-radius: 4px;
         }
+      }
+
+      .tag{
+        width: 30px;
+        height: 14px;
+        color: #31ba00;
+        font-size: 10px;
+        line-height: 13px;
+        text-align: center;
+        background: #f4fff0;
+        border-radius: 14px;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        z-index: 1;
       }
 
       .remove{
