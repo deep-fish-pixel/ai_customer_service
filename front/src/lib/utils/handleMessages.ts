@@ -18,7 +18,7 @@ export function getRecentMessages(messages: Message[], size: number) {
     const recent = messages[index];
 
     // 已完成的跳出
-    if (Number.isInteger(recent.task_status)) {
+    if (Number.isInteger(recent.task_status) && recent.task_status !== -1) {
       if (isInRecentTask && recent.task_status !== 2) {
         recents.push(recent);
       }
@@ -54,8 +54,9 @@ export function getRecentMessages(messages: Message[], size: number) {
  * @param message
  */
 export function getSendMessageData(message: Message){
+  debugger
   if (message.data_type === 'table') {
-    return message.content + JSON.stringify(message.data_value[1].map((item: any) => item.id));
+    return message.content + JSON.stringify(message.data_value[1].map((item: any) => ({id: item[0]})));
   }
   return message.content;
 }

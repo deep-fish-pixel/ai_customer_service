@@ -69,7 +69,7 @@
       content: chatMessageState.model[chatMessageState.model_type].query.trim(),
       sender: 'user',
       task_status: -1,
-      data_type: chatMessageState.task_type === ModelTypes.Image.taskType ? DataShowTypes.Images.value : '',
+      data_type: chatMessageState.task_type === ModelTypes.Image.taskType || chatMessageState.task_type === ModelTypes.Video.taskType ? DataShowTypes.Images.value : '',
       data_value: (task_extra.images || []).map(image => ({image: image})),
       timestamp: new Date(),
     };
