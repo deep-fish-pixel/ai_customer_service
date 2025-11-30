@@ -1,6 +1,6 @@
 # Svelte + TS + Vite
 
-AI智能客服项目
+AI智能助手项目
 
 ## 使用
 

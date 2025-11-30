@@ -20,25 +20,27 @@
 
 <!-- 输入区域 -->
 <div class="opts-image">
-  <div class="opt">
-    <Button onclick={() => menuRatio.setOpen(true)}>
-      <SizeIcon />
-      <Label>尺寸{ratio ? ':'+ ratio : ''}</Label>
-    </Button>
-    <Menu bind:this={menuRatio}>
-      <List>
-        <Item onSMUIAction={() => (ratio = '16:9')}>
-          <Text>16:9</Text>
-        </Item>
-        <Item onSMUIAction={() => (ratio = '1:1')}>
-          <Text>1:1</Text>
-        </Item>
-        <Item onSMUIAction={() => (ratio = '9:16')}>
-          <Text>9:16</Text>
-        </Item>
-      </List>
-    </Menu>
-  </div>
+  {#if chatMessageState.model[chatMessageState.model_type].task_extra.images?.length === 0}
+    <div class="opt">
+      <Button onclick={() => menuRatio.setOpen(true)}>
+        <SizeIcon />
+        <Label>尺寸{ratio ? ':'+ ratio : ''}</Label>
+      </Button>
+      <Menu bind:this={menuRatio}>
+        <List>
+          <Item onSMUIAction={() => (ratio = '16:9')}>
+            <Text>16:9</Text>
+          </Item>
+          <Item onSMUIAction={() => (ratio = '1:1')}>
+            <Text>1:1</Text>
+          </Item>
+          <Item onSMUIAction={() => (ratio = '9:16')}>
+            <Text>9:16</Text>
+          </Item>
+        </List>
+      </Menu>
+    </div>
+  {/if}
   <div class="opt">
     <Button onclick={() => menuDuration.setOpen(true)}>
       <DurationIcon />

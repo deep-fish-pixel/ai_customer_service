@@ -51,7 +51,7 @@ def text_to_video_graph() -> StateGraph:
       response = await getVideoHistoryAndNextChat("已为您生成视频", state['history'][-1], query)
 
       rsp = VideoSynthesis.async_call(api_key=api_key,
-                                      model='wan2.5-t2v-preview',
+                                      model='wan2.5-i2v-preview'  if len(images) == 1 else 'wan2.2-kf2v-flash' if len(images) == 2 else 'wan2.5-t2v-preview',
                                         prompt=response.content,
                                         # 根据images长度动态设置参数
                                         **({ 'img_url': images[0], 'resolution': '480P' } if len(images) == 1 else

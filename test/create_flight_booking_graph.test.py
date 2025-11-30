@@ -12,7 +12,7 @@ graph = get_task_graph(task_type)
 input_data = {
     "user_id": '1',
     "query": '帮我定从南京飞往北京的机票，出发时间是2025-10-10 10:00，靠窗，经济舱就行',
-    "history": ['您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？'],
+    "history": ['您好！我是小智，您的智能助手，有什么可以帮助您的吗？'],
     "context": [],
     "task_collected": {}
 }

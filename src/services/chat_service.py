@@ -161,7 +161,7 @@ class ChatService:
 
             # 构建提示模板
             prompt_template = ChatPromptTemplate.from_template("""
-            你是小智，一个智能客服助手。请基于以下上下文信息回答用户的问题。
+            你是小智，一个智能助手。请基于以下上下文信息回答用户的问题。
 
             上下文信息:
             {context}
@@ -227,7 +227,7 @@ class ChatService:
         """
         # 构建提示模板
         prompt_template = ChatPromptTemplate.from_template("""
-        你是小智，一个智能客服助手。请以友好、专业的语气回答用户的问题。
+        你是小智，一个智能助手。请以友好、专业的语气回答用户的问题。
         
         聊天历史:
         {history}

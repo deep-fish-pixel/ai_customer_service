@@ -28,7 +28,7 @@
 </script>
 
 <header class="header">
-  <p>AI智能客服</p>
+  <p>AI智能助手</p>
   <div>
     <div class="user-icon" onclick={handleUserClick}>
       <img src={userIcon} width="30" height="30" alt="user"/>

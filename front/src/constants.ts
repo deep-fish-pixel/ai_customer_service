@@ -9,7 +9,7 @@ export const RESPONSE_STATUS_FAILED = "failed"
 // 请求失败标识
 export const RESPONSE_STATUS_FAILED_TOKEN_INVALID = "token_invalid"
 
-export const RobotPrologue = "您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？";
+export const RobotPrologue = "您好！我是小智，您的智能助手，有什么可以帮助您的吗？";
 // 特殊功能分隔符
 export const JsonSeperator = {
   // 表格类型展示

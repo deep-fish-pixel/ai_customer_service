@@ -52,7 +52,7 @@ async def getImageHistoryAndNextChat(chat_message: str, last_chat_message: str, 
         用户的回答: {last_chat_message_answer}
         当前会话：{chat_message}
         
-        你已经打过招呼了，不要再返回类似内容：您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？
+        你已经打过招呼了，不要再返回类似内容：您好！我是小智，您的智能助手，有什么可以帮助您的吗？
         把美化后的问题进行返回，不要添加额外解释，也不要有任何分析，且回答中不能包含有：美化版本、这样表达等字样。
         """)
   chain = prompt | llm
@@ -82,7 +82,7 @@ async def getVideoHistoryAndNextChat(chat_message: str, last_chat_message: str, 
         用户的回答: {last_chat_message_answer}
         当前会话：{chat_message}
         
-        你已经打过招呼了，不要再返回类似内容：您好！我是小智，您的智能客服助手，有什么可以帮助您的吗？
+        你已经打过招呼了，不要再返回类似内容：您好！我是小智，您的智能助手，有什么可以帮助您的吗？
         把美化后的问题进行返回，不要添加额外解释，也不要有任何分析，且回答中不能包含有：美化版本、这样表达等字样。
         """)
   chain = prompt | llm
