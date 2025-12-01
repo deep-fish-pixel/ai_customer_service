@@ -8,10 +8,10 @@
     import {showToast} from "../../utils/toast";
 
 
-    let username: string = $state('test');
+    let username: string = $state('test1');
     let usernameDirty = $state(false);
     let usernameInvalid = $state(false);
-    let password: string = $state('test');
+    let password: string = $state('test1');
     let passwordDirty = $state(false);
     let passwordInvalid = $state(false);
     let passwordInvalidMessage = $state('');
