@@ -1,22 +1,7 @@
 # AI超级智能客服
 
-基于LangChain和LangGraph的智能客服系统，支持RAG功能和Agent功能等。
+基于LangChain和LangGraph的智能客服系统，支持RAG功能、Agent功能、多模态图片的生成及编辑、多模态视频的生成及编辑等。
 [在线体验](http://115.190.242.191/)
-
-## 功能展示
-
-#### 带有记忆的聊天
-![项目](resources/project01.gif)
-#### 知识库有内容的RAG展示
-![聊天](resources/project02.gif)
-#### 日程会议的创建和查询（Agent其他所有功能均支持此项操作）
-![项目](resources/project03.gif)
-#### 日程会议列表修改指定记录属性（Agent其他所有功能均支持此项操作）
-![项目](resources/project05.gif)
-#### 日程会议列表删除指定记录（Agent其他所有功能均支持此项操作）
-![项目](resources/project06.gif)
-#### 我的昵称的修改
-![项目](resources/project04.gif)
 
 
 ### RAG功能
@@ -31,6 +16,33 @@
 - 预定机票：智能搜索并预订国内外航班，支持行程管理和退改签操作
 - 预定酒店：一键预订全球酒店，享受会员优惠价，灵活管理入住信息
 - 修改昵称：个性化您的账户昵称，展现独特身份标识
+
+### 多模态
+- 生成图片：支持 文生图片、一个或多个图片的编辑
+- 生成视频：支持 文生视频、首帧图片生成视频、首尾帧图片生成视频
+
+
+## 功能展示
+
+#### 带有记忆的聊天
+![项目](resources/project-memory.gif)
+#### 知识库有内容的RAG展示
+![聊天](resources/project-rag.gif)
+#### 日程会议的创建和查询
+![项目](resources/project-create-and-query.gif)
+#### 日程会议列表的指定记录的修改和删除
+![项目](resources/project-modify-and-delete.gif)
+#### 我的昵称的修改
+![项目](resources/project-change-nickname.gif)
+#### 文生图片
+![项目](resources/project-text-to-image.gif)
+#### 图片编辑
+![项目](resources/project-image-edit.gif)
+#### 文生视频
+![项目](resources/project-text-to-video.gif)
+#### 图生视频
+![项目](resources/project-image-to-video.gif)
+
 
 ## 技术栈
 
@@ -98,6 +110,7 @@
 
 ### 多模态接口
 - `POST /api/model/image_tasks/{task_id}` - 查询图片任务信息
+- `POST /api/model/video_tasks/{task_id}` - 查询视频任务信息
 
 
 ## 项目结构
