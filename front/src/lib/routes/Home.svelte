@@ -8,6 +8,7 @@
   import {getUserinfo} from "../services/userService";
   import { chatMessageState }  from "../state/chatMessages.svelte"
   import {
+    ModelTypes,
     RESPONSE_STATUS_FAILED,
     RESPONSE_STATUS_FAILED_TOKEN_INVALID,
     RobotPrologue
@@ -74,6 +75,8 @@
 
   const handleToolOperation = (message?: string) => {
     if (message) {
+      chatMessageState.model_type = ModelTypes.Text.value;
+      chatMessageState.task_type = ModelTypes.Text.taskType
       chatInputContainer.sendMessage(message);
     }
   }

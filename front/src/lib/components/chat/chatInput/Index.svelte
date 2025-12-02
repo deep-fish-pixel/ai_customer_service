@@ -56,6 +56,7 @@
 
   // 发送消息
   export const sendMessage = async (message?: string) => {
+    debugger
     if (message) {
       chatMessageState.model[chatMessageState.model_type].query = message;
     }
