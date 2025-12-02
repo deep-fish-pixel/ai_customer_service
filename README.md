@@ -58,7 +58,6 @@
 - **文生视频大模型**：Wan2.5-t2v-preview
 - **首帧图生视频大模型**：Wan2.5-i2v-preview
 - **首尾帧图生视频大模型**：Wan2.2-kf2v-flash
-- **文本大模型**：Qwen-max
 - **Web框架**：Svelte
 - **Web组件库**：Svelte Material UI
 
