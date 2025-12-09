@@ -1,7 +1,7 @@
 # AI超级智能客服
 
 基于LangChain和LangGraph的智能客服系统，支持RAG功能、Agent功能、多模态图片的生成及编辑、多模态视频的生成及编辑等。
-[在线体验](http://115.190.242.191/)
+[在线体验](http://aibugu.net/)
 
 
 ### RAG功能
